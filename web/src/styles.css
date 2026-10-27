@@ -489,3 +489,9 @@ details > summary { cursor: pointer; }
 .fold-body { padding: 0 14px 14px; }
 .fold .answers { margin-top: 4px; }
 .live-main .fold { scroll-margin-top: 12px; }
+
+/* Live call: an answer already on record (from a call or email) */
+.onrec { display: grid; gap: 4px; justify-items: start; padding: 8px 10px; margin: 6px 0; background: var(--green-bg); border: 1px solid #cfe6d7; border-radius: 8px; }
+.onrec.followup { background: var(--amber-bg); border-color: #f1d9a8; }
+.onrec-a { font-size: 13.5px; }
+.onrec .btn { margin-top: 2px; }

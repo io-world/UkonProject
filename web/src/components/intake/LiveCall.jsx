@@ -47,6 +47,21 @@ function Say({ text, items, figures }) {
   )
 }
 
+/** An answer that already came in from a call or email: shown as the answer, with its source, until the agent chooses to change it. */
+function OnRecord({ rec, value, editing, onEdit }) {
+  const followup = rec.status === 'needs_followup'
+  return (
+    <div className={`onrec ${followup ? 'followup' : ''}`}>
+      <div className="onrec-a"><span className="muted small">{followup ? 'Answered, needs follow-up:' : 'Answered:'}</span> <b>{value || rec.answer}</b></div>
+      {rec.source_quote && rec.source_quote !== 'From the database' && (
+        <div className="small muted">“{rec.source_quote}” <span>[{rec.source_call}{rec.source_ts ? ` · ${rec.source_ts}` : ''}]</span></div>
+      )}
+      {(rec.notes || []).filter((n) => !n.startsWith('CONFLICT')).slice(0, 1).map((n) => <div key={n} className="small note-line">{n}</div>)}
+      <button className={`btn sm ${followup ? '' : 'ghost'}`} onClick={onEdit}>{editing ? 'Done' : followup ? 'Update answer' : 'Correct'}</button>
+    </div>
+  )
+}
+
 export default function LiveCall({ data, actor, onSaved }) {
   const items = useMemo(() => Object.fromEntries(data.items.map((i) => [i.key, i])), [data.items])
   const [live, setLive] = useState(() => Object.fromEntries(data.items.map((i) => [i.key, i.row?.live || {}])))
@@ -87,6 +102,10 @@ export default function LiveCall({ data, actor, onSaved }) {
   }
   const asked = [...identity, ...exposure]
   const [filter, setFilter] = useState('all')
+  const [editing, setEditing] = useState({})
+  const toggleEdit = (k) => setEditing((e) => ({ ...e, [k]: !e[k] }))
+  // Answered on an earlier call or email: show the answer, hide the inputs until the agent clicks to change it.
+  const onRecord = (i) => i.row?.status && i.row.status !== 'unanswered' && i.row.source_call
   const folds = useFolds()
   const isDone = (i) => answeredLive(i) || isAnswered(i.row?.status)
   const keep = (i) => filter === 'all' || (filter === 'answered') === !!isDone(i)
@@ -145,7 +164,7 @@ export default function LiveCall({ data, actor, onSaved }) {
           {(filter === 'all' || identity.some(keep)) && <Fold id="sec-identity" title="Business identity" sub="Section 0" open={folds.isOpen('sec-identity')}
                 onToggle={() => folds.toggle('sec-identity')} open_n={identity.filter((i) => !isDone(i)).length}
                 done_n={identity.filter(isDone).length} empty={identity.filter(keep).length ? null : 'Nothing to show with this filter.'}>
-            <p className="muted small">Stage 1 already has these. Confirm them, or type the correction (it updates Stage 1, logged).</p>
+            <p className="muted small">Stage 1 already has these. An answer already on record shows with its source; click Correct to change it (a correction updates Stage 1, logged).</p>
             {identity.filter(keep).map((it) => {
               const lv = live[it.key] || {}
               const pre = it.prefill || {}
@@ -159,13 +178,16 @@ export default function LiveCall({ data, actor, onSaved }) {
                       {it.row?.status && it.row.status !== 'unanswered' && <StatusPill row={it.row} />}
                     </div>
                     <p className="ask">“{it.plain}”</p>
-                    <div className="lq-prefill">On file: <b>{shown || '—'}</b>{pre.method && <span className="muted small"> · {pre.method}</span>}</div>
-                    <div className="row">
+                    {onRecord(it)
+                      ? <OnRecord rec={it.row} value={it.key === 'revenue' && typeof it.row.value === 'number' ? money(it.row.value) : show(it.row.value) || shown}
+                                  editing={editing[it.key]} onEdit={() => toggleEdit(it.key)} />
+                      : <div className="lq-prefill">On file: <b>{shown || '—'}</b>{pre.method && <span className="muted small"> · {pre.method}</span>}</div>}
+                    {(!onRecord(it) || editing[it.key]) && <div className="row">
                       <button className={`opt ${lv.confirmed ? 'on' : ''}`} onClick={() => update(it.key, { confirmed: !lv.confirmed, corrected: false }, 0)}>✓ Confirmed on call</button>
                       <input className="lq-input" placeholder="Or type the correction" value={lv.corrected ? lv.value || '' : ''}
                              onChange={(e) => update(it.key, { value: e.target.value, corrected: e.target.value !== '', confirmed: false })} />
                       <button className={`opt flag ${lv.flag ? 'on' : ''}`} onClick={() => update(it.key, { flag: !lv.flag }, 0)}>Client unsure</button>
-                    </div>
+                    </div>}
                   </div>
                 </div>
               )
@@ -194,7 +216,9 @@ export default function LiveCall({ data, actor, onSaved }) {
                         <div className="lq-head"><b>{it.label}</b>{rec.status && rec.status !== 'unanswered' && <StatusPill row={rec} />}</div>
                         <p className="ask">“{it.plain}”</p>
                         {it.hint && <div className="hint">{it.hint}</div>}
-                        {it.signal && <div className="signal">Enrichment: {it.signal}</div>}
+                        {it.signal && !onRecord(it) && <div className="signal">Enrichment: {it.signal}</div>}
+                        {onRecord(it) && <OnRecord rec={rec} value={show(rec.value)} editing={editing[it.key]} onEdit={() => toggleEdit(it.key)} />}
+                        {(!onRecord(it) || editing[it.key]) && <>
                         {it.type === 'single' && (
                           <div className="opts">{it.options.map((o) => (
                             <button key={o} className={`opt ${lv.value === o ? 'on' : ''}`} onClick={() => update(it.key, { value: lv.value === o ? '' : o }, 0)}>{o}</button>
@@ -213,10 +237,8 @@ export default function LiveCall({ data, actor, onSaved }) {
                           <button className={`opt flag ${lv.flag ? 'on' : ''}`} onClick={() => update(it.key, { flag: !lv.flag }, 0)}>Client unsure</button>
                           <input className="lq-input" placeholder="Note" value={lv.note || ''} onChange={(e) => update(it.key, { note: e.target.value })} />
                         </div>
-                        {rec.status && rec.status !== 'unanswered' && (
-                          <div className="recorded">Recording ({rec.source_call}): <b>{show(rec.value) || rec.answer}</b>
-                            {rec.conflict && <span className="pill warn">differs from your tap</span>}</div>
-                        )}
+                        </>}
+                        {rec.conflict && <div className="recorded"><span className="pill warn">The recording differs from your tap</span></div>}
                       </div>
                     </div>
                   )
@@ -245,14 +267,12 @@ export default function LiveCall({ data, actor, onSaved }) {
                     {ck && (
                       <div className="check">
                         <div className="small"><b>Check:</b> “{s.check}”</div>
-                        <div className="row">
+                        {onRecord(ck) && <OnRecord rec={ck.row} value={show(ck.row.value)} editing={editing[s.check_key]} onEdit={() => toggleEdit(s.check_key)} />}
+                        {(!onRecord(ck) || editing[s.check_key]) && <div className="row">
                           <input className="lq-input wide" placeholder="What the client said" value={lv.text || ''}
                                  onChange={(e) => update(s.check_key, { text: e.target.value })} />
                           <button className={`opt flag ${lv.flag ? 'on' : ''}`} onClick={() => update(s.check_key, { flag: !lv.flag }, 0)}>Changes an input</button>
-                        </div>
-                        {ck.row?.status && ck.row.status !== 'unanswered' && (
-                          <div className="recorded">Recording ({ck.row.source_call}): <b>{show(ck.row.value) || ck.row.answer}</b></div>
-                        )}
+                        </div>}
                       </div>
                     )}
                   </div>
