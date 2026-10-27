@@ -1,14 +1,16 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// /interview serves the HTML deliverables in public/interview (folder index + trailing-slash redirect).
+// /interview and /ai serve the HTML pages in public/ (folder index + trailing-slash redirect), not the React app.
 const interviewPages = {
   name: 'interview-pages',
   configureServer(server) {
     server.middlewares.use((req, res, next) => {
       const path = req.url.split('?')[0]
-      if (path === '/interview') { res.writeHead(301, { Location: '/interview/' }); return res.end() }
-      if (path === '/interview/') req.url = '/interview/index.html'
+      for (const dir of ['/interview', '/ai']) {
+        if (path === dir) { res.writeHead(301, { Location: `${dir}/` }); return res.end() }
+        if (path === `${dir}/`) req.url = `${dir}/index.html`
+      }
       next()
     })
   },
