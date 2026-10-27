@@ -18,6 +18,101 @@ const KIND = {
   price_change: 'Price changed', declined: 'Declined', terms_change: 'Terms changed',
 }
 
+// ---- Compare carriers at a glance -------------------------------------------------------------
+// One bar chart per requested option (premium per carrier, same scale across both), then a terms grid.
+// Figures come from each carrier's latest written version; anything not client-ready says why in words.
+const NOT_READY = {
+  awaiting: 'No reply yet', declined: 'Declined', declined_verbal: 'Declined (verbal)', rejected: 'Rejected on review',
+  pending_review: 'Figure to check', verbal_only: 'Verbal only', expired: 'Expired',
+}
+const latestOf = (o) => [...o.history].reverse().find((v) => v.trust === 'written') || o.history[o.history.length - 1]
+const shortMoney = (n) => (n == null ? '—' : n === 0 ? '$0' : n >= 1e6 ? `$${n / 1e6}M` : n >= 1e3 ? `$${+(n / 1e3).toFixed(1)}K` : money(n))
+const sub = (v) => (v == null ? '—' : v === 'full limit' ? 'Full limit' : shortMoney(v))
+
+function CompareCarriers({ carriers, options }) {
+  const all = carriers.flatMap((c) => c.options.map((o) => latestOf(o)?.premium || 0))
+  const top = Math.max(1, ...all)
+  const step = [500, 1000, 2000, 2500, 5000, 10000].find((st) => top / st <= 6) || 20000
+  const max = Math.ceil((top * 1.05) / step) * step             // axis ends on a round number
+  const ticks = Array.from({ length: max / step + 1 }, (_, i) => i * step)
+
+  return (
+    <section className="card compare">
+      <h3>Compare carriers <span className="muted">· annual premium for each requested option, same scale</span></h3>
+      <div className="cmp-charts">
+        {options.map((opt) => {
+          const rows = carriers.map((c) => {
+            const o = c.options.find((x) => x.tier === opt.tier)
+            const v = o && latestOf(o)
+            return { c, o, v, ready: o?.state === 'offered' }
+          })
+          const readyPrices = rows.filter((r) => r.ready).map((r) => r.v.premium)
+          const low = readyPrices.length ? Math.min(...readyPrices) : null
+          return (
+            <figure key={opt.tier} className="cmp-chart">
+              <figcaption><b>{opt.label}</b> <span className="muted small">limit / deductible</span></figcaption>
+              <div className="cmp-axis" aria-hidden>{ticks.map((t) => <span key={t} style={{ left: `${(t / max) * 100}%` }}>{shortMoney(t)}</span>)}</div>
+              {rows.map(({ c, o, v, ready }) => {
+                const pct = v?.premium ? (v.premium / max) * 100 : 0
+                const why = ready ? null : NOT_READY[o?.state] || '—'
+                const tip = `${c.carrier} · ${opt.label}: ${v?.premium ? money(v.premium) + '/yr' : 'no figure'}${why ? ` (${why})` : ''}`
+                  + (v?.sublimits ? ` · social engineering ${sub(v.sublimits.social_engineering)} · ransomware ${sub(v.sublimits.ransomware)}` : '')
+                return (
+                  <div key={c.carrier} className="cmp-row" title={tip}>
+                    <span className="cmp-name">{c.carrier}{c.selected && <span className="cmp-tag">shown to client</span>}</span>
+                    <span className="cmp-track">
+                      {pct > 0 && <span className={`cmp-bar ${ready ? '' : 'muted-bar'} ${o?.state === 'verbal_only' ? 'verbal' : ''}`} style={{ width: `${pct}%` }} />}
+                      <span className="cmp-val" style={{ left: `${pct}%` }}>
+                        {v?.premium && o?.state !== 'declined' && o?.state !== 'declined_verbal' ? <b>{money(v.premium)}</b> : null}
+                        {why && <span className="cmp-why">{v?.premium && !String(o?.state).startsWith('declined') ? ' · ' : ''}{why}</span>}
+                        {ready && v.premium === low && readyPrices.length > 1 && <span className="cmp-low">lowest</span>}
+                      </span>
+                    </span>
+                  </div>
+                )
+              })}
+            </figure>
+          )
+        })}
+      </div>
+
+      <div className="cmp-table-wrap">
+        <table className="cmp-table">
+          <thead>
+            <tr><th>Carrier</th>{options.map((o) => <th key={o.tier}>{o.label}</th>)}
+              <th>Social engineering<br /><span className="muted small">($1M option)</span></th><th>Ransomware</th>
+              <th>BI waiting period</th><th>Conditions met</th><th>Valid until</th></tr>
+          </thead>
+          <tbody>
+            {carriers.map((c) => {
+              const first = c.options[0] && latestOf(c.options[0])
+              const rw = first?.sublimits?.ransomware
+              const met = c.conditions.filter((k) => k.status === 'met').length
+              const days = c.expires_on ? Math.round((new Date(c.expires_on) - new Date()) / 864e5) : null
+              return (
+                <tr key={c.carrier} className={c.selected ? 'sel' : ''}>
+                  <td><b>{c.carrier}</b></td>
+                  {c.options.map((o) => {
+                    const v = latestOf(o)
+                    return <td key={o.tier}>{o.state === 'offered' ? money(v.premium) : <span className="muted">{NOT_READY[o.state]}{v?.premium && !o.state.startsWith('declined') ? ` (${money(v.premium)})` : ''}</span>}</td>
+                  })}
+                  <td>{sub(first?.sublimits?.social_engineering)}</td>
+                  <td>{rw == null ? '—' : rw === 'full limit' ? 'Full limit' : <span className="flag-txt">⚠ capped at {shortMoney(rw)}</span>}</td>
+                  <td>{first?.bi_waiting_hours ? `${first.bi_waiting_hours} hours` : '—'}</td>
+                  <td>{c.conditions.length ? <span className={met === c.conditions.length ? 'ok-txt' : 'flag-txt'}>{met === c.conditions.length ? '✓' : '⚠'} {met} of {c.conditions.length} confirmed</span> : '—'}</td>
+                  <td>{c.expires_on ? <>{c.expires_on}{days != null && days <= 14 && <span className="flag-txt"> · {days < 0 ? 'expired' : `${days} days`}</span>}</> : '—'}</td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p className="small muted">Grey bars aren't client-ready (verbal, a figure to check, or expired). "Conditions met" checks each carrier's
+        subjectivities against the intake answers so far.</p>
+    </section>
+  )
+}
+
 function SendPanel({ ind, data, actor, onDone, goStage1 }) {
   const [picked, setPicked] = useState(() => ind.panel.map((c) => c.carrier))
   const [busy, setBusy] = useState(false)
@@ -110,13 +205,16 @@ function Version({ v, actor, onDone }) {
   )
 }
 
-function CarrierCard({ car, actor, onDone }) {
+function CarrierCard({ car, actions, alerts, actor, onDone }) {
   const [open, setOpen] = useState(false)
+  const openActs = actions.filter((a) => a.status === 'open')
+  const doneActs = actions.filter((a) => a.status === 'done')
   return (
-    <article className={`card carrier ${car.selected ? 'sel' : ''}`}>
+    <article id={`carrier-${car.carrier.replace(/\W+/g, '-')}`} className={`card carrier ${car.selected ? 'sel' : ''}`}>
       <header className="row">
         <h3>{car.carrier}</h3>
         {car.selected && <span className="pill s-confirmed">shown to client</span>}
+        <span className={`pill ${openActs.length ? 'warn' : ''}`}>{openActs.length ? `${openActs.length} follow-up${openActs.length === 1 ? '' : 's'}` : 'no follow-ups'}</span>
         <span className="muted small">requested via {car.request?.channel || '—'}{car.request ? ` · ${when(car.request.sent_at)}` : ''}{car.requests > 1 ? ` · ${car.requests} requests` : ''}</span>
       </header>
       <table className="opts-t">
@@ -141,6 +239,17 @@ function CarrierCard({ car, actor, onDone }) {
         ))}</ul>
       )}
       {car.expires_on && <div className="small muted">Valid until {car.expires_on}</div>}
+      <div className="carrier-fu">
+        <div className="label">Follow-ups from {car.carrier}'s replies</div>
+        {alerts.map((a, i) => <div key={i} className="banner warn small">{a.text}</div>)}
+        {openActs.length === 0 && alerts.length === 0 && <p className="muted small">Nothing open.</p>}
+        <ul className="actions">{openActs.map((a) => <Action key={a.id} a={a} actor={actor} onDone={onDone} />)}</ul>
+        {doneActs.length > 0 && (
+          <details><summary className="small muted">{doneActs.length} done</summary>
+            <ul className="actions">{doneActs.map((a) => <Action key={a.id} a={a} actor={actor} onDone={onDone} />)}</ul>
+          </details>
+        )}
+      </div>
       <button className="link" onClick={() => setOpen(!open)}>{open ? 'Hide' : 'Show'} reply history</button>
       {open && car.options.map((o) => o.history.length > 0 && (
         <div key={o.tier}>
@@ -186,7 +295,6 @@ export default function Indications({ data, actor, onChange, tick, goStage1 }) {
   if (!ind) return <div className="muted">Loading indications…</div>
 
   const open = ind.actions.filter((a) => a.status === 'open')
-  const closed = ind.actions.filter((a) => a.status === 'done')
   const ingest = async (path) => {
     setBusy(path); setMsg(null)
     try {
@@ -222,22 +330,23 @@ export default function Indications({ data, actor, onChange, tick, goStage1 }) {
         </section>
       )}
 
-      {ind.alerts.length > 0 && (
-        <div className="stack-s">{ind.alerts.map((a, i) => <div key={i} className="banner warn">{a.text}</div>)}</div>
+      {ind.carriers.some((c) => c.options.some((o) => o.history.length)) && <CompareCarriers carriers={ind.carriers} options={ind.options} />}
+
+      {(open.length > 0 || ind.alerts.length > 0) && (
+        <div className="fu-summary small">
+          <b>Follow-ups by carrier:</b>
+          {ind.carriers.map((c) => {
+            const n = open.filter((a) => a.carrier === c.carrier).length + ind.alerts.filter((a) => a.carrier === c.carrier).length
+            return <a key={c.carrier} href={`#carrier-${c.carrier.replace(/\W+/g, '-')}`} className={`pill ${n ? 'warn' : ''}`}>{c.carrier} · {n}</a>
+          })}
+        </div>
       )}
 
-      <section className="card">
-        <h3>Follow-ups from carrier replies <span className="muted">· {open.length} open</span></h3>
-        {open.length === 0 && <p className="muted small">Nothing open.</p>}
-        <ul className="actions">{open.map((a) => <Action key={a.id} a={a} actor={actor} onDone={done} />)}</ul>
-        {closed.length > 0 && (
-          <details><summary className="small muted">{closed.length} done</summary>
-            <ul className="actions">{closed.map((a) => <Action key={a.id} a={a} actor={actor} onDone={done} />)}</ul>
-          </details>
-        )}
-      </section>
-
-      <div className="carriers">{ind.carriers.map((c) => <CarrierCard key={c.carrier} car={c} actor={actor} onDone={done} />)}</div>
+      <div className="carriers">{ind.carriers.map((c) => (
+        <CarrierCard key={c.carrier} car={c} actor={actor} onDone={done}
+                     actions={ind.actions.filter((a) => a.carrier === c.carrier)}
+                     alerts={ind.alerts.filter((a) => a.carrier === c.carrier)} />
+      ))}</div>
     </div>
   )
 }
