@@ -295,10 +295,17 @@ def indications_action_done(slug: str, aid: int, body: ActionDone):
 
 
 @app.get("/api/clients/{slug}/report")
-def get_report(slug: str, mode: str = "agent"):
+def get_report(slug: str, mode: str = "agent", version: int | None = None):
+    """mode=agent: the latest version (the working draft); mode=client: the latest submitted or sent one;
+    version=N: that exact version, read-only (used by the locked-versions dropdown)."""
     with connect() as conn:
         c = client_by_slug(conn, slug)
-        if mode == "client":
+        if version is not None:
+            v = conn.execute("SELECT * FROM report_versions WHERE client_id=%s AND version_no=%s",
+                             (c["id"], version)).fetchone()
+            if not v:
+                raise HTTPException(404, f"no version {version}")
+        elif mode == "client":
             v = conn.execute("""SELECT * FROM report_versions WHERE client_id=%s AND state IN ('submitted','sent')
                                 ORDER BY version_no DESC LIMIT 1""", (c["id"],)).fetchone()
         else:
@@ -306,7 +313,8 @@ def get_report(slug: str, mode: str = "agent"):
                              (c["id"],)).fetchone()
         if not v:
             return {"version": None}
-        return {"version": {k: v[k] for k in ("version_no", "state", "created_at", "submitted_at", "sent_at")},
+        return {"version": {k: v[k] for k in ("version_no", "state", "created_at", "submitted_at", "sent_at",
+                                              "withdrawn_at", "withdraw_reason")},
                 "snapshot": v["snapshot"]}
 
 
@@ -315,6 +323,7 @@ def versions(slug: str):
     with connect() as conn:
         c = client_by_slug(conn, slug)
         return conn.execute("""SELECT v.version_no, v.state, v.created_at, v.submitted_at, v.sent_at,
+                               v.withdrawn_at, v.withdraw_reason, wu.name AS withdrawn_by,
                                cu.name AS created_by, su.name AS submitted_by,
                                v.snapshot->'facts'->'annual_revenue'->>'value' AS revenue,
                                v.snapshot->'facts'->'employee_count'->>'value' AS employees,
@@ -322,6 +331,7 @@ def versions(slug: str):
                                v.snapshot->>'selected_carrier' AS carrier
                                FROM report_versions v JOIN users cu ON cu.id=v.created_by
                                LEFT JOIN users su ON su.id=v.submitted_by
+                               LEFT JOIN users wu ON wu.id=v.withdrawn_by
                                WHERE v.client_id=%s ORDER BY v.version_no DESC""", (c["id"],)).fetchall()
 
 
@@ -336,7 +346,7 @@ def report_html(slug: str, version: int | None = None):
         v = conn.execute(q, (c["id"], version) if version else (c["id"],)).fetchone()
         if not v:
             raise HTTPException(404, "no report yet")
-        return html_report.render(v["snapshot"], v, client_view=v["state"] in ("submitted", "sent", "superseded"))
+        return html_report.render(v["snapshot"], v, client_view=v["state"] in ("submitted", "sent", "superseded", "withdrawn"))
 
 
 @app.post("/api/clients/{slug}/report/submit")
@@ -346,6 +356,25 @@ def submit(slug: str, body: Actor):
         v = report.submit(conn, c["id"], user_id(conn, body.actor))
     wiki_render.log(f"report | {slug} — v{v['version_no']} submitted (locked) by {body.actor}")
     return {"version_no": v["version_no"], "state": v["state"]}
+
+
+class UndoSubmit(Actor):
+    reason: str | None = None
+
+
+@app.post("/api/clients/{slug}/report/undo-submit")
+def undo_submit(slug: str, body: UndoSubmit):
+    with connect() as conn:
+        c = client_by_slug(conn, slug)
+        try:
+            res = report.undo_submit(conn, c["id"], user_id(conn, body.actor), (body.reason or "").strip() or None)
+        except ValueError as e:
+            raise HTTPException(409, str(e))
+        wiki_render.render_client(conn, c["id"])
+    wiki_render.log(f"report | {slug} — v{res['withdrawn']} submit undone (withdrawn) by {body.actor}"
+                    + (f" ({body.reason.strip()})" if (body.reason or '').strip() else "")
+                    + f"; editing continues in v{res['draft']}")
+    return res
 
 
 @app.post("/api/clients/{slug}/report/send")

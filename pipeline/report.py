@@ -172,12 +172,37 @@ def export_html(conn, cid: int, v: dict) -> str:
 
 def submit(conn, cid: int, actor_id: int) -> dict:
     v = refresh_working(conn, cid, actor_id, edited=False)
-    conn.execute("UPDATE report_versions SET state='superseded' WHERE client_id=%s AND state IN ('submitted','sent')",
-                 (cid,))
+    conn.execute("""UPDATE report_versions SET superseded_from=state, state='superseded'
+                    WHERE client_id=%s AND state IN ('submitted','sent')""", (cid,))
     v = conn.execute("""UPDATE report_versions SET state='submitted', submitted_by=%s, submitted_at=now()
                         WHERE id=%s RETURNING *""", (actor_id, v["id"])).fetchone()
     export_html(conn, cid, v)
     return v
+
+
+def undo_submit(conn, cid: int, actor_id: int, reason: str | None) -> dict:
+    """Undo the latest submit without unlocking anything: that version becomes 'withdrawn' (content and
+    v<N>.html unchanged, who/when/why recorded), the version it superseded gets its earlier state back,
+    and editing continues in a new draft copied from it. A version already sent to the client can't be withdrawn."""
+    latest = conn.execute("SELECT * FROM report_versions WHERE client_id=%s ORDER BY version_no DESC LIMIT 1",
+                          (cid,)).fetchone()
+    if not latest or latest["state"] != "submitted":
+        if latest and latest["state"] == "sent":
+            raise ValueError(f"v{latest['version_no']} was already sent to the client, so it can't be withdrawn. "
+                             "Make the change and submit a new version.")
+        raise ValueError("Nothing to undo: the latest version isn't submitted")
+    conn.execute("""UPDATE report_versions SET state='withdrawn', withdrawn_by=%s, withdrawn_at=now(), withdraw_reason=%s
+                    WHERE id=%s""", (actor_id, reason, latest["id"]))
+    prev = conn.execute("""SELECT * FROM report_versions WHERE client_id=%s AND state='superseded'
+                           AND superseded_from IS NOT NULL ORDER BY version_no DESC LIMIT 1""", (cid,)).fetchone()
+    if prev:
+        conn.execute("UPDATE report_versions SET state=superseded_from, superseded_from=NULL WHERE id=%s", (prev["id"],))
+    draft = conn.execute("""INSERT INTO report_versions (client_id, version_no, state, snapshot, narrative, created_by)
+                            VALUES (%s,%s,'agent_edited',%s,%s,%s) RETURNING *""",
+                         (cid, latest["version_no"] + 1, j(latest["snapshot"]), j(latest["narrative"]), actor_id)).fetchone()
+    export_html(conn, cid, draft)
+    return {"withdrawn": latest["version_no"], "restored": prev["version_no"] if prev else None,
+            "draft": draft["version_no"]}
 
 
 def send(conn, cid: int) -> dict:

@@ -83,7 +83,9 @@ The app's tabs are the stages; each shows a status derived from the data (done, 
 3. **Stage 3 · Proposal pack.** Click "Open HTML report ↗", or open `reports/sloanslake/current.html`. See "What
    you've told us so far" and "Practices like yours, in the news" (real, cited events, including a Longmont CO
    breach). Drag revenue to ~$2.8M → "indication needs refresh"; premiums don't move. Reset. Submit & lock →
-   `reports/sloanslake/v1.html` appears. Send. Client view shows only that version.
+   `reports/sloanslake/v1.html` appears. **Undo submit** (with a reason): v1 stays on record as withdrawn and
+   editing continues in v2; the **Locked versions** dropdown shows every submitted version read-only.
+   Submit again, then Send: the client view shows only that version, and a sent version can't be undone.
 4. **Stage 4 · Equip the agent.** Pitch, CPL-approved objections, news talking points, specimen map.
 5. **Stage 5 · Present, apply, bind → Live call.** Numbered questions, tap answers, "Client unsure," coverage
    questions logged for a CPL, the limit walkthrough. Tap Q2 as "50–75%" (the recording says "Over 75%").

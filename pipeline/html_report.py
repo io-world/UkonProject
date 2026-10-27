@@ -169,7 +169,7 @@ def render(s: dict, version: dict, client_view: bool = True) -> str:
         w(f'<p class="small">The insurer will ask about: {_e("; ".join(carrier["conditions"]))}.</p>')
 
     state = {"ai_draft": "AI draft", "agent_edited": "Agent edited", "submitted": "Submitted",
-             "sent": "Sent", "superseded": "Superseded"}.get(version.get("state"), "")
+             "sent": "Sent", "superseded": "Superseded", "withdrawn": "Withdrawn"}.get(version.get("state"), "")
     stamp = datetime.now().strftime("%Y-%m-%d %H:%M")
     w(f'<footer>Version {version.get("version_no")} · {state} · rendered {stamp} · Prepared by your agent with UKON · '
       'Not a quote or a binder.</footer>')

@@ -7,7 +7,7 @@ SET search_path TO ukon;
 
 -- Which version of this file built the database (checked by the API; see config.SCHEMA_VERSION).
 CREATE TABLE schema_info (version TEXT NOT NULL);
-INSERT INTO schema_info VALUES ('2026-10-27a');
+INSERT INTO schema_info VALUES ('2026-10-27b');
 
 CREATE TABLE users (
   id          SERIAL PRIMARY KEY,
@@ -197,12 +197,14 @@ CREATE VIEW indications AS
     JOIN indication_sources s ON s.id = v.source_id
    WHERE v.status = 'indicated' AND v.review IN ('verified','confirmed');
 
--- Report versions are immutable snapshots once submitted.
+-- Report versions are immutable snapshots once submitted. "Undo submit" never unlocks one: the submitted
+-- version is marked 'withdrawn' (who, when, why; its content and v<N>.html stay as they were), the version it
+-- had superseded gets its earlier state back, and editing continues in a new draft. Sent versions can't be withdrawn.
 CREATE TABLE report_versions (
   id              SERIAL PRIMARY KEY,
   client_id       INT NOT NULL REFERENCES clients(id),
   version_no      INT NOT NULL,
-  state           TEXT NOT NULL CHECK (state IN ('ai_draft','agent_edited','submitted','sent','superseded')),
+  state           TEXT NOT NULL CHECK (state IN ('ai_draft','agent_edited','submitted','sent','superseded','withdrawn')),
   snapshot        JSONB NOT NULL,        -- fields + indications + narrative at that moment
   narrative       JSONB NOT NULL,        -- AI prose blocks (no figures; validated)
   created_by      INT NOT NULL REFERENCES users(id),
@@ -210,6 +212,10 @@ CREATE TABLE report_versions (
   submitted_by    INT REFERENCES users(id),
   submitted_at    TIMESTAMPTZ,
   sent_at         TIMESTAMPTZ,
+  superseded_from TEXT CHECK (superseded_from IN ('submitted','sent')),  -- state before a newer submit superseded it
+  withdrawn_by    INT REFERENCES users(id),
+  withdrawn_at    TIMESTAMPTZ,
+  withdraw_reason TEXT,
   UNIQUE (client_id, version_no)
 );
 
@@ -310,9 +316,17 @@ CREATE VIEW audit_trail AS
          jsonb_build_object('score', ec.match_score)
     FROM entity_candidates ec JOIN users u ON u.id = ec.decided_by WHERE ec.decided_at IS NOT NULL
   UNION ALL
-  SELECT rv.created_at, u.name, u.role, 'report_v' || rv.version_no || '_' || rv.state, rv.client_id,
+  SELECT rv.created_at, u.name, u.role, 'report_v' || rv.version_no || '_created', rv.client_id,
          'Report v' || rv.version_no, '{}'::jsonb
     FROM report_versions rv JOIN users u ON u.id = rv.created_by
+  UNION ALL
+  SELECT rv.submitted_at, u.name, u.role, 'report_v' || rv.version_no || '_submitted', rv.client_id,
+         'Report v' || rv.version_no, '{}'::jsonb
+    FROM report_versions rv JOIN users u ON u.id = rv.submitted_by WHERE rv.submitted_at IS NOT NULL
+  UNION ALL
+  SELECT rv.withdrawn_at, u.name, u.role, 'report_v' || rv.version_no || '_withdrawn', rv.client_id,
+         'Report v' || rv.version_no, jsonb_build_object('reason', rv.withdraw_reason)
+    FROM report_versions rv JOIN users u ON u.id = rv.withdrawn_by WHERE rv.withdrawn_at IS NOT NULL
   UNION ALL
   SELECT aa.confirmed_at, u.name, u.role, 'answer_confirmed', aa.client_id, aa.question,
          jsonb_build_object('answer', aa.answer)

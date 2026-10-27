@@ -21,6 +21,8 @@ export const api = {
     req(`${base}/fields/${key}`, { method: 'POST', body: { actor, value, reason, source_type, source_ref } }),
   approveField: (key, actor) => req(`${base}/fields/${key}/approve`, { method: 'POST', body: { actor } }),
   report: (mode) => req(`${base}/report?mode=${mode}`),
+  reportVersion: (n) => req(`${base}/report?version=${n}`),
+  undoSubmit: (actor, reason) => req(`${base}/report/undo-submit`, { method: 'POST', body: { actor, reason } }),
   versions: () => req(`${base}/versions`),
   submit: (actor) => req(`${base}/report/submit`, { method: 'POST', body: { actor } }),
   send: (actor) => req(`${base}/report/send`, { method: 'POST', body: { actor } }),

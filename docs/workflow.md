@@ -112,7 +112,7 @@ letter waits in Stage 2's carrier inbox for a live "Read it in" (or the command 
 | Numbers | — (rendered from DB: premiums, limits, deductibles, sublimits, benchmark costs) | — | Hallucinated price → impossible; no code path from model to price. |
 | Coverage text | — (from a CPL-approved plain-language library) | — | Overstating coverage → library text only; funds-transfer sublimit is flagged visually. |
 | Adjust | Shows its recommendation next to the current value. | Moves revenue, employees, exposure, records, carrier; adds a reason. | Revenue moves far from what carriers priced on → "indication needs refresh" banner; premiums are not recalculated. |
-| Lock & send | — | Submits (version locked), then sends. Any later change creates a new version. | Client sees an unreviewed draft → client view only shows submitted versions. |
+| Lock & send | — | Submits (version locked), then sends. Any later change creates a new version. Before sending, can **undo submit**: the version is marked withdrawn (who, when, why), never unlocked, and editing continues in a new draft. A dropdown opens any locked version read-only. | Client sees an unreviewed draft → client view only shows submitted versions. |
 
 ## Stage 4 · Equip the agent: the brief (built)
 

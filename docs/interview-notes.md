@@ -176,7 +176,7 @@ no Docker and nothing installed system-wide.
 | **Workbench** | React app, one tab per stage with a status: 1 Confirm data · 2 Get indications · 3 Proposal pack · 4 Equip the agent · 5 Present, apply, bind (Live call / After the call / Application & bind) · Audit · Ask | `web/` |
 | **Client pack** | Standalone HTML file per version | `reports/sloanslake/` |
 | **Claude skills** | `client-ingest`, `indication-ingest` (carrier replies), `call-ingest` (Wispr Flow), `client-research` (web), `client-ask` | `.claude/skills/` |
-| **Docs** | Brief, decisions (55), workflow, call script, pack outline, scope, risks, architecture, chat log, these notes | `docs/` |
+| **Docs** | Brief, decisions (56), workflow, call script, pack outline, scope, risks, architecture, chat log, these notes | `docs/` |
 
 **The demo client in numbers (all from the database):**
 - Legal name **Sage Dentistry, PLLC** (Colorado registry, good standing since 2015; the NPI record ties it to the "Sloan's Lake Dental" trade name). A delinquent "Sloans Lake Dental PLLC" sits at the same address: 37% vs 100%.
@@ -266,8 +266,11 @@ Each use case: who, trigger, what happens, outcome, guardrail. ✅ = built, ◻ 
 
 ### UC11 · Stage 3 · Submit, lock, send; versioning ✅
 - **Flow:** submit → `v1.html` written and frozen → send → client view shows only that → any later
-  change creates v2; v1 stays as sent
-- **Guardrail:** immutable versions; the client never sees a draft
+  change creates v2; v1 stays as sent. **Undo submit** (before sending): v1 is marked withdrawn with who,
+  when and why, the version it superseded comes back, and editing continues in v2. A **Locked versions**
+  dropdown opens any submitted, sent, superseded or withdrawn version read-only.
+- **Guardrail:** immutable versions (undo withdraws, never unlocks); a sent version can't be withdrawn;
+  the client never sees a draft
 
 ### UC12 · Stage 4 · Prepare for the meeting (agent brief) ✅
 - 60-second pitch, objections with tailored answers from a CPL-approved library, escalation
@@ -409,6 +412,7 @@ unanswered ──call addresses it──▶ prefilled ("Recorded · confirm") �
 ai_draft ──agent edits──▶ agent_edited ──submit──▶ submitted (vN.html, frozen) ──send──▶ sent
                                                         │
                            any later change ──▶ new version (agent_edited); old one ──▶ superseded
+submitted ──undo submit──▶ withdrawn (who, when, why; file unchanged) + previous version restored + new draft
 ```
 
 ### 8.5 A field change (e.g., revenue)
@@ -445,7 +449,7 @@ earns nothing. An agent's manual override is kept; only the AI's recommendation 
 
 ## 10. Key decisions and trade-offs
 
-Full log (55 entries): `docs/decisions.md`. The ones most likely to come up:
+Full log (56 entries): `docs/decisions.md`. The ones most likely to come up:
 
 | Decision | Trade-off |
 |---|---|
@@ -655,7 +659,7 @@ Optional: put `ANTHROPIC_API_KEY` in `.env` to run extraction, narrative and Ask
 |---|---|
 | `docs/00-brief.md` | UKON's assignment |
 | `docs/interview-notes.md` | This document |
-| `docs/decisions.md` | All 55 design decisions with reasons and who made them |
+| `docs/decisions.md` | All 56 design decisions with reasons and who made them |
 | `docs/workflow.md` | Per-step AI / human / failure modes + diagram |
 | `docs/client-intake.md` | Stage 5 call questions and limit walkthrough script |
 | `docs/proposal-pack.md` | Client pack outline |

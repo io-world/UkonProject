@@ -51,7 +51,7 @@ def derive(conn, cid: int) -> dict:
         s["indications"] = ("active", "Waiting on carriers")
     else:
         s["indications"] = ("todo", "Not sent yet")
-    if states & {"submitted", "sent", "superseded"}:
+    if states & {"submitted", "sent"}:
         s["proposal"] = ("done", "Submitted")
     elif packs:
         s["proposal"] = ("active", "Draft")

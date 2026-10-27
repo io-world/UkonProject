@@ -2,6 +2,8 @@
 
 A **digital HTML report**: rendered from the client wiki, the carrier indications, the owner's answers
 so far and the database, adjustable by the agent, frozen when submitted. It never waits on missing answers.
+A submit can be undone until the pack is sent: the version is kept and marked withdrawn, and editing continues
+in a new draft. The **Locked versions** dropdown opens any earlier locked version read-only.
 
 **Where it lives**
 - `reports/sloanslake/current.html`: the working draft, rewritten on every change. Open it in any browser.
