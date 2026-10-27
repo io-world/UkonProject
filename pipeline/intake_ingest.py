@@ -26,9 +26,12 @@ from .sources import read_source
 
 def extract(transcript: str, call_ref: str, slug: str, items: list[dict], app_bank: list[dict]):
     """(intake_answers, application_answers, coverage_questions, provenance)"""
-    out = llm.complete_json(intake.SYSTEM, intake.prompt(items, app_bank, transcript), max_tokens=6000)
+    out = llm.complete_json(intake.SYSTEM, intake.prompt(items, app_bank, transcript), max_tokens=6000,
+                           label=f"call extraction ({call_ref})")
     if out and "intake" in out:
         return out["intake"], out.get("application", []), out.get("coverage_questions", []), "live"
+    if out is not None:
+        print(f"  note: live call extraction ({call_ref}) had no 'intake' answers; using the cached output", file=sys.stderr)
     for cache in (RAW / "_cache" / f"call_extraction_{slug}_{call_ref}.md",
                   RAW / "_cache" / f"call_extraction_{call_ref}.md"):
         if cache.exists():

@@ -89,7 +89,8 @@ Return ONE JSON object:
 
 def extract(path: Path, text: str) -> tuple[dict, str]:
     """(extraction, provenance) where provenance is 'live' or 'cached'."""
-    out = llm.complete_json(SYSTEM, f"Source file: {path.name}\n\n<source>\n{text}\n</source>", max_tokens=3000)
+    out = llm.complete_json(SYSTEM, f"Source file: {path.name}\n\n<source>\n{text}\n</source>", max_tokens=3000,
+                           label=f"indication extraction ({path.name})")
     if out and out.get("options"):
         return out, "live"
     slug = path.parent.parent.name          # wiki/raw/<slug>/indications/<file>

@@ -64,7 +64,7 @@ def generate(slug: str, client_facts: dict) -> tuple[dict, str]:
     user = (f"Industry page (source of truth for scenarios and approved objection answers):\n\n{industry_page}\n\n"
             f"Client facts (do not restate numbers; use placeholders):\n{json.dumps(client_facts, indent=2)}")
     for _ in range(2):  # one retry if the guard trips
-        out = llm.complete_json(SYSTEM, user)
+        out = llm.complete_json(SYSTEM, user, label="pack narrative")
         if out is None:
             break
         if all(k in out for k in BLOCK_KEYS) and not find_violations(out):
