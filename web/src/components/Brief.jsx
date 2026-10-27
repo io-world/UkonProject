@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { api, money, short } from '../api.js'
+import WikiChat from './WikiChat.jsx'
 
 const STATUS = { prefilled: 'answered', needs_followup: 'follow up', confirmed: 'confirmed', unanswered: 'not asked yet' }
 
-export default function Brief({ tick }) {
+export default function Brief({ tick, actor }) {
   const [b, setB] = useState(null)
   const [open, setOpen] = useState(() => new Set(['too_small']))
   const toggle = (k) => setOpen((o) => { const n = new Set(o); n.has(k) ? n.delete(k) : n.add(k); return n })
@@ -20,6 +21,8 @@ export default function Brief({ tick }) {
       </section>
 
       <div className="brief-grid">
+        <WikiChat actor={actor} />
+
         <section className="card">
           <h3>60-second pitch</h3>
           <blockquote className="pitch">{b.pitch}</blockquote>

@@ -16,6 +16,7 @@ from pipeline.sources import read_source
 from pipeline.db import client_by_slug, connect, j, user_id
 
 from . import ask as ask_mod
+from . import chat as chat_mod
 
 app = FastAPI(title="UKON cyber renewal prototype")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -34,7 +35,10 @@ async def _schema_guard(request, call_next):
         try:
             with connect() as conn:
                 v = conn.execute("SELECT version FROM schema_info").fetchone()["version"]
-        except Exception:
+        except Exception as e:
+            if "connection" in str(e).lower() and "refused" in str(e).lower():
+                return JSONResponse(status_code=503, content={"detail": "Can't reach the database. Start it: "
+                                    "scripts/db.sh start (then refresh this page)."})
             v = None
         if v != SCHEMA_VERSION:
             return JSONResponse(status_code=409, content={"detail": "The database is from an older version of the "
@@ -657,6 +661,52 @@ def ask(slug: str, body: Question):
     short_q = re.sub(r"\s+", " ", body.question)[:80]
     wiki_render.log(f"ask | {slug} — {body.actor}: {short_q}")
     return {"answer": answer, "escalated": escalated, "citations": cites}
+
+
+# ---------------------------------------------------------------------------------------------
+# Stage 4: chat with Claude over the client wiki (web search as a fallback). Read-only.
+# ---------------------------------------------------------------------------------------------
+
+class ChatTurn(BaseModel):
+    role: str            # user | assistant
+    content: str
+
+
+class ChatRequest(Actor):
+    messages: list[ChatTurn]
+    web: bool = True     # False = wiki only
+
+
+@app.post("/api/clients/{slug}/chat")
+def chat(slug: str, body: ChatRequest):
+    history = [m.model_dump() for m in body.messages if m.role in ("user", "assistant")][-12:]
+    if not history or history[-1]["role"] != "user" or not history[-1]["content"].strip():
+        raise HTTPException(400, "Ask a question")
+    with connect() as conn:
+        c = client_by_slug(conn, slug)
+        uid = user_id(conn, body.actor)
+        try:
+            out = chat_mod.chat(conn, c["id"], slug, history, body.web)
+        except Exception as e:      # API errors (rate limit, bad key, network) reach the chat as a message
+            raise HTTPException(502, f"Claude couldn't answer: {type(e).__name__}: {str(e)[:200]}")
+        conn.execute("INSERT INTO ask_log (client_id, actor_id, question, answer, citations, escalated) "
+                     "VALUES (%s,%s,%s,%s,%s,%s)",
+                     (c["id"], uid, history[-1]["content"], out["answer"],
+                      j({"channel": "stage4_chat", "source": out["source"], "wiki": out["wiki"], "web": out["web"]}),
+                      out["escalated"]))
+    short_q = re.sub(r"\s+", " ", history[-1]["content"])[:80]
+    wiki_render.log(f"ask | {slug} — {body.actor} (Stage 4 chat, {out['source']}): {short_q}")
+    return out
+
+
+@app.get("/api/wiki")
+def wiki_page(path: str):
+    """Read-only view of one wiki page, so a cited source can be opened from the chat."""
+    from fastapi.responses import PlainTextResponse
+    p = (WIKI / path.removeprefix("wiki/")).resolve()
+    if not str(p).startswith(str(WIKI.resolve())) or p.suffix != ".md" or not p.exists():
+        raise HTTPException(404, "no such wiki page")
+    return PlainTextResponse(p.read_text())
 
 
 # ---------------------------------------------------------------------------------------------

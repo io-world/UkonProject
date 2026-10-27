@@ -52,7 +52,8 @@ cd web && uv run npm run build                   # refresh web/dist
 - `pipeline/` — `stages.py` (the five stages + derived status), estimators (no LLM), entity resolution (Stage 1),
   carrier exchange (`indications.py`, `indication_extract.py`; Stage 2), narrative + report versions (`stage3_proposal.py`,
   `report.py`; Stage 3), Stage 5 calls (`intake.py` rules, `intake_ingest.py` per call).
-- `api/` — FastAPI + "Ask about this client" (read-only).
+- `api/` — FastAPI + "Ask about this client" (read-only) + Stage 4's "Ask the wiki" chat (`api/chat.py`: wiki first,
+  web search only if the wiki doesn't cover it; the answer's source label comes from the tools that ran).
 - `web/` — React + Vite workbench: one tab per stage (`Enrichment`, `Indications`, `ReportTab`, `Brief`, `Intake`) + audit.
 - `reports/` — generated HTML client packs: `current.html` (working draft), `v<N>.html` (submitted, immutable).
 - `.claude/skills/` — `client-ingest`, `indication-ingest` (carrier replies), `call-ingest` (Wispr Flow intake), `client-research` (web), `client-ask`.

@@ -86,7 +86,10 @@ The app's tabs are the stages; each shows a status derived from the data (done, 
    `reports/sloanslake/v1.html` appears. **Undo submit** (with a reason): v1 stays on record as withdrawn and
    editing continues in v2; the **Locked versions** dropdown shows every submitted version read-only.
    Submit again, then Send: the client view shows only that version, and a sent version can't be undone.
-4. **Stage 4 · Equip the agent.** Pitch, CPL-approved objections, news talking points, specimen map.
+4. **Stage 4 · Equip the agent.** **Ask the wiki**: "What did the owner say about backups and MFA?" comes back
+   *From the wiki* with the pages it used; "Any recent ransomware news for dental practices?" (with web on) is labelled
+   *From the web* with links; "Would a breach at Peak Tech be covered?" escalates to the CPL. Then the pitch,
+   objections (+/−), news talking points and specimen map. Without an API key the chat falls back to a keyword search.
 5. **Stage 5 · Present, apply, bind → Live call.** Numbered questions, tap answers, "Client unsure," coverage
    questions logged for a CPL, the limit walkthrough. Tap Q2 as "50–75%" (the recording says "Over 75%").
    Call 1 (sample) is already ingested (seeded early so the pack has answers to show).

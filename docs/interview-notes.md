@@ -176,7 +176,7 @@ no Docker and nothing installed system-wide.
 | **Workbench** | React app, one tab per stage with a status: 1 Confirm data · 2 Get indications · 3 Proposal pack · 4 Equip the agent · 5 Present, apply, bind (Live call / After the call / Application & bind) · Audit · Ask | `web/` |
 | **Client pack** | Standalone HTML file per version | `reports/sloanslake/` |
 | **Claude skills** | `client-ingest`, `indication-ingest` (carrier replies), `call-ingest` (Wispr Flow), `client-research` (web), `client-ask` | `.claude/skills/` |
-| **Docs** | Brief, decisions (56), workflow, call script, pack outline, scope, risks, architecture, chat log, these notes | `docs/` |
+| **Docs** | Brief, decisions (58), workflow, call script, pack outline, scope, risks, architecture, chat log, these notes | `docs/` |
 
 **The demo client in numbers (all from the database):**
 - Legal name **Sage Dentistry, PLLC** (Colorado registry, good standing since 2015; the NPI record ties it to the "Sloan's Lake Dental" trade name). A delinquent "Sloans Lake Dental PLLC" sits at the same address: 37% vs 100%.
@@ -275,6 +275,15 @@ Each use case: who, trigger, what happens, outcome, guardrail. ✅ = built, ◻ 
 ### UC12 · Stage 4 · Prepare for the meeting (agent brief) ✅
 - 60-second pitch, objections with tailored answers from a CPL-approved library, escalation
   triggers, specimen "where to find it" map, application preview, real-event talking points
+
+### UC13a · Stage 4 · Ask the wiki (chat) ✅
+- **Flow:** the agent chats with Claude on the Equip-the-agent screen. Claude searches and reads the client wiki
+  first (sources, call answers, carrier replies, industry page, research; numbers from the database). Only if the
+  wiki doesn't cover it, and "Wiki first, then web" is on, does it search the web.
+- **Outcome:** every answer carries a label set by the tools that actually ran: *From the wiki*, *From the web*,
+  *Wiki + web*, or *Not from the wiki · unverified*; wiki pages open from the answer, web results link out
+- **Guardrails:** wiki-specific questions get wiki-only answers; "Wiki only" mode doesn't offer the web tool at
+  all; coverage questions escalate; read-only; logged to `ask_log`
 
 ### UC13 · Ask about this client ✅
 - **Flow:** agent asks in plain English → numbers from the database, reasons from the wiki, cited
@@ -449,7 +458,7 @@ earns nothing. An agent's manual override is kept; only the AI's recommendation 
 
 ## 10. Key decisions and trade-offs
 
-Full log (56 entries): `docs/decisions.md`. The ones most likely to come up:
+Full log (58 entries): `docs/decisions.md`. The ones most likely to come up:
 
 | Decision | Trade-off |
 |---|---|
@@ -659,7 +668,7 @@ Optional: put `ANTHROPIC_API_KEY` in `.env` to run extraction, narrative and Ask
 |---|---|
 | `docs/00-brief.md` | UKON's assignment |
 | `docs/interview-notes.md` | This document |
-| `docs/decisions.md` | All 56 design decisions with reasons and who made them |
+| `docs/decisions.md` | All 58 design decisions with reasons and who made them |
 | `docs/workflow.md` | Per-step AI / human / failure modes + diagram |
 | `docs/client-intake.md` | Stage 5 call questions and limit walkthrough script |
 | `docs/proposal-pack.md` | Client pack outline |

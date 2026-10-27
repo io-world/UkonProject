@@ -34,6 +34,8 @@ export const api = {
     req(`${base}/indications/versions/${vid}/review`, { method: 'POST', body: { actor, decision, note } }),
   actionDone: (id, note, actor) => req(`${base}/indications/actions/${id}/done`, { method: 'POST', body: { actor, note } }),
   brief: () => req(`${base}/brief`),
+  chat: (messages, web, actor) => req(`${base}/chat`, { method: 'POST', body: { actor, messages, web } }),
+  wikiUrl: (path) => `/api/wiki?path=${encodeURIComponent(path)}`,
   application: () => req(`${base}/application`),
   intakeCalls: () => req(`${base}/intake/calls`),
   intake: () => req(`${base}/intake`),

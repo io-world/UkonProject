@@ -79,7 +79,7 @@ export default function App() {
         {tab === 'confirm' && <Enrichment data={data} actor={actor} onChange={refresh} goNext={() => setTab('indications')} />}
         {tab === 'indications' && <Indications data={data} actor={actor} onChange={refresh} tick={tick} goStage1={() => setTab('confirm')} />}
         {tab === 'proposal' && <ReportTab data={data} actor={actor} onChange={refresh} tick={tick} />}
-        {tab === 'agent_kit' && <Brief tick={tick} />}
+        {tab === 'agent_kit' && <Brief tick={tick} actor={actor} />}
         {tab === 'apply_bind' && <Intake actor={actor} onChange={refresh} tick={tick} />}
         {tab === 'audit' && <Audit tick={tick} />}
       </main>
