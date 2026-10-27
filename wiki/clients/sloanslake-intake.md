@@ -5,7 +5,9 @@ client: sloanslake
 complete: false
 calls:
   - raw/sloanslake/call_1_intake
-last_rendered: 2026-10-26T20:31:19-06:00
+  - raw/sloanslake/call_2_followup
+  - raw/sloanslake/email_1_office_manager
+last_rendered: 2026-10-27T15:35:40-06:00
 ---
 
 # Intake — Sage Dentistry, PLLC
@@ -14,7 +16,7 @@ last_rendered: 2026-10-26T20:31:19-06:00
 > Rendered from the database after each call is ingested and whenever an agent confirms an answer
 > in the app (logged with their name).
 
-Calls: [[raw/sloanslake/call_1_intake|call_1_intake]] · last extraction: cached · 0 confirmed · 19 ready to confirm · 8 need follow-up · 2 not covered
+Calls: [[raw/sloanslake/call_1_intake|call_1_intake]], [[raw/sloanslake/call_2_followup|call_2_followup]], [[raw/sloanslake/email_1_office_manager|email_1_office_manager]] · last extraction: live · 0 confirmed · 22 ready to confirm · 6 need follow-up · 1 not covered
 
 **Status: draft.** The intake is complete when every identity and exposure item is confirmed by an agent.
 
@@ -41,10 +43,10 @@ Calls: [[raw/sloanslake/call_1_intake|call_1_intake]] · last extraction: cached
 
 ### 0.4 · Annual revenue
 - Asked: We estimated annual revenue at about $2.35 million. Is that in the right range?
-- Answer: **$2,350,000** — Owner believes revenue is higher than the $2.35M estimate (implant-heavy); exact figure to come from the accountant
-- Status: `needs follow-up`
-- Client said: “It's higher than that, I'm pretty sure. Implants are a big part of what we do now. I'd want our accountant to give you the real number.” ([[raw/sloanslake/call_1_intake|call_1_intake]] 00:46)
-- Not confirmed on the call; still the Stage 1 value.
+- Answer: **$2,520,000** — Gross revenue for 2025 was $2,520,000, per their accountant
+- Status: `ready to confirm`
+- Client said: “our accountant says gross revenue for 2025 was $2,520,000.” ([[raw/sloanslake/email_1_office_manager|email_1_office_manager]] )
+- Client corrected the pre-filled value ($2,350,000). Confirming it in the app applies it to the report as a logged change.
 - Fills application: revenue
 
 ### 0.5 · State / business address
@@ -79,10 +81,10 @@ Calls: [[raw/sloanslake/call_1_intake|call_1_intake]] · last extraction: cached
 
 ### Q4 · Backups
 - Asked: Do you have offline backups? When did you last test restoring everything from them?
-- Answer: **Backups, never tested** — Nightly cloud backups by Peak Tech; restore never tested
+- Answer: **Backups have not been test-restored yet. A restore test is scheduled for next month. Whether the backups are offline was not discussed. The agent left this item open.**
 - Status: `needs follow-up`
-- Client said: “Our IT company, Peak Tech, backs up every night to the cloud. I don't think we've ever actually tested a restore.” ([[raw/sloanslake/call_1_intake|call_1_intake]] 01:46)
-- Client hedged (“I don't think”). Confirm before it goes on the application.
+- Client said: “Not yet. They've scheduled a restore test for next month.” ([[raw/sloanslake/call_2_followup|call_2_followup]] 00:37)
+- Partial answer. Confirm the rest before it goes on the application.
 - Fills application: backups
 
 ### Q5 · Critical systems
@@ -109,17 +111,15 @@ Calls: [[raw/sloanslake/call_1_intake|call_1_intake]] · last extraction: cached
 
 ### Q8 · Regulated data
 - Asked: Do you hold health data covered by HIPAA, or data on California residents?
-- Answer: **HIPAA health data** — HIPAA yes; California residents unknown
-- Status: `needs follow-up`
-- Client said: “HIPAA, yes. California, I'm not sure. Maybe a few people who moved?” ([[raw/sloanslake/call_1_intake|call_1_intake]] 02:51)
-- Client hedged (“not sure”). Confirm before it goes on the application.
+- Answer: **HIPAA health data** — Holds HIPAA health data. No California patients "that we know of" (hedged), so California is not confirmed.
+- Status: `ready to confirm`
+- Client said: “we don't have any California patients that we know of. Health data, yes, obviously.” ([[raw/sloanslake/email_1_office_manager|email_1_office_manager]] )
 
 ### Q9 · Encryption at rest
 - Asked: Is sensitive data encrypted where it’s stored?
-- Answer: **Don’t know** — Email encrypted through Paubox; stored data unknown, would check with Peak Tech
-- Status: `needs follow-up`
-- Client said: “Our email goes through Paubox, so that's encrypted. The server, I'd have to check with Peak Tech.” ([[raw/sloanslake/call_1_intake|call_1_intake]] 03:02)
-- Client hedged (“I'd have to check”). Confirm before it goes on the application.
+- Answer: **Yes** — Per their IT vendor Peak Tech, the server and all laptops are encrypted with BitLocker
+- Status: `ready to confirm`
+- Client said: “Peak Tech says the server and all the laptops are encrypted with BitLocker.” ([[raw/sloanslake/email_1_office_manager|email_1_office_manager]] )
 
 #### Payments
 
@@ -145,27 +145,27 @@ Calls: [[raw/sloanslake/call_1_intake|call_1_intake]] · last extraction: cached
 
 ### Q13 · Payment-change callback
 - Asked: When a vendor asks to change their bank details, do you call them back on a number you already have?
-- Answer: **Always** — Always; office manager calls back
+- Answer: **Always** — Always calls the vendor back on the number already on file before changing bank details
 - Status: `ready to confirm`
-- Client said: “Yes. Our office manager always calls. We almost got burned on a lab invoice two years ago, so that's a hard rule now.” ([[raw/sloanslake/call_1_intake|call_1_intake]] 03:42)
+- Client said: “if a vendor asks to change bank details we always call them back at the number we already have on file before changing anything.” ([[raw/sloanslake/email_1_office_manager|email_1_office_manager]] )
 - Fills application: payment_verify
 
 #### Security posture
 
 ### Q14 · Multi-factor authentication
 - Asked: Is multi-factor authentication turned on for email, remote access and admin accounts?
-- Answer: **Email, Remote access** — Email MFA for owner and front desk, unsure for hygienists; remote desktop has MFA
+- Answer: **Email** — MFA is now on for all email accounts, including the three hygienists. Remote access and admin accounts were not discussed.
 - Status: `needs follow-up`
-- Client said: “Mostly. I do, and the front desk does. I'm honestly not sure about the hygienists' accounts. Remote desktop for me and the office manager has the phone code.” ([[raw/sloanslake/call_1_intake|call_1_intake]] 03:57)
-- Client hedged (“Mostly”). Confirm before it goes on the application.
+- Client said: “Yes. Peak Tech turned on the phone codes for all three hygienists on Monday, so it's everyone now.” ([[raw/sloanslake/call_2_followup|call_2_followup]] 00:13)
+- Partial answer. Confirm the rest before it goes on the application.
 - Fills application: mfa_email, mfa_remote
 
 ### Q15 · Detection and response plan
 - Asked: Do you have endpoint detection software, and a written plan for responding to an incident?
-- Answer: **Endpoint detection** — Believes EDR was installed; no written plan
+- Answer: **Endpoint detection** — Endpoint detection and response is on all nine computers, and Peak Tech watches the alerts. A written incident response plan was not discussed.
 - Status: `needs follow-up`
-- Client said: “I believe Peak Tech installed something last year. A written plan, no.” ([[raw/sloanslake/call_1_intake|call_1_intake]] 04:15)
-- Client hedged (“I believe”). Confirm before it goes on the application.
+- Client said: “They confirmed it's endpoint detection and response, on all nine computers, and they watch the alerts.” ([[raw/sloanslake/call_2_followup|call_2_followup]] 00:25)
+- Partial answer. Confirm the rest before it goes on the application.
 - Fills application: edr
 
 ### Q16 · Prior incidents
@@ -193,9 +193,10 @@ Calls: [[raw/sloanslake/call_1_intake|call_1_intake]] · last extraction: cached
 
 ### Q17 · Current cyber policy
 - Asked: Current cyber limit, deductible, waiting period and sublimits. Pull from the policy; ask only if it’s missing.
-- Answer: **—**
-- Status: `not covered on the call`
-- Pull from the current policy.
+- Answer: **BOP data breach endorsement, limit possibly $50,000 (unconfirmed)** — Business owner's policy has a data breach endorsement; limit is possibly $50,000 (unsure). Declarations page still to be located. Deductible, waiting period and sublimits not given.
+- Status: `needs follow-up`
+- Client said: “our business owner's policy has a data breach endorsement, I think the limit is $50,000. I'll look for the declarations page.” ([[raw/sloanslake/email_1_office_manager|email_1_office_manager]] )
+- Partial answer. Confirm the rest before it goes on the application.
 
 ### Q18 · Contract minimums
 - Asked: Do any contracts require you to carry a minimum cyber limit?
@@ -242,12 +243,12 @@ Not answered on the call. Escalate to a licensed coverage specialist for a writt
 | Application question | Status | From |
 |---|---|---|
 | Applicant legal name | ready to confirm | 0.1 |
-| Gross annual revenue, most recent fiscal year | needs follow-up | 0.4 |
+| Gross annual revenue, most recent fiscal year | ready to confirm | 0.4 |
 | Approximate number of unique individuals' PII/PHI records held | ready to confirm | Q7 |
-| Is MFA enforced for all email accounts? | needs follow-up | Q14 |
+| Is MFA enforced for all email accounts? | ready to confirm | Q14 |
 | Is MFA enforced for all remote access to the network? | ready to confirm | Q14 |
 | Are backups performed at least weekly, stored offline or immutable, and tested? | needs follow-up | Q4 |
-| Is endpoint detection and response (EDR) deployed on all endpoints? | needs follow-up | Q15 |
+| Is endpoint detection and response (EDR) deployed on all endpoints? | ready to confirm | Q15 |
 | Are requests to change vendor/bank payment instructions verified out-of-band? | ready to confirm | Q13 |
 | Do employees receive phishing awareness training at least annually? | ready to confirm | Q19 |
 | In the past 5 years, any cyber incidents, breaches, or claims? | ready to confirm | Q16 |
