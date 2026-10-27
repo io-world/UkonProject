@@ -71,6 +71,8 @@ section.block > .sub{color:var(--ink-2);margin-top:6px;max-width:72ch}
 @media (max-width:980px){.quad{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:760px){.pair,.quad{grid-template-columns:1fr}}
 .pair>*,.quad>*{min-width:0}
+.used .used-h{font-family:var(--serif);font-weight:600;font-size:1.05rem;margin:14px 0 6px}
+.used-list{margin:0;padding-left:18px;display:grid;gap:6px}
 
 .pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 9px;font-size:.72rem;font-weight:600;letter-spacing:.02em;white-space:nowrap}
 .pill.ai{background:var(--ai-bg);color:var(--ai)}
@@ -156,7 +158,7 @@ code{font:12.5px ui-monospace,Menlo,monospace;background:var(--wash);padding:1px
     <h1>Research agents: from one practice to every renewal</h1>
     <p class="lede">For the prototype I researched one real business by hand: its legal entity, its web and email footprint, and the recent incidents in its industry. This page describes how that becomes a set of AI agents that does the same for every client an agency renews, which steps the model does, which steps are plain code, and where a person stays in the loop.</p>
     <div class="meta"><span>Companion to the workflow and the prototype</span><span>Worked example: Sloan's Lake Dental, Denver (real public data)</span></div>
-    <nav class="toc" aria-label="On this page"><a href="#split">Two jobs</a><a href="#map">System map</a><a href="#client">Client agents</a><a href="#industry">Industry agents</a><a href="#sources">Source adapters</a><a href="#confidence">Confidence &amp; review</a><a href="#guardrails">Guardrails</a><a href="#trace">Worked example</a><a href="#measure">Measuring it</a><a href="#breaks">Where it breaks</a><a href="#build">Build order</a></nav>
+    <nav class="toc" aria-label="On this page"><a href="#split">Two jobs</a><a href="#map">System map</a><a href="#client">Client agents</a><a href="#industry">Industry agents</a><a href="#sources">Source adapters</a><a href="#confidence">Confidence &amp; review</a><a href="#guardrails">Guardrails</a><a href="#trace">Worked example</a><a href="#measure">Measuring it</a><a href="#breaks">Where it breaks</a><a href="#build">Build order</a><a href="#used">How AI was used here</a></nav>
   </div>
 
   <section class="block" id="split">
@@ -403,6 +405,56 @@ code{font:12.5px ui-monospace,Menlo,monospace;background:var(--wash);padding:1px
       <div class="card"><span class="pill plain">Next</span><p class="small" style="margin-top:8px">The industry researcher and verifier with a CPL-approved dental library; the tailor; the refresher. Add the next two industries by renewal volume.</p></div>
       <div class="card"><span class="pill plain">Later</span><p class="small" style="margin-top:8px">More state adapters (or a commercial aggregator), vendor-incident monitoring across all clients, and using override data to tune the confidence rules per industry.</p></div>
     </div>
+  </section>
+
+  <section class="block" id="used">
+    <h2>How AI was used in this project, and where it wasn't</h2>
+    <p class="sub">The line I drew: AI reads, researches, extracts and drafts. People make every decision, and every conversation with the customer is a person's.</p>
+    <div class="pair mt">
+      <div class="card used">
+        <span class="pill ai">AI did this</span>
+        <h3 class="used-h">Building the prototype</h3>
+        <ul class="small used-list">
+          <li><b>Design partner and builder</b> (Claude in Claude Code): framing the stages, most of the code, and a critique of my own design that cut it to one client, built deep.</li>
+          <li><b>Research with sources:</b> the practice's real public records (Colorado registry, NPI registry, website, DNS, directory listings, press releases), 13 cited industry incidents, Census, BLS and ADA benchmarks, and market research on why small businesses don't buy or keep cyber and what happens after bind.</li>
+          <li><b>Fact-checking its own sources:</b> before the interview plan went up, the check caught a misstated survey figure (Coalition's 35%) and a vendor blog used as evidence; both were fixed.</li>
+          <li><b>Simulated demo material</b>, labelled as such: call transcripts, the office manager's email, carrier letters, the firm quote, the agency record, and role-based notes on the people at the practice.</li>
+          <li><b>Visual QA:</b> after each change, a headless browser screenshotted every page at desktop and phone width for review; it caught overflow, chart and layout bugs.</li>
+          <li><b>Repeatable skills:</b> client research, client ingest, carrier-reply ingest, call ingest, and "ask about a client", packaged so a team can run them the same way.</li>
+          <li><b>Shared context:</b> a claude.ai Project holds the docs; Claude worked in the repo on my Mac, with every change in git.</li>
+        </ul>
+        <h3 class="used-h">Inside the product</h3>
+        <ul class="small used-list">
+          <li><b>Reading documents:</b> carrier letters, emails, underwriter calls and firm quotes; the client's calls and emails. Code then checks every figure against the source.</li>
+          <li><b>Drafting:</b> the proposal pack's wording (no digits allowed; numbers come from the database) and the agent brief.</li>
+          <li><b>Answering the agent:</b> "Ask about this client" (read-only) and "Ask the wiki" (wiki first, web only as a fallback, labelled by the tools that actually ran).</li>
+          <li><b>Saved outputs</b> so the demo runs offline and the same way every time.</li>
+        </ul>
+      </div>
+      <div class="card used">
+        <span class="pill hu">People did this</span>
+        <h3 class="used-h">Every decision: human-in-the-loop controls</h3>
+        <ul class="small used-list">
+          <li>Confirms the company match, every time.</li>
+          <li>Reviews flagged estimates; estimated revenue always.</li>
+          <li>Approves sending anything to carriers.</li>
+          <li>Confirms any carrier figure the check couldn't find in the document.</li>
+          <li>Adjusts estimates; submits, locks and sends the pack.</li>
+          <li>Confirms every questionnaire answer; resolves hedges and conflicts.</li>
+          <li>Records the owner's choice, or "not now" and why.</li>
+          <li>Marks each condition to bind as met, with evidence; binds.</li>
+          <li>Coverage questions go to a Cyber Practice Leader.</li>
+          <li>The client signs the application.</li>
+        </ul>
+        <h3 class="used-h">The customer relationship</h3>
+        <ul class="small used-list">
+          <li>The agent presents the pack, runs the calls and answers the client's emails.</li>
+          <li>The agent owns the touchpoints after bind and the next renewal.</li>
+          <li>Nothing reaches the client without a person sending it.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout mt"><b>Customer communication stays human.</b> AI prepares the agent (pack wording, brief, talking points, answers to the agent's questions) and does most of the carrier paperwork: reading replies, checking figures, turning changes into follow-ups. It never talks to the business owner, never sends anything to the client, and never says whether something would be covered.</div>
   </section>
 </main>
 

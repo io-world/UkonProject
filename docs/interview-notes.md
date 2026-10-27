@@ -678,6 +678,9 @@ renewal window is missed) and who to ask. Rule: only ask what only UKON can answ
 - **Wispr Flow** for call capture, pulled in by a Claude skill.
 - **Guardrails built by me, around the AI:** no-digits validator, hedge override, locked carrier
   numbers, ordered merges, escalation everywhere. The AI does the work; the system decides what to trust.
+- **Full list, AI vs people:** `web/public/ai/index.html#used` (research and fact-checking, simulated
+  demo material, visual QA, skills; inside the product: reading documents, drafting, answering the agent).
+  People make every decision and own every conversation with the customer; AI does most of the carrier paperwork.
 
 ---
 
