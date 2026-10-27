@@ -30,6 +30,11 @@ The problems were scope and who does the work:
 end. Add a "how this scales" slide showing the renewal queue so the panel sees it was designed
 for many clients even though the prototype runs one.
 
+**What to build first in production (Randy, Oct 27):** (1) data capture that shows where renewals break and
+what to prioritize (offered or not, quoted, bound, not now and why, carrier declines, year-two drop-offs, time
+per step); (2) everything about the carriers and how they work (channels, turnaround, applications, appetite,
+conditions, renewal), reading what carriers already send before building APIs; (3) then what the data points to.
+
 ## Built
 
 Six stages: UKON's four, with its Stage 1 split in two (decision #55) and its Stage 4 split in two (decisions #59–60).

@@ -613,8 +613,11 @@ HTML file work without the app.
   client data leaves the agency, and makes each half measurable on its own. Your Stage 4 also hides
   two: the questionnaire, which takes several calls and emails and is where deals stall, and the close
   (choice, firm quote, bind), which needs its own record of why deals are won or lost.
-- *What would you build first?* Renewal queue + Stage 1 with review by exception + pack, then
-  carrier integrations. Binding and e-sign stay simulated until carriers are integrated.
+- *What would you build first?* Data capture that shows where renewals break (offered or not,
+  quoted, bound, not now and why, carrier declines, year-two drop-offs, time per step), then everything
+  about the carriers and how they work (channels, turnaround, applications, appetite, conditions,
+  renewal). Then what the data points to: queue + Stage 1 + pack, questionnaire pre-fill, or after-bind
+  retention. Binding and e-sign stay simulated until carriers are integrated.
 - *How do you know the estimates are right?* Two independent methods, ranges, confidence, confirmed
   on the call; next step is a golden set of 15–20 businesses for field-level accuracy.
 
