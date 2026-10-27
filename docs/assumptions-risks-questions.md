@@ -40,20 +40,16 @@ Raw material for the 1–2 page write-up.
 
 ## Open questions (for interviews)
 
-Rule: only ask what only UKON can answer. Top 15, in order (A workflow today, B after bind, C why the window is missed). Also in `web/public/interview/1-interview-plan.html`.
+Rule: only ask what only UKON can answer. In order (A workflow today, B after bind, C why the window is missed). Sources for #2 and #11 are on `web/public/interview/1-interview-plan.html`.
 
 1. **Matt (CEO)** [C] You wrote that the renewal moment gets missed because it's too much manual work. What is that based on: numbers, what agents tell you, or a specific deal?
-2. **Matt (CEO)** [C] Outside surveys blame price, owners who think another policy already covers them, and carriers declining clients without MFA or backups. Which of those do you see at UKON?
-3. **Matt (CEO)** [C] When a cyber policy doesn't renew, is a postmortem done that tells you exactly why?
-4. **Matt (CEO)** [C] Which is the bigger prize: more clients buying cyber for the first time, or keeping the ones who already bought?
-5. **Matt (CEO)** [A] How do UKON and the agent each earn on a cyber policy, and when: at bind, or at every renewal?
-6. **CPL** [A] Walk me through three recent deals: one that bound, one that stalled and one that died. Who did what, when, and in which tool?
-7. **CPL** [A] When an agent brings you a client, what do they actually send? Can I see a real one, redacted?
-8. **CPL** [C] Tell me about the last client who said no. What reason did they give, and what do you think the real reason was?
-9. **Ops / submissions** [A] For each carrier you use for small-business cyber, how do you request an indication, how does it come back (portal, email, PDF, API or phone), and how long does it take?
-10. **Ops / submissions** [A] Show me one submission start to finish on your screen. Which systems does it touch, and what gets typed twice?
-11. **Ops / submissions** [C] Do you track why quoted clients don't bind and why cyber policies don't renew? Can I see the list or the reason codes?
-12. **Agency success** [A] Walk me through how one of your agencies runs a renewal at 120, 90, 60 and 30 days out. Who does what, and what can UKON see from the agency's system?
-13. **Service / claims** [B] After a policy binds, who is the client's contact for the year: the agent, UKON or the carrier? What does UKON do between bind and renewal?
-14. **Service / claims** [B] Which of your carriers monitor clients during the policy year, and do their alerts reach UKON or the agent, or only the client?
-15. **Service / claims** [B] Walk me through the last incident a UKON client reported, and any claim that was disputed. Was it because the application didn't match what was really in place?
+2. **Matt (CEO)** [C] Public research points to a few causes besides manual work: price, owners believing another policy already covers them, and carriers requiring controls like MFA before they'll quote. Which of those do you actually see at UKON?
+3. **Matt, then Ops for the data** [C] When a cyber policy doesn't renew, or a quote doesn't bind, is a postmortem done that tells you exactly why? Can I see the list or the reasons?
+4. **Matt (CEO)** [A] As a wholesaler, what does UKON actually own? Who holds the client relationship, who has authority to quote and bind, and who prices the risk? Is anyone at UKON pricing or underwriting, or does every number come from the carrier? And how do UKON and the agent get paid?
+5. **CPL, with Ops in the room** [A] Here's the workflow I built in five stages: confirm the client's data, get indications from carriers, build the proposal pack, equip the agent, then present, apply and bind. Where is it wrong? At each stage, who hands what to whom: agent, UKON, carrier, client?
+6. **CPL** [A] Walk me through three recent deals: one that bound, one that stalled and one that died. Who did what, when, and in which tool? Can I see what the agent sent you at the start, redacted?
+7. **CPL** [C] Tell me about the last client who said no. What reason did they give, and what do you think the real reason was?
+8. **Ops / submissions** [A] For each carrier you use for small-business cyber, how do you request an indication, how does it come back (portal, email, PDF, API or phone), and how long does it take? Can you show me one on screen, including what gets typed twice?
+9. **Agency success** [A] Walk me through how one of your agencies runs a renewal at 120, 90, 60 and 30 days out. Who does what, and what can UKON see from the agency's system?
+10. **Service / account management** [B] Once a policy is bound, what are the touchpoints during the year that make the renewal easier, and who owns each one: the agent, UKON or the carrier? Do any carriers monitor the client's security mid-term, and does UKON or the agent ever see those alerts?
+11. **Service / claims** [B] Walk me through the last incident a UKON client reported, and any claim that was disputed. Was it because the application didn't match what was really in place?
