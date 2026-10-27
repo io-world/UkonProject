@@ -160,9 +160,19 @@ tr.v-withdrawn td { color: var(--muted); text-decoration: line-through; }
 .brief-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .brief-grid .wide { grid-column: 1 / -1; }
 .pitch { margin: 0 0 10px; padding: 12px 14px; background: var(--paper); border-left: 3px solid var(--accent); font: 15px/1.6 'Source Serif 4', Georgia, serif; }
+.obj-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.obj-head .row { gap: 14px; }
 .obj { border-top: 1px solid var(--line-2); }
-.obj-q { width: 100%; display: flex; justify-content: space-between; gap: 8px; background: none; border: 0; padding: 10px 0; text-align: left; font: 600 13.5px Inter, sans-serif; cursor: pointer; color: var(--ink); }
-.obj-a { padding: 0 0 10px; } .obj-a .label { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--accent); font-weight: 700; }
+.obj-q { width: 100%; display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 10px 4px; text-align: left; font: 600 13.5px Inter, sans-serif; cursor: pointer; color: var(--ink); border-radius: 6px; }
+.obj-q:hover { background: var(--wash); }
+.obj.open .obj-q:hover { background: transparent; }
+.obj-q:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.obj-text { flex: 1; }
+.obj-icon { flex: none; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font: 700 16px/1 Inter, sans-serif; border: 1.5px solid var(--accent); color: var(--accent); background: #fff; transition: background .15s, color .15s; }
+.obj.open .obj-icon { background: var(--accent); color: #fff; }
+.obj.open { background: var(--accent-2); border-radius: 8px; border-top-color: transparent; }
+.obj.open + .obj { border-top-color: transparent; }
+.obj-a { padding: 0 12px 12px 40px; } .obj-a .label { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--accent); font-weight: 700; }
 .spec { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 8px; }
 .spec th, .spec td { text-align: left; border-bottom: 1px solid var(--line-2); padding: 5px 4px; }
 .appq { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }

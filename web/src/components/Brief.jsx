@@ -5,7 +5,8 @@ const STATUS = { prefilled: 'answered', needs_followup: 'follow up', confirmed: 
 
 export default function Brief({ tick }) {
   const [b, setB] = useState(null)
-  const [open, setOpen] = useState('too_small')
+  const [open, setOpen] = useState(() => new Set(['too_small']))
+  const toggle = (k) => setOpen((o) => { const n = new Set(o); n.has(k) ? n.delete(k) : n.add(k); return n })
   useEffect(() => { api.brief().then(setB) }, [tick])
   if (!b) return <div className="muted">Loading brief…</div>
   const r = b.recommended
@@ -26,14 +27,23 @@ export default function Brief({ tick }) {
         </section>
 
         <section className="card">
-          <h3>Likely objections</h3>
+          <div className="obj-head">
+            <h3>Likely objections</h3>
+            <div className="row">
+              <button className="link" onClick={() => setOpen(new Set(b.objections.map((o) => o.key)))}>Expand all</button>
+              <button className="link" onClick={() => setOpen(new Set())}>Collapse all</button>
+            </div>
+          </div>
           {b.objections.map((o) => (
-            <div key={o.key} className={`obj ${open === o.key ? 'open' : ''}`}>
-              <button className="obj-q" onClick={() => setOpen(open === o.key ? null : o.key)}>
-                <span>"{o.objection}"</span>{o.escalate && <span className="pill warn">CPL</span>}
+            <div key={o.key} className={`obj ${open.has(o.key) ? 'open' : ''}`}>
+              <button className="obj-q" onClick={() => toggle(o.key)} aria-expanded={open.has(o.key)}
+                      aria-controls={`obj-${o.key}`}>
+                <span className="obj-icon" aria-hidden>{open.has(o.key) ? '−' : '+'}</span>
+                <span className="obj-text">"{o.objection}"</span>
+                {o.escalate && <span className="pill warn">CPL</span>}
               </button>
-              {open === o.key && (
-                <div className="obj-a">
+              {open.has(o.key) && (
+                <div className="obj-a" id={`obj-${o.key}`}>
                   <div className="label">Say this (tailored)</div><p>{o.tailored}</p>
                   <div className="label">Approved source answer</div><p className="muted">{o.approved}</p>
                 </div>
