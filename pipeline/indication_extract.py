@@ -166,10 +166,32 @@ def check_numbers(ext: dict, text: str, client_names: list[str], verbal: bool = 
         money(scope, "limit", o.get("limit"))
         money(scope, "deductible", o.get("deductible"))
         if o.get("status") == "indicated":
-            money(scope, "premium", o.get("premium"))
+            if o.get("premium") is None:
+                # The model followed "never convert": it left the premium blank (e.g. the source says "5.29k").
+                # An offer with no checkable price must wait for a person, never pass as verified.
+                rows.append({"scope": scope, "field": "premium", "value": None, "found": False,
+                             "note": "premium is missing: the source doesn't state it in full (shorthand like "
+                                     "'5.29k' isn't accepted)"})
+            else:
+                money(scope, "premium", o.get("premium"))
             for k, v in (o.get("sublimits") or {}).items():
                 money(scope, f"sublimit.{k}", v)
     return rows
+
+
+def canonical_carrier(name: str | None, panel: list[str]) -> str | None:
+    """Map the name the model read off the letter to the carrier panel's name, so one carrier stays one
+    carrier ("Northwind Specialty Insurance Company" → "Northwind Specialty"). Rule-based: a panel name
+    that is a prefix of the extracted name, or the reverse, or the same first two words. Unknown names pass
+    through unchanged and show up as a carrier we never asked."""
+    if not name:
+        return name
+    n = " ".join(name.lower().replace(",", " ").split())
+    for p in panel:
+        q = p.lower()
+        if n == q or n.startswith(q + " ") or q.startswith(n + " ") or n.split()[:2] == q.split()[:2]:
+            return p
+    return name
 
 
 def failures_for(checks: list[dict], limit: int) -> list[str]:

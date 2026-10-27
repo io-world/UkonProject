@@ -192,7 +192,9 @@ def ingest(conn, cid: int, path: str | Path, actor_id: int, input_by: int | None
     text = ix.source_text(p)
     ext, provenance = ix.extract(p, text)
     verbal = channel == "call" or ext.get("firmness") == "verbal"
-    checks = ix.check_numbers(ext, text, names, verbal)
+    checks = ix.check_numbers(ext, text, names, verbal)   # carrier-name check uses the name as written
+    ext["carrier_as_written"] = ext.get("carrier")
+    ext["carrier"] = ix.canonical_carrier(ext.get("carrier"), [c["carrier"] for c in panel()])
     sha = ix.content_sha(text)
     src = conn.execute("""INSERT INTO indication_sources (client_id, carrier, channel, input_method, content_sha, path,
                           doc_date, reference, extractor, input_by, extraction, checks, ingested_by)
@@ -317,6 +319,9 @@ def review_version(conn, cid: int, version_id: int, actor_id: int, decision: str
         raise LookupError("no such indication version")
     if v["review"] != "pending_review":
         raise ValueError(f"Nothing to review: this version is '{v['review']}'")
+    if decision == "confirmed" and v["status"] == "indicated" and v["premium"] is None:
+        raise ValueError("There's no premium to confirm: the reply doesn't state one in full. Reject it and ask "
+                         f"{v['carrier']} to send the figure written out.")
     conn.execute("""UPDATE indication_versions SET review=%s, reviewed_by=%s, reviewed_at=now(), review_note=%s
                     WHERE id=%s""", (decision, actor_id, note, version_id))
     _close_actions(conn, cid, v["carrier"], "confirm_extraction", actor_id,

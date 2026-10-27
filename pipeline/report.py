@@ -79,7 +79,7 @@ def build_snapshot(conn, cid: int, narrative_blocks: dict) -> dict:
                                            "expires_on": i["expires_on"].isoformat(), "options": {}})
         carriers[i["carrier"]]["options"][i["tier"]] = {
             "limit": i["limit_amount"], "deductible": i["deductible"], "premium": i["premium"],
-            "monthly": round(i["premium"] / 12), "sublimits": i["sublimits"], "version_no": i["version_no"],
+            "monthly": round(i["premium"] / 12) if i["premium"] is not None else None, "sublimits": i["sublimits"], "version_no": i["version_no"],
             "expired": i["expired"]}
     # Why an option is missing for a carrier (declined, waiting on writing, flagged figure, expired)
     from . import indications as ind_mod
