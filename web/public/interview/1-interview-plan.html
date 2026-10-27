@@ -145,6 +145,8 @@ footer.foot .wrap{display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space
 .qs .learn{grid-column:2;font-size:.82rem;color:var(--muted)}
 .ask{columns:2;column-gap:28px} .ask li{break-inside:avoid;margin:6px 0}
 @media (max-width:760px){.ask{columns:1}}
+.top15 td{vertical-align:top}.top15 .num{font-weight:700;color:var(--muted);width:28px}.top15 .who{white-space:nowrap;font-weight:600;font-size:.85rem}
+@media (max-width:640px){.top15 .who{white-space:normal}}
 .rule{font-family:var(--serif);font-size:1.15rem;line-height:1.5}
 </style>
 <main class="wrap">
@@ -168,116 +170,35 @@ footer.foot .wrap{display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space
     <h2>The order I'd run them</h2>
     <div class="order mt">
       <div class="card"><span class="n">First · the problem</span><h3>Matt, then two CPLs</h3><p>Test the brief's explanation against UKON's own numbers and recent deals before anything else. Gap C first, because it decides whether this is a sales problem or a retention problem.</p></div>
-      <div class="card"><span class="n">Second · the real workflow</span><h3>Ops / submissions, agency success, engineering</h3><p>Watch a real submission go from agency to carrier and back. Replace every assumption in the prototype with what actually happens.</p></div>
-      <div class="card"><span class="n">Third · after bind</span><h3>Service / claims, a CPL, compliance</h3><p>Follow a bound policy through a year, an incident and a renewal.</p></div>
+      <div class="card"><span class="n">Second · the real workflow</span><h3>Ops / submissions, agency success</h3><p>Watch a real submission go from agency to carrier and back. Replace every assumption in the prototype with what actually happens.</p></div>
+      <div class="card"><span class="n">Third · after bind</span><h3>Service / claims</h3><p>Follow a bound policy through a year, an incident and a renewal.</p></div>
     </div>
   </section>
 
   <section class="block">
-    <h2>Questions, by person at UKON</h2>
-    <p class="sub">Most questions are "walk me through the last one" or "show me": a real recent case beats an opinion about the average case.</p>
-    <div class="grid2 mt">
-
-      <article class="card grp" id="matt">
-        <div class="grp-head"><h3>Matt (CEO) and the exec team</h3><span class="pill plain">First</span></div>
-        <p class="why"><strong>Why:</strong> the brief is his diagnosis. I want the evidence behind it, and his reaction to the other explanations, before building on it.</p>
-        <ol class="qs">
-          <li><span class="th c">C</span>You wrote that the renewal moment gets missed because getting a client to "protected" is too much manual work. What is that based on: numbers, agents telling you, a specific deal?<span class="learn">Whether the core premise is measured or believed.</span></li>
-          <li><span class="th c">C</span>Outside surveys blame price, owners thinking their package policy already covers cyber, and carriers declining clients without MFA or backups. Which of those do you see at UKON, and which don't you?<span class="learn">Which causes are live for UKON's book.</span></li>
-          <li><span class="th c">C</span>Of the cyber policies UKON places, roughly what share renews at year two? When one doesn't, do you know whether the client walked or the carrier declined?<span class="learn">Whether the bigger problem is selling or keeping.</span></li>
-          <li><span class="th c">C</span>If you had to pick: more agencies' clients buying cyber for the first time, or the clients who already bought keeping it?<span class="learn">Where the first build should point.</span></li>
-          <li><span class="th a">A</span>How does UKON earn on a cyber policy, and when: at bind, at each renewal? How does the agent earn?<span class="learn">Who has the incentive to do each step.</span></li>
-          <li><span class="th a">A</span>What has UKON already tried to get agents to raise cyber, and what happened?<span class="learn">What not to rebuild.</span></li>
-        </ol>
-        <p class="changes"><b>Changes:</b> whether the first build is the sales path (what the prototype does) or a retention path, and which number we use to call it a success.</p>
-      </article>
-
-      <article class="card grp" id="cpl">
-        <div class="grp-head"><h3>Cyber Practice Leaders (CPLs)</h3><span class="pill plain">First</span></div>
-        <p class="why"><strong>Why:</strong> they're inside every deal. They know where deals stall and what agents and owners really say.</p>
-        <ol class="qs">
-          <li><span class="th a">A</span>Pick three recent deals: one that bound, one that stalled, one that died. Walk me through each, step by step: who did what, when, and in which tool.<span class="learn">The real workflow, and where time actually goes.</span></li>
-          <li><span class="th a">A</span>When an agent brings you a client, what do they actually send? Can I see a real one, redacted?<span class="learn">What data exists at the start, versus what the prototype assumes.</span></li>
-          <li><span class="th a">A</span>At what point do you get pulled in: before the agent talks to the client, during, or after something goes wrong?<span class="learn">Where review fits without adding a step.</span></li>
-          <li><span class="th c">C</span>Tell me about the last client who said no. What reason did they give, and what do you think the real reason was?<span class="learn">The gap between stated and real objections.</span></li>
-          <li><span class="th c">C</span>When a cyber client didn't renew, what happened? Did you know before it lapsed?<span class="learn">Whether lapses are visible in time to act.</span></li>
-          <li><span class="th b">B</span>After bind, do you hear from the client or the agent again before renewal? About what?<span class="learn">Whether anyone owns the policy year.</span></li>
-        </ol>
-        <p class="changes"><b>Changes:</b> the review steps, the objection library, and whether UKON or the agent absorbs the work.</p>
-      </article>
-
-      <article class="card grp" id="ops">
-        <div class="grp-head"><h3>Ops / submissions / wholesale</h3><span class="pill plain">Second</span></div>
-        <p class="why"><strong>Why:</strong> they move submissions to carriers and indications back. The prototype guessed at all of it.</p>
-        <ol class="qs">
-          <li><span class="th a">A</span>Show me a submission from start to finish on your screen: which systems, emails and carrier portals it touches, and what you re-type.<span class="learn">The real path, and where automation pays.</span></li>
-          <li><span class="th a">A</span>For each carrier you use for small-business cyber: how do you request an indication, how does it come back (portal, email, PDF, API, phone), and how long does it take?<span class="learn">Replaces the prototype's assumption about carrier replies.</span></li>
-          <li><span class="th a">A</span>How do you decide which carriers to send a client to? Is that written down anywhere?<span class="learn">Whether carrier selection can be a rule.</span></li>
-          <li><span class="th a">A</span>Of last quarter's submissions, how many came back declined or asking for more information, and for what?<span class="learn">Which data must be right first time.</span></li>
-          <li><span class="th a">A</span>When an indication comes back, who tells the agent, how, and how fast?<span class="learn">The handoff the proposal pack depends on.</span></li>
-          <li><span class="th c">C</span>Do you track why quoted clients don't bind, and why cyber policies don't renew? Can I see the reason codes, or a list?<span class="learn">The data that settles gap C.</span></li>
-        </ol>
-        <p class="changes"><b>Changes:</b> which carriers to integrate first, what Stage 1 must collect, and the reason codes the product should capture from day one.</p>
-      </article>
-
-      <article class="card grp" id="agency">
-        <div class="grp-head"><h3>Agency success / account management</h3><span class="pill plain">Second</span></div>
-        <p class="why"><strong>Why:</strong> they see how agencies actually run renewals, which UKON's own systems don't show.</p>
-        <ol class="qs">
-          <li><span class="th a">A</span>Walk me through how one of your agencies runs a renewal: 120, 90, 60, 30 days out. Who does what, and in which system?<span class="learn">Where the renewal trigger should come from.</span></li>
-          <li><span class="th a">A</span>Which agency management systems do your agencies use, and what can UKON see from them today?<span class="learn">Whether the renewal queue can be automatic.</span></li>
-          <li><span class="th a">A</span>How does an agency hand a client to UKON today: portal, email, phone?<span class="learn">The entry point for Stage 1.</span></li>
-          <li><span class="th c">C</span>When you ask an agent why a renewing client wasn't offered cyber, what do they say? Does it differ between your best and worst agencies?<span class="learn">Whether it's effort, confidence or incentive.</span></li>
-        </ol>
-        <p class="changes"><b>Changes:</b> how the renewal queue is fed, and which agencies to pilot with.</p>
-      </article>
-
-      <article class="card grp" id="service">
-        <div class="grp-head"><h3>Service / claims</h3><span class="pill plain">Third</span></div>
-        <p class="why"><strong>Why:</strong> nothing in the brief covers the year after bind, and I don't know who owns it.</p>
-        <ol class="qs">
-          <li><span class="th b">B</span>After a cyber policy binds, who is the client's contact: the agent, UKON or the carrier? What does UKON do between bind and renewal?<span class="learn">Who the post-bind experience is for.</span></li>
-          <li><span class="th b">B</span>Which of your carriers monitor clients after bind, and do their alerts reach UKON or the agent, or only the client?<span class="learn">Whether a mid-term check-in duplicates the carrier.</span></li>
-          <li><span class="th b">B</span>Walk me through the last incident a UKON-placed client reported: the first call, who helped, how long it took.<span class="learn">What "protected" means in practice.</span></li>
-          <li><span class="th b">B</span>Have any claims been disputed or denied? Was it because the application didn't match what was really in place?<span class="learn">How strict intake must be about hedged answers.</span></li>
-          <li><span class="th b">B</span>How does the cyber policy's own renewal start, how early, and what has to be collected again?<span class="learn">What carries forward a year, and what doesn't.</span></li>
-          <li><span class="th b">B</span>What happens mid-term when something changes: revenue jumps, a new location, a new IT provider?<span class="learn">Whether the client's wiki needs a change log.</span></li>
-        </ol>
-        <p class="changes"><b>Changes:</b> whether to build a mid-term check-in, and what the renewal of the cyber policy itself looks like.</p>
-      </article>
-
-      <article class="card grp" id="eng">
-        <div class="grp-head"><h3>Engineering / product</h3><span class="pill plain">Second</span></div>
-        <p class="why"><strong>Why:</strong> they know what data already exists and where it gets re-typed.</p>
-        <ol class="qs">
-          <li><span class="th a">A</span>Where do the client, submission, indication, policy and renewal live today? Where is the same data typed twice?<span class="learn">The system of record the prototype should plug into.</span></li>
-          <li><span class="th a">A</span>Which carrier connections exist today (API, portal, email), and which are on the roadmap?<span class="learn">How much of the reply handling is real today.</span></li>
-          <li><span class="th c">C</span>Can you pull, for the last year: renewing clients offered cyber, quoted, bound, and still in force at year two?<span class="learn">The funnel that answers gap C with numbers.</span></li>
-        </ol>
-        <p class="changes"><b>Changes:</b> integration order and the success metric's baseline.</p>
-      </article>
-
-      <article class="card grp" id="legal">
-        <div class="grp-head"><h3>Compliance</h3><span class="pill plain">Third</span></div>
-        <p class="why"><strong>Why:</strong> UKON has already made decisions here that the prototype shouldn't contradict.</p>
-        <ol class="qs">
-          <li><span class="th a">A</span>Who signs off client-facing material today, and what would they need to see before AI-written text reaches a client?<span class="learn">The approval step for the proposal pack.</span></li>
-          <li><span class="th a">A</span>Does UKON or its agencies record client calls today? What did you decide about consent?<span class="learn">Whether call capture is allowed at all.</span></li>
-          <li><span class="th b">B</span>Who is responsible if an application answer turns out wrong after a claim: the agent, UKON or the client?<span class="learn">How much confirmation each answer needs.</span></li>
-        </ol>
-        <p class="changes"><b>Changes:</b> the sign-off step and the consent script.</p>
-      </article>
-
-      <article class="card grp" id="intros">
-        <div class="grp-head"><h3>Introductions I'd ask for</h3><span class="pill plain">If UKON can connect me</span></div>
-        <p class="why"><strong>Why:</strong> one hour with each closes the biggest assumptions faster than anything I can read.</p>
-        <ol class="qs">
-          <li><span class="th a">A</span><b>A producer at a busy agency:</b> "Show me your last ten renewals. Which ones did you offer cyber, and why not the rest?"<span class="learn">Offer rate and the honest reasons.</span></li>
-          <li><span class="th b">B</span><b>An underwriter on UKON's panel:</b> "What do you do with a small-business policy between bind and renewal? What makes you decline at renewal?"<span class="learn">Mid-term monitoring and renewal gates, for UKON's actual carriers.</span></li>
-          <li><span class="th c">C</span><b>A client who dropped cyber, and one who kept it:</b> "What made you decide?"<span class="learn">The retention story in their words.</span></li>
-        </ol>
-      </article>
-
+    <h2>The 15 questions</h2>
+    <p class="sub">In the order I'd ask them. Most are "walk me through the last one" or "show me": a real recent case beats an opinion about the average case.</p>
+    <div class="card mt tablewrap">
+      <table class="top15">
+        <thead><tr><th>#</th><th>Question</th><th>Ask</th></tr></thead>
+        <tbody>
+          <tr><td class="num">1</td><td><span class="th c">C</span>You wrote that the renewal moment gets missed because it's too much manual work. What is that based on: numbers, what agents tell you, or a specific deal?</td><td class="who">Matt (CEO)</td></tr>
+          <tr><td class="num">2</td><td><span class="th c">C</span>Outside surveys blame price, owners who think another policy already covers them, and carriers declining clients without MFA or backups. Which of those do you see at UKON?</td><td class="who">Matt (CEO)</td></tr>
+          <tr><td class="num">3</td><td><span class="th c">C</span>When a cyber policy doesn't renew, is a postmortem done that tells you exactly why?</td><td class="who">Matt (CEO)</td></tr>
+          <tr><td class="num">4</td><td><span class="th c">C</span>Which is the bigger prize: more clients buying cyber for the first time, or keeping the ones who already bought?</td><td class="who">Matt (CEO)</td></tr>
+          <tr><td class="num">5</td><td><span class="th a">A</span>How do UKON and the agent each earn on a cyber policy, and when: at bind, or at every renewal?</td><td class="who">Matt (CEO)</td></tr>
+          <tr><td class="num">6</td><td><span class="th a">A</span>Walk me through three recent deals: one that bound, one that stalled and one that died. Who did what, when, and in which tool?</td><td class="who">CPL</td></tr>
+          <tr><td class="num">7</td><td><span class="th a">A</span>When an agent brings you a client, what do they actually send? Can I see a real one, redacted?</td><td class="who">CPL</td></tr>
+          <tr><td class="num">8</td><td><span class="th c">C</span>Tell me about the last client who said no. What reason did they give, and what do you think the real reason was?</td><td class="who">CPL</td></tr>
+          <tr><td class="num">9</td><td><span class="th a">A</span>For each carrier you use for small-business cyber, how do you request an indication, how does it come back (portal, email, PDF, API or phone), and how long does it take?</td><td class="who">Ops / submissions</td></tr>
+          <tr><td class="num">10</td><td><span class="th a">A</span>Show me one submission start to finish on your screen. Which systems does it touch, and what gets typed twice?</td><td class="who">Ops / submissions</td></tr>
+          <tr><td class="num">11</td><td><span class="th c">C</span>Do you track why quoted clients don't bind and why cyber policies don't renew? Can I see the list or the reason codes?</td><td class="who">Ops / submissions</td></tr>
+          <tr><td class="num">12</td><td><span class="th a">A</span>Walk me through how one of your agencies runs a renewal at 120, 90, 60 and 30 days out. Who does what, and what can UKON see from the agency's system?</td><td class="who">Agency success</td></tr>
+          <tr><td class="num">13</td><td><span class="th b">B</span>After a policy binds, who is the client's contact for the year: the agent, UKON or the carrier? What does UKON do between bind and renewal?</td><td class="who">Service / claims</td></tr>
+          <tr><td class="num">14</td><td><span class="th b">B</span>Which of your carriers monitor clients during the policy year, and do their alerts reach UKON or the agent, or only the client?</td><td class="who">Service / claims</td></tr>
+          <tr><td class="num">15</td><td><span class="th b">B</span>Walk me through the last incident a UKON client reported, and any claim that was disputed. Was it because the application didn't match what was really in place?</td><td class="who">Service / claims</td></tr>
+        </tbody>
+      </table>
     </div>
   </section>
 

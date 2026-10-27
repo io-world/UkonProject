@@ -40,30 +40,20 @@ Raw material for the 1–2 page write-up.
 
 ## Open questions (for interviews)
 
-Rule: only ask what only UKON can answer (its process, systems, numbers, recent cases). Anything
-answerable from public research is in the background section of the interview plan instead.
-Full list by person: `web/public/interview/1-interview-plan.html`. The three gaps:
+Rule: only ask what only UKON can answer. Top 15, in order (A workflow today, B after bind, C why the window is missed). Also in `web/public/interview/1-interview-plan.html`.
 
-### A. How the work actually moves today
-- Walk through three recent deals (bound, stalled, died): who did what, when, in which tool.
-- What an agent actually sends to start a quote (see a redacted one).
-- Per carrier: how an indication is requested, how it comes back (portal, email, PDF, API, phone), how long.
-- How carriers are chosen for a client; last quarter's declines and info requests, and why.
-- Who tells the agent when an indication arrives; where data is re-typed; existing carrier integrations.
-- How an agency runs a renewal (120/90/60/30) and what UKON can see from agency systems.
-- How UKON and the agent are paid on cyber, new and renewal.
-
-### B. What happens after bind
-- Who the client's contact is for the policy year; what UKON does between bind and renewal.
-- Which panel carriers monitor mid-term, and whether alerts reach UKON or the agent.
-- The last incident a UKON client reported, end to end; any disputed claims and why.
-- How the cyber policy's own renewal starts and what is collected again; mid-term changes.
-- Who is responsible when an application answer turns out wrong.
-
-### C. Why the renewal window is missed (Matt's view vs research)
-- What the "too much manual work" diagnosis is based on.
-- Which of price / "already covered" / low perceived value / carrier declines UKON actually sees.
-- Year-two retention, and the split between client-walked and carrier-declined.
-- First-time adoption vs retention: which is the bigger prize.
-- Reason codes for quoted-not-bound and non-renewal; the offered → quoted → bound → year-2 funnel.
-- What agents say when a renewing client wasn't offered cyber; what UKON has already tried.
+1. **Matt (CEO)** [C] You wrote that the renewal moment gets missed because it's too much manual work. What is that based on: numbers, what agents tell you, or a specific deal?
+2. **Matt (CEO)** [C] Outside surveys blame price, owners who think another policy already covers them, and carriers declining clients without MFA or backups. Which of those do you see at UKON?
+3. **Matt (CEO)** [C] When a cyber policy doesn't renew, is a postmortem done that tells you exactly why?
+4. **Matt (CEO)** [C] Which is the bigger prize: more clients buying cyber for the first time, or keeping the ones who already bought?
+5. **Matt (CEO)** [A] How do UKON and the agent each earn on a cyber policy, and when: at bind, or at every renewal?
+6. **CPL** [A] Walk me through three recent deals: one that bound, one that stalled and one that died. Who did what, when, and in which tool?
+7. **CPL** [A] When an agent brings you a client, what do they actually send? Can I see a real one, redacted?
+8. **CPL** [C] Tell me about the last client who said no. What reason did they give, and what do you think the real reason was?
+9. **Ops / submissions** [A] For each carrier you use for small-business cyber, how do you request an indication, how does it come back (portal, email, PDF, API or phone), and how long does it take?
+10. **Ops / submissions** [A] Show me one submission start to finish on your screen. Which systems does it touch, and what gets typed twice?
+11. **Ops / submissions** [C] Do you track why quoted clients don't bind and why cyber policies don't renew? Can I see the list or the reason codes?
+12. **Agency success** [A] Walk me through how one of your agencies runs a renewal at 120, 90, 60 and 30 days out. Who does what, and what can UKON see from the agency's system?
+13. **Service / claims** [B] After a policy binds, who is the client's contact for the year: the agent, UKON or the carrier? What does UKON do between bind and renewal?
+14. **Service / claims** [B] Which of your carriers monitor clients during the policy year, and do their alerts reach UKON or the agent, or only the client?
+15. **Service / claims** [B] Walk me through the last incident a UKON client reported, and any claim that was disputed. Was it because the application didn't match what was really in place?
