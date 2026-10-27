@@ -6,7 +6,7 @@ format: json-in-markdown
 
 # Cached extraction — 2026-10-28_cobalt_harbor_email
 
-> Cached LLM extraction of [[raw/quillfeather/indications/2026-10-28_cobalt_harbor_email.md|2026-10-28_cobalt_harbor_email]]. Set ANTHROPIC_API_KEY to extract live.
+> Cached LLM extraction of [[raw/sloanslake/indications/2026-10-28_cobalt_harbor_email|2026-10-28_cobalt_harbor_email]]. Set ANTHROPIC_API_KEY to extract live.
 > The pipeline re-checks every money figure below against the source text; it never trusts this file alone.
 
 Pipeline code reads the JSON block below. Keep it valid JSON.
@@ -18,7 +18,7 @@ Pipeline code reads the JSON block below. Keep it valid JSON.
   "reference": "CHI-26-7731",
   "firmness": "written",
   "supersedes": null,
-  "basis_revenue": 1950000,
+  "basis_revenue": 2350000,
   "expires_on": "2026-11-27",
   "specimen_form": "CHI-CYBR-2025",
   "bi_waiting_period_hours": 12,
@@ -31,23 +31,23 @@ Pipeline code reads the JSON block below. Keep it valid JSON.
       "limit": 1000000,
       "deductible": 10000,
       "status": "indicated",
-      "premium": 2960,
+      "premium": 3340,
       "sublimits": {
         "social_engineering": 50000,
         "ransomware": "full limit"
       },
-      "quote": "$1,000,000 limit / $10,000 retention: $2,960 annual"
+      "quote": "$1,000,000 limit / $10,000 retention: $3,340 annual"
     },
     {
       "limit": 2000000,
       "deductible": 25000,
       "status": "indicated",
-      "premium": 4690,
+      "premium": 5290,
       "sublimits": {
         "social_engineering": 100000,
         "ransomware": "full limit"
       },
-      "quote": "$2M limit / $25K retention: 4.69k annual"
+      "quote": "$2M limit / $25K retention: 5.29k annual"
     }
   ]
 }

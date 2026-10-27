@@ -1,20 +1,21 @@
 ---
-type: demo-sample
-input_method: clipboard
+type: raw-source
+immutable: true
+channel: email
 carrier: Cobalt Harbor Insurance
-label: "Cobalt Harbor email, Oct 28 (copy and paste)"
+received: 2026-10-28
 ---
 
-# Sample: Cobalt Harbor's emailed indication
+# Email — Cobalt Harbor indication for Sloan's Lake Dental
 
-> SIMULATED (fictional carrier, real insured). Demo input for **Paste from clipboard**: the email as an agent
-> would copy it out of Outlook. Note the shorthand "5.29k": the figure check sends it to a person.
+> SIMULATED (fictional carrier; real insured used for an interview demo). Saved as received (headers + body).
+> Note the shorthand "5.29k": the pipeline's number check only accepts figures written in full,
+> so this one goes to a person to confirm.
 
-```text
-From: Priya Natarajan <pnatarajan@cobaltharbor-ins.example>
-To: Jordan Pike <jpike@frontrange-iig.example>
-Date: Wed, Oct 28, 2026, 3:42 PM MT
-Subject: RE: Cyber indication request — Sage Dentistry, PLLC (Sloan's Lake Dental) (CHI-26-7731)
+**From:** Priya Natarajan <pnatarajan@cobaltharbor-ins.example>
+**To:** Jordan Pike <jpike@frontrange-iig.example>
+**Date:** Wed, Oct 28, 2026, 3:42 PM MT
+**Subject:** RE: Cyber indication request — Sage Dentistry, PLLC (Sloan's Lake Dental) (CHI-26-7731)
 
 Hi Jordan,
 
@@ -32,4 +33,3 @@ Indication valid through November 27, 2026. Non-binding, subject to a signed app
 Best,
 Priya Natarajan
 Cyber Underwriter, Cobalt Harbor Insurance
-```

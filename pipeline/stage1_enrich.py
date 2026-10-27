@@ -1,6 +1,5 @@
 """Stage 1 — turn extracted signals into the five indication fields (plus exposure),
 each with value, range, confidence, method and sources. Writes DB, then renders the wiki."""
-import json
 from datetime import date
 
 from .sources import read_source

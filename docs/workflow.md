@@ -77,19 +77,15 @@ until those come back, so Stage 1 has two directions.
 | Step | AI does | Human does | What could go wrong → how it's caught |
 |---|---|---|---|
 | Request (outbound) | Sends the five fields to each carrier on the panel for two options: **$1M / $10K** and **$2M / $25K**. Stores the basis exactly as sent, with what was still unreviewed. | Sends (re-requests are gated: entity confirmed and flagged fields reviewed). | Wrong company or stale revenue priced → the basis snapshot shows what each carrier priced on; revenue drift beyond ±15% raises "re-request". |
-| Reply arrives | Nothing: the reply is saved as received in `wiki/raw/<client>/indications/`, recording **how it came in**. Three ways, because we don't know how carriers deliver indications to UKON: **conversation** (paste a Wispr Flow transcript of the underwriter call), **clipboard** (paste an email, PDF text or portal page), **API** (a carrier's structured JSON; simulated). Files dropped into the folder also work. | Pastes or imports; their name is recorded. | Same reply entered twice → content hash, rejected as a duplicate. |
-| Extract | Reads the text (pypdf / pasted text), then an LLM pulls carrier, options, premiums, sublimits, conditions, expiry, with the line each came from. API replies skip this: no model. | — | Model invents or mis-reads a figure → next step. |
+| Reply arrives | Nothing: the reply is saved as received in `wiki/raw/<client>/indications/`, recording **how it came in**. PDF letters, emails and Wispr Flow captures of underwriter calls are saved as files and ingested. (Paste / API inputs were prototyped and removed.) | Saves the file. | Same reply twice → content hash recorded. |
+| Extract | Reads the text (pypdf / pasted text), then an LLM pulls carrier, options, premiums, sublimits, conditions, expiry, with the line each came from. | — | Model invents or mis-reads a figure → next step. |
 | Check | **Deterministic:** every money figure and the expiry date must appear in the source, written in full. Client name and carrier name must appear. | Confirms or rejects anything that fails (e.g. Cobalt's "5.29k"). | Shorthand, calculated dates, a reply for another client → flagged, never auto-accepted. |
 | Version | Appends a version per carrier + option; nothing is overwritten. Diff vs the previous version (premium, limit, deductible, sublimits, conditions, expiry, verbal → written). | — | History lost → append-only table, values locked by a database trigger. |
 | Act | Fixed rules turn the diff into actions: price changed (and whether a sent pack showed the old price), new condition (with the intake's answer), declined, verbal-only, figure to confirm. Alerts for expiring indications and revenue drift. | Works the list; closes each action with a note. | Agent misses a change → it stays in "Needs attention" until a person closes it. |
 | Current state | The client pack reads only the latest **written**, **checked** version per carrier + option. | Picks the carrier to show (default rule: cheapest $1M with full-limit ransomware). | Verbal number reaches the client → impossible: verbal versions are excluded from the view. |
 
-Every one of the five fields is editable too, and each value records its source: the pipeline (public records,
-agency file), a conversation, the clipboard, an API, or typed in, with a reference and the person's name.
-
-Demo: run_all loads three replies (Northwind PDF, Ridgeline call then letter). Live: paste Cobalt's email,
-paste the follow-up call, import Aspen Line's API reply, confirm Cobalt's $2M, then ingest Northwind's revised
-letter (+10% and a new EDR condition).
+Demo: run_all loads four replies (Northwind PDF, Cobalt email, Ridgeline call then letter); the revised Northwind
+letter can be ingested from the command line.
 
 ## Intake · human in the loop (built)
 

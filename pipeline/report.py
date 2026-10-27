@@ -4,7 +4,7 @@ import json
 
 from .sources import read_source
 from . import estimators, narrative
-from .config import RAW, ROOT, WIKI
+from .config import RAW, ROOT
 from .db import j
 
 TIERS = ["recommended", "premier"]   # the two options requested from carriers (config.REQUESTED_OPTIONS)

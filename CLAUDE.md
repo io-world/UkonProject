@@ -10,10 +10,10 @@ incomplete) → HTML client pack (with cited industry research) → agent brief 
 
 1. **The database owns the numbers; the wiki owns the evidence.** Never let model output write
    a premium, limit, deductible, or any figure that reaches a client. Prose uses `{placeholders}`.
-2. **Carrier indications are versioned, never overwritten** (DB trigger). It's a mockup, so an agent can edit any carrier
-   figure in the app, but each edit is a new version marked as edited, with who, why and the source.
+2. **Carrier indications are versioned, never overwritten** (DB trigger). The UI doesn't show or edit them; the client
+   pack reads the latest written, checked version through the `indications` view.
    Verbal figures never reach a client; an extracted figure not found verbatim in the source waits for a person.
-   Every reply and every edited field records where it came from (conversation, clipboard, API, file, typed).
+   Every edited field records where its value came from (conversation, clipboard, API, typed) and who changed it.
 3. **Humans confirm** the entity match, flagged estimates, and application answers; the client
    signs the application. Never auto-confirm.
 4. **Every change is logged** with actor and reason (`field_changes`); submitted report versions
@@ -31,7 +31,7 @@ incomplete) → HTML client pack (with cited industry research) → agent brief 
 uv sync                                          # Python env + bundled Postgres (pgserver) in .venv
 scripts/db.sh init                               # first time: Postgres cluster in db/pgdata, port 5433
 scripts/db.sh start | stop | status | psql
-uv run python -m pipeline.run_all                # reset DB: enrich, requests to 4 carriers + 3 replies, intake call 1, client pack v1
+uv run python -m pipeline.run_all                # reset DB: enrich, carrier indications (3 carriers), intake call 1, client pack v1
 uv run python -m pipeline.indications <reply.pdf|.md>     # ingest a carrier reply (versions, diff, actions)
 uv run python -m pipeline.intake_ingest <transcript.md>   # add another intake call (merges)
 uv run python -m pipeline.refresh_pack           # rebuild reports/sloanslake/current.html

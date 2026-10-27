@@ -37,28 +37,13 @@ export const api = {
   confirmAnswer: (key, actor, answer, normalized) =>
     req(`${base}/application/${key}/confirm`, { method: 'POST', body: { actor, answer, normalized } }),
   audit: () => req(`${base}/audit`),
-  indications: () => req(`${base}/indications`),
-  reviewIndication: (id, decision, actor, note) =>
-    req(`${base}/indications/versions/${id}/review`, { method: 'POST', body: { actor, decision, note } }),
-  closeIndicationAction: (id, actor, note) =>
-    req(`${base}/indications/actions/${id}/close`, { method: 'POST', body: { actor, note } }),
-  ingestIndication: (path, actor) => req(`${base}/indications/ingest`, { method: 'POST', body: { actor, path } }),
-  pasteIndication: (method, text, carrier, actor, note) =>
-    req(`${base}/indications/paste`, { method: 'POST', body: { actor, method, text, carrier: carrier || null, note: note || null } }),
-  importIndication: (payload, apiName, actor) =>
-    req(`${base}/indications/import`, { method: 'POST', body: { actor, payload, api_name: apiName } }),
-  editIndication: (carrier, tier, changes, actor, source_type, source_ref, note) =>
-    req(`${base}/indications/edit`, { method: 'POST', body: { actor, carrier, tier, changes, source_type, source_ref: source_ref || null, note: note || null } }),
-  indicationSamples: () => req(`${base}/indications/samples`),
-  requestIndications: (actor) => req(`${base}/indications/request`, { method: 'POST', body: { actor } }),
-  indicationSourceUrl: (path) => `${base}/indications/source?path=${encodeURIComponent(path)}`,
   ask: (question, actor) => req(`${base}/ask`, { method: 'POST', body: { actor, question } }),
 }
 
 // Where a value came from. Shown on every field and every carrier reply.
 export const SOURCE_LABEL = {
   pipeline: 'Public records & agency file (pipeline)', conversation: 'Conversation (Wispr Flow)',
-  clipboard: 'Copied from clipboard', api: 'API', manual: 'Typed in by hand', file: 'File saved to the wiki',
+  clipboard: 'Copied from clipboard', api: 'API', manual: 'Typed in by hand',
 }
 
 export async function readClipboard() {

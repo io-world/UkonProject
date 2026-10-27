@@ -7,4 +7,3 @@ web/node_modules/
 wiki/.obsidian/workspace*.json
 .DS_Store
 _to_delete/
-reports/*/current.html

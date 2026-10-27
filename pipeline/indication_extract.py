@@ -33,8 +33,8 @@ def frontmatter(path: Path) -> dict:
     return out
 
 
-CHANNELS = ("email", "call", "portal", "clipboard", "api")
-INPUT_METHODS = ("conversation", "clipboard", "api", "file")
+CHANNELS = ("email", "call", "portal")
+INPUT_METHODS = ("conversation", "file")
 
 
 def channel_of(path: Path) -> str:
@@ -51,7 +51,7 @@ def input_method_of(path: Path, channel: str) -> str:
     m = frontmatter(path).get("input_method")
     if m in INPUT_METHODS:
         return m
-    return "conversation" if channel == "call" else "api" if channel == "api" else "file"
+    return "conversation" if channel == "call" else "file"
 
 
 def content_sha(text: str) -> str:
@@ -60,19 +60,10 @@ def content_sha(text: str) -> str:
     return hashlib.sha256(" ".join(text.split()).encode()).hexdigest()
 
 
-def body_of(path: Path) -> str:
-    """The content between the ```text fences of a pasted reply (what the person actually pasted)."""
-    t = path.read_text()
-    m = re.search(r"```text\n(.*?)\n```", t, re.S)
-    return m.group(1) if m else _FRONT.sub("", t, count=1)
-
-
 def source_text(path: Path) -> str:
     if path.suffix.lower() == ".pdf":
         from pypdf import PdfReader
         return "\n".join(p.extract_text() or "" for p in PdfReader(str(path)).pages)
-    if frontmatter(path).get("input_method") in ("clipboard", "conversation") and "```text" in path.read_text():
-        return body_of(path)
     text = path.read_text()
     return _FRONT.sub("", text, count=1)
 
@@ -106,38 +97,7 @@ def extract(path: Path, text: str) -> tuple[dict, str]:
                   RAW / "_cache" / f"indication_extraction_{path.stem}.md"):
         if cache.exists():
             return read_source(cache), "cached"
-    # Pasted content has no stable file name: match a cached extraction by the content's hash (demo samples).
-    sha = content_sha(text)
-    for cache in (RAW / "_cache").glob("indication_extraction_*.md"):
-        if frontmatter(cache).get("content_sha256") == sha:
-            return read_source(cache), "cached"
-    raise SystemExit("Reading new carrier text needs the AI extractor: set ANTHROPIC_API_KEY in .env. "
-                     "(Offline, only the demo samples have cached extractions.)")
-
-
-# --- carrier API (structured) --------------------------------------------------------
-API_REQUIRED = ("carrier", "insured", "document_date", "options")
-
-
-def validate_api_payload(payload: dict) -> list[str]:
-    """A carrier API returns structure, not prose: no model involved. Check the shape we need."""
-    errs = [f"missing '{k}'" for k in API_REQUIRED if not payload.get(k)]
-    for i, o in enumerate(payload.get("options") or []):
-        for k in ("limit", "deductible", "status"):
-            if o.get(k) in (None, ""):
-                errs.append(f"options[{i}] missing '{k}'")
-        if o.get("status") == "indicated" and not isinstance(o.get("premium"), (int, float)):
-            errs.append(f"options[{i}] indicated without a numeric premium")
-    return errs
-
-
-def check_api(payload: dict, client_names: list[str]) -> list[dict]:
-    """Structured data has no source text to check figures against; check it's for this client."""
-    insured = (payload.get("insured") or "").lower()
-    names = [n.lower() for n in client_names] + [_SUFFIX.sub("", n).strip().lower() for n in client_names]
-    ok = any(n and (n in insured or insured in n) for n in names)
-    return [{"scope": "carrier", "field": "insured", "value": payload.get("insured"), "found": ok,
-             "note": None if ok else "The insured named by the API doesn't match this client"}]
+    raise SystemExit(f"No cached extraction for {path.name}. Set ANTHROPIC_API_KEY to extract it live.")
 
 
 # --- deterministic checks -----------------------------------------------------------

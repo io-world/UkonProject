@@ -14,7 +14,6 @@ client_id: 1
 - 2026-10-26 — **Northwind Specialty** via portal by Pipeline (AI) (initial (demo seed: sent before review))
 - 2026-10-26 — **Cobalt Harbor Insurance** via email by Pipeline (AI) (initial (demo seed: sent before review))
 - 2026-10-26 — **Ridgeline Mutual** via email by Pipeline (AI) (initial (demo seed: sent before review))
-- 2026-10-26 — **Aspen Line Cyber** via api by Pipeline (AI) (initial (demo seed: sent before review))
 
 Basis sent:
 - Website / domain: sloanslakedental.com
@@ -34,8 +33,12 @@ Basis sent:
 - Condition: Offline or immutable backups — Not asked yet
 
 ### Cobalt Harbor Insurance
-- **$1M / $10K** — `awaiting`
-- **$2M / $25K** — `awaiting`
+- **$1M / $10K** — `offered`
+  - v1 2026-10-28 · written · $3,340 · review `verified` · [[raw/sloanslake/indications/2026-10-28_cobalt_harbor_email|email]] · in via file saved to the wiki
+- **$2M / $25K** — `pending_review`
+  - v1 2026-10-28 · written · $5,290 · review `pending_review` · [[raw/sloanslake/indications/2026-10-28_cobalt_harbor_email|email]] · in via file saved to the wiki
+- Condition: MFA required on email — Not asked yet
+- Condition: Annual phishing training for all staff — Not asked yet
 
 ### Ridgeline Mutual
 - **$1M / $10K** — `offered`
@@ -50,12 +53,9 @@ Basis sent:
 - Condition: MFA required on email — Not asked yet
 - Condition: Endpoint detection and response (EDR) on all devices — Not asked yet
 
-### Aspen Line Cyber
-- **$1M / $10K** — `awaiting`
-- **$2M / $25K** — `awaiting`
-
 ## Actions
 
 - [ ] Ridgeline Mutual declined $2M / $25K: Ridgeline does not offer limits above $1,000,000 for dental offices with fewer than 20 employees. Offer this option from another carrier.
+- [ ] Check Cobalt Harbor Insurance $2M / $25K against the email: premium 5,290 is not written out in full in the source.
 - [x] Ridgeline Mutual declined $2M / $25K: Underwriter guideline: no $2M for dental offices under 20 employees (verbal; expect it in writing) — Pipeline (AI): Confirmed in writing: raw/sloanslake/indications/2026-10-30_ridgeline_indication.pdf
 - [x] Ridgeline Mutual $1M / $10K: verbal only (about $2,600, hedged). Not shown to the client until it's in writing. — Pipeline (AI): Written indication received: raw/sloanslake/indications/2026-10-30_ridgeline_indication.pdf

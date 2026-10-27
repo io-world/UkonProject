@@ -2,10 +2,10 @@
 type: client
 generated: true
 client_id: 1
-legal_name: "UNCONFIRMED"
+legal_name: "Sage Dentistry, PLLC"
 naics: "621210"
 renewal_date: 2027-01-15
-last_rendered: 2026-10-27T01:45:45+00:00
+last_rendered: 2026-10-27T01:52:41+00:00
 ---
 
 # Sloan's Lake Dental
@@ -18,17 +18,17 @@ Agency: Front Range Independent Insurance Group (fictional) · Renewal: **2027-0
 
 ## Entity resolution
 
-- **Sage Dentistry, PLLC** (CO) — match 100% — `suggested` — name 100%, state 100%, domain 100%, status 100%, address 100% — registry: Good Standing — [[raw/sloanslake/co_sos_entities|co_sos_entities]] (ID 20151370188; DBA via NPI 1316327604)
-- **Darren Bennett DDS PC** (CO) — match 40% — `suggested` — name 80%, state 100%, domain 0%, status 100%, address 0% — registry: Active (NPI) — [[raw/sloanslake/npi_registry|npi_registry]] (NPI 1245524800)
-- **Sloans Lake Dental PLLC** (CO) — match 37% — `suggested` — name 97%, state 100%, domain 0%, status 0%, address 100% — registry: Delinquent since 2022-05-01 — [[raw/sloanslake/co_sos_entities|co_sos_entities]] (ID 20208083017)
-- **Sage Dentistry II, PLLC** (CO) — match 30% — `suggested` — name 44%, state 100%, domain 0%, status 0%, address 100% — registry: Voluntarily Dissolved 2024-03-04 — [[raw/sloanslake/co_sos_entities|co_sos_entities]] (ID 20161256592)
-- **SLOANS LAKE DENTAL PLLC** (CO) — match 22% — `suggested` — name 97%, state 100%, domain 0%, status 0%, address 0% — registry: Voluntarily Dissolved 2006-06-19 — [[raw/sloanslake/co_sos_entities|co_sos_entities]] (ID 20051017632)
+- **Sage Dentistry, PLLC** (CO) — match 100% — `confirmed` — name 100%, state 100%, domain 100%, status 100%, address 100% — registry: Good Standing — [[raw/sloanslake/co_sos_entities|co_sos_entities]] (ID 20151370188; DBA via NPI 1316327604)
+- **Darren Bennett DDS PC** (CO) — match 40% — `rejected` — name 80%, state 100%, domain 0%, status 100%, address 0% — registry: Active (NPI) — [[raw/sloanslake/npi_registry|npi_registry]] (NPI 1245524800)
+- **Sloans Lake Dental PLLC** (CO) — match 37% — `rejected` — name 97%, state 100%, domain 0%, status 0%, address 100% — registry: Delinquent since 2022-05-01 — [[raw/sloanslake/co_sos_entities|co_sos_entities]] (ID 20208083017)
+- **Sage Dentistry II, PLLC** (CO) — match 30% — `rejected` — name 44%, state 100%, domain 0%, status 0%, address 100% — registry: Voluntarily Dissolved 2024-03-04 — [[raw/sloanslake/co_sos_entities|co_sos_entities]] (ID 20161256592)
+- **SLOANS LAKE DENTAL PLLC** (CO) — match 22% — `rejected` — name 97%, state 100%, domain 0%, status 0%, address 0% — registry: Voluntarily Dissolved 2006-06-19 — [[raw/sloanslake/co_sos_entities|co_sos_entities]] (ID 20051017632)
 
 ## Indication fields
 
 ### Business legal name
 - Value: **Sage Dentistry, PLLC**
-- Confidence: medium · **needs review**
+- Confidence: high
 - Method: Top-scoring entity candidate; a person confirms the match, or edits the name (logged with its source).
 - Sources: [[raw/sloanslake/co_sos_entities|co_sos_entities]] (ID 20151370188; DBA via NPI 1316327604)
 - Last changed by: Jordan Pike
@@ -63,12 +63,12 @@ Agency: Front Range Independent Insurance Group (fictional) · Renewal: **2027-0
 - Last changed by: Pipeline (AI)
 
 ### Annual revenue
-- Value: **$2,350,000**
+- Value: **$2,900,000** (AI recommended 2350000)
 - Range: $1,650,000 – $3,200,000
-- Confidence: low · **needs review**
+- Confidence: low
 - Method: No revenue on file at the agency; private entity, no public filings. Method A: 12 staff × $152,600 revenue per employee (Census 2022 ÷ BLS 2022) = $1,831,200. Method B: 3 dentists × $965,660 average gross billings (ADA 2025) = $2,896,980. Method A rests on an estimated headcount, so the two methods aren't independent. Methods differ by 45%, so confidence is low; estimate is their average, rounded to $50K. Confirm with the client before binding.
 - Sources: [[raw/benchmarks/dental_industry_benchmarks|dental_industry_benchmarks]], [[raw/sloanslake/website|website]], [[raw/sloanslake/ams_export|ams_export]]
-- Last changed by: Pipeline (AI)
+- Last changed by: Jordan Pike
 
 ### Exposure score (0–100)
   - Handles patient health information: +25
@@ -105,12 +105,12 @@ Agency: Front Range Independent Insurance Group (fictional) · Renewal: **2027-0
 - Value: **Northwind Specialty**
 - Confidence: high
 - Method: Default rule: lowest $1M premium that keeps ransomware at the full limit, from written, checked indications. Agent may switch.
-- Sources: Northwind Specialty v1, Ridgeline Mutual v2
+- Sources: Cobalt Harbor Insurance v1, Northwind Specialty v1, Ridgeline Mutual v2
 - Last changed by: Pipeline (AI)
 
 ## Human changes
 
-- 2026-10-26 19:43 — Jordan Pike changed **Business legal name** Sage Dentistry, PLLC → Sage Dentistry, PLLC — "Entity match confirmed"
-- 2026-10-26 19:45 — Jordan Pike changed **Business legal name** Sage Dentistry, PLLC → Sage Dentistry, PLLC — "Undid company confirmation (Sage Dentistry, PLLC)"
-- 2026-10-26 19:45 — Jordan Pike changed **Business legal name** Sage Dentistry, PLLC → Darren Bennett DDS PC — "Entity match confirmed"
-- 2026-10-26 19:45 — Jordan Pike changed **Business legal name** Darren Bennett DDS PC → Sage Dentistry, PLLC — "Undid company confirmation (Darren Bennett DDS PC)"
+- 2026-10-26 19:52 — Jordan Pike changed **Business legal name** Sage Dentistry, PLLC → Sage Dentistry, PLLC — "Entity match confirmed"
+- 2026-10-26 19:52 — Jordan Pike changed **Business legal name** Sage Dentistry, PLLC → Sage Dentistry, PLLC — "Undid company confirmation (Sage Dentistry, PLLC)"
+- 2026-10-26 19:52 — Jordan Pike changed **Business legal name** Sage Dentistry, PLLC → Sage Dentistry, PLLC — "Entity match confirmed"
+- 2026-10-26 19:52 — Jordan Pike changed **Annual revenue** 2350000 → 2900000

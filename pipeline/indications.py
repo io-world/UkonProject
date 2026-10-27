@@ -10,9 +10,8 @@ the history shows what each carrier said, when, and what changed. Changes become
 by fixed rules (new condition, price moved, declined, verbal-only, figure to confirm).
 
     uv run python -m pipeline.indications                       # demo seed: requests + first replies
+(The app no longer shows the carrier exchange; the client pack reads its result through the `indications` view.)
     uv run python -m pipeline.indications <reply.pdf|.md>       # ingest one carrier reply"""
-import json
-import re
 import sys
 from datetime import date
 from pathlib import Path
@@ -28,10 +27,9 @@ BASIS_KEYS = ["legal_name", "domain", "industry", "annual_revenue", "address"]
 OPTION = {o["tier"]: o for o in REQUESTED_OPTIONS}
 
 # Replies that exist when the demo starts (run_all). The Northwind revision is left for the live demo.
-# Cobalt Harbor's email (paste from clipboard) and Aspen Line's API reply are left as live demo samples
-# (wiki/raw/<slug>/indications/samples/), as is Northwind's revised letter (a file in the inbox).
-SEED_REPLIES = ["2026-10-27_northwind_indication.pdf", "2026-10-28_ridgeline_underwriter_call.md",
-                "2026-10-30_ridgeline_indication.pdf"]
+# Northwind's revised letter is left in the inbox for a live ingest.
+SEED_REPLIES = ["2026-10-27_northwind_indication.pdf", "2026-10-28_cobalt_harbor_email.md",
+                "2026-10-28_ridgeline_underwriter_call.md", "2026-10-30_ridgeline_indication.pdf"]
 INPUT_LABEL = {"conversation": "Conversation (Wispr Flow)", "clipboard": "Copied from clipboard",
                "api": "Carrier API", "file": "File saved to the wiki", "manual": "Typed in by hand"}
 
@@ -180,17 +178,11 @@ def ingest(conn, cid: int, path: str | Path, actor_id: int, input_by: int | None
 
     channel = ix.channel_of(p)
     method = ix.input_method_of(p, channel)
-    if channel == "api":                      # structured: no text, no model
-        ext, provenance = read_source(p), "structured"
-        text = None
-        verbal = False
-        checks = ix.check_api(ext, names)
-    else:
-        text = ix.source_text(p)
-        ext, provenance = ix.extract(p, text)
-        verbal = channel == "call" or ext.get("firmness") == "verbal"
-        checks = ix.check_numbers(ext, text, names, verbal)
-    sha = ix.content_sha(text if text is not None else json.dumps(ext, sort_keys=True))
+    text = ix.source_text(p)
+    ext, provenance = ix.extract(p, text)
+    verbal = channel == "call" or ext.get("firmness") == "verbal"
+    checks = ix.check_numbers(ext, text, names, verbal)
+    sha = ix.content_sha(text)
     src = conn.execute("""INSERT INTO indication_sources (client_id, carrier, channel, input_method, content_sha, path,
                           doc_date, reference, extractor, input_by, extraction, checks, ingested_by)
                           VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id""",
@@ -279,191 +271,6 @@ def ingest(conn, cid: int, path: str | Path, actor_id: int, input_by: int | None
     return {"path": rel, "carrier": carrier, "channel": channel, "input_method": method, "extractor": provenance,
             "verbal": verbal,
             "options": summary, "failed_checks": [c["note"] for c in checks if not c["found"]]}
-
-
-# --- the three ways a reply gets in ----------------------------------------------------------
-# We don't know how carriers deliver indications to UKON today, so all three are supported and
-# each saved reply says which one was used. Whatever comes in is first saved as an immutable raw
-# source in the wiki, then goes through the same ingest as a file.
-
-def _slugify(s: str) -> str:
-    return re.sub(r"[^a-z0-9]+", "_", (s or "unknown").lower()).strip("_")[:40] or "unknown"
-
-
-def _unique(path: Path) -> Path:
-    n, out = 2, path
-    while out.exists():
-        out = path.with_name(f"{path.stem}_{n}{path.suffix}")
-        n += 1
-    return out
-
-
-def ingest_text(conn, cid: int, slug: str, text: str, method: str, actor_id: int,
-                carrier: str | None = None, note: str | None = None) -> dict:
-    """Pasted text: a Wispr Flow transcript of a call with an underwriter (method='conversation') or an
-    email / letter / portal page copied to the clipboard (method='clipboard')."""
-    if method not in ("conversation", "clipboard"):
-        raise ValueError("method must be 'conversation' or 'clipboard'")
-    if len(text.strip()) < 40:
-        raise ValueError("That's too short to be a carrier reply. Paste the whole email, letter or transcript.")
-    sha = ix.content_sha(text)
-    dup = conn.execute("SELECT path FROM indication_sources WHERE client_id=%s AND content_sha=%s", (cid, sha)).fetchone()
-    if dup:
-        raise ValueError(f"Already ingested: the same content is in {dup['path']}")
-    who = conn.execute("SELECT name FROM users WHERE id=%s", (actor_id,)).fetchone()["name"]
-    today = date.today().isoformat()
-    channel = "call" if method == "conversation" else "clipboard"
-    kind = "call" if method == "conversation" else "pasted"
-    path = _unique(inbox_dir(slug) / f"{today}_{_slugify(carrier)}_{kind}.md")
-    path.write_text("\n".join([
-        "---", "type: raw-source", "immutable: true", f"channel: {channel}", f"input_method: {method}",
-        f"source: {'wispr-flow' if method == 'conversation' else 'clipboard'}",
-        f"carrier: {carrier or 'unknown (read from the text)'}", f"received: {today}", f"input_by: {who}",
-        f"content_sha256: {sha}", "---", "",
-        f"# Carrier reply — {INPUT_LABEL[method].lower()}" + (f" — {carrier}" if carrier else ""), "",
-        f"> Entered by {who} on {today} via the app ({INPUT_LABEL[method].lower()})."
-        + (f" Note: {note}" if note else "") + " Saved exactly as pasted; never edited.", "",
-        "```text", text.strip(), "```", ""]))
-    return _ingest_new(conn, cid, path, actor_id)
-
-
-def ingest_api(conn, cid: int, slug: str, payload: dict, actor_id: int, api_name: str = "carrier API") -> dict:
-    """A structured reply from a carrier's API (the shape is ix.API_REQUIRED). No model reads it."""
-    errs = ix.validate_api_payload(payload)
-    if errs:
-        raise ValueError("Not a usable indication: " + "; ".join(errs))
-    sha = ix.content_sha(json.dumps(payload, sort_keys=True))
-    dup = conn.execute("SELECT path FROM indication_sources WHERE client_id=%s AND content_sha=%s", (cid, sha)).fetchone()
-    if dup:
-        raise ValueError(f"Already ingested: the same API response is in {dup['path']}")
-    who = conn.execute("SELECT name FROM users WHERE id=%s", (actor_id,)).fetchone()["name"]
-    today = date.today().isoformat()
-    path = _unique(inbox_dir(slug) / f"{payload.get('document_date', today)}_{_slugify(payload['carrier'])}_api.md")
-    path.write_text("\n".join([
-        "---", "type: raw-source", "immutable: true", "channel: api", "input_method: api", f"source: {api_name}",
-        f"carrier: {payload['carrier']}", f"received: {today}", f"input_by: {who}", "format: json-in-markdown", "---", "",
-        f"# Carrier API response — {payload['carrier']}", "",
-        f"> Imported by {who} on {today} from {api_name}. Structured data: no AI extraction; saved as received.", "",
-        "```json", json.dumps(payload, indent=2, ensure_ascii=False), "```", ""]))
-    return _ingest_new(conn, cid, path, actor_id)
-
-
-def _ingest_new(conn, cid: int, path: Path, actor_id: int) -> dict:
-    """Ingest a file this request just wrote; if it can't be read, don't leave it behind in the inbox."""
-    try:
-        return ingest(conn, cid, path, actor_id, input_by=actor_id)
-    except BaseException:
-        path.unlink(missing_ok=True)
-        raise
-
-
-def samples(slug: str) -> dict:
-    """Demo inputs for the three methods (wiki/raw/<slug>/indications/samples/)."""
-    d = inbox_dir(slug) / "samples"
-    out = {"conversation": [], "clipboard": [], "api": []}
-    if not d.exists():
-        return out
-    for f in sorted(d.iterdir()):
-        fm = ix.frontmatter(f) if f.suffix == ".md" else {}
-        if f.suffix == ".json":
-            payload = json.loads(f.read_text())
-            out["api"].append({"label": payload.get("api") or f.stem.replace("_", " "), "payload": payload})
-        elif fm.get("input_method") in out:
-            out[fm["input_method"]].append({"label": fm.get("label", f.stem).strip('"'), "carrier": fm.get("carrier"),
-                                            "text": ix.body_of(f)})
-    return out
-
-
-def edit_option(conn, cid: int, carrier: str, tier: str, changes: dict, actor_id: int,
-                source_type: str = "manual", source_ref: str | None = None, note: str | None = None) -> dict:
-    """An agent corrects a carrier's figures (this is a mockup, so any figure can be edited). The old
-    version stays; the edit is a new version, confirmed by the editor, with where the figure came from."""
-    if source_type not in ("conversation", "clipboard", "api", "manual"):
-        raise ValueError("source_type must be conversation, clipboard, api or manual")
-    if tier not in OPTION:
-        raise ValueError(f"unknown option {tier}")
-    prev = conn.execute("""SELECT * FROM indication_versions WHERE client_id=%s AND carrier=%s AND tier=%s
-                           ORDER BY (trust='written') DESC, version_no DESC LIMIT 1""", (cid, carrier, tier)).fetchone()
-    last_no = conn.execute("SELECT max(version_no) AS n FROM indication_versions WHERE client_id=%s AND carrier=%s AND tier=%s",
-                           (cid, carrier, tier)).fetchone()["n"] or 0
-    base = dict(prev) if prev else {"status": "indicated", "limit_amount": OPTION[tier]["limit"],
-                                    "deductible": OPTION[tier]["deductible"], "premium": None, "basis_revenue": None,
-                                    "sublimits": {}, "conditions": [], "bi_waiting_hours": None, "specimen_form": None,
-                                    "expires_on": None, "trust": "written"}
-    new = {k: base.get(k) for k in ("status", "limit_amount", "deductible", "premium", "basis_revenue", "sublimits",
-                                    "conditions", "bi_waiting_hours", "specimen_form", "expires_on")}
-    new["sublimits"] = dict(new["sublimits"] or {})
-    for k, v in changes.items():
-        if v in ("", None):
-            continue
-        if k == "sublimits":
-            for sk, sv in v.items():
-                if sv not in ("", None):
-                    new["sublimits"][sk] = sv if sv == "full limit" else int(float(sv))
-        elif k in ("premium", "limit_amount", "deductible", "basis_revenue", "bi_waiting_hours"):
-            new[k] = int(float(v))
-        elif k == "status":
-            if v not in ("indicated", "declined"):
-                raise ValueError("status must be indicated or declined")
-            new[k] = v
-        elif k in ("expires_on", "specimen_form"):
-            new[k] = v
-        elif k == "conditions":
-            new[k] = [c for c in v if c]
-    if new["status"] == "indicated" and not new["premium"]:
-        raise ValueError("An offered option needs a premium")
-    who = conn.execute("SELECT name FROM users WHERE id=%s", (actor_id,)).fetchone()["name"]
-    diffs = _diff(dict(base, trust="written"), dict(new, trust="written"))
-    if not diffs:
-        raise ValueError("Nothing changed")
-    src = conn.execute("""INSERT INTO indication_sources (client_id, carrier, channel, input_method, path, doc_date,
-                          reference, extractor, input_by, extraction, checks, ingested_by)
-                          VALUES (%s,%s,'manual',%s,%s,%s,%s,'structured',%s,%s,'[]',%s) RETURNING id""",
-                       (cid, carrier, "manual" if source_type == "manual" else source_type,
-                        f"app-edit/{carrier}/{tier}/v{last_no + 1}", date.today(), source_ref, actor_id,
-                        j({"edited_by": who, "changes": changes, "source_type": source_type, "source_ref": source_ref,
-                           "note": note}), actor_id)).fetchone()["id"]
-    exp = new["expires_on"]
-    v = conn.execute("""INSERT INTO indication_versions (client_id, carrier, tier, version_no, status, trust, review,
-                        limit_amount, deductible, premium, basis_revenue, sublimits, conditions, bi_waiting_hours,
-                        specimen_form, expires_on, note, quote, source_id, changes, reviewed_by, reviewed_at, review_note)
-                        VALUES (%s,%s,%s,%s,%s,'written','confirmed',%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NULL,%s,%s,%s,now(),%s)
-                        RETURNING *""",
-                     (cid, carrier, tier, last_no + 1, new["status"], new["limit_amount"], new["deductible"],
-                      new["premium"], new["basis_revenue"], j(new["sublimits"]), j(new["conditions"]),
-                      new["bi_waiting_hours"], new["specimen_form"], exp.isoformat() if hasattr(exp, "isoformat") else exp,
-                      f"Edited by {who}" + (f": {note}" if note else ""), src, j(diffs), actor_id,
-                      f"Edited by {who} from {source_type}" + (f" ({source_ref})" if source_ref else "")
-                      + (f": {note}" if note else ""))).fetchone()
-    _close_actions(conn, cid, carrier, "confirm_extraction", actor_id, f"Superseded by {who}'s edit (v{v['version_no']})")
-    _refresh_default_carrier(conn, cid, actor_id)
-    return v
-
-
-def review(conn, cid: int, version_id: int, actor_id: int, decision: str, note: str | None) -> dict:
-    """A person confirms or rejects a flagged extraction. Values stay locked either way."""
-    v = conn.execute("SELECT * FROM indication_versions WHERE id=%s AND client_id=%s", (version_id, cid)).fetchone()
-    if not v:
-        raise LookupError("no such indication version")
-    if v["review"] != "pending_review":
-        raise ValueError(f"version is '{v['review']}', nothing to review")
-    conn.execute("UPDATE indication_versions SET review=%s, reviewed_by=%s, reviewed_at=now(), review_note=%s WHERE id=%s",
-                 (decision, actor_id, note, version_id))
-    _close_actions(conn, cid, v["carrier"], "confirm_extraction", actor_id,
-                   f"{decision}" + (f": {note}" if note else ""), version_id)
-    if decision == "rejected":
-        _action(conn, cid, v["carrier"], version_id, "terms_change",
-                f"{v['carrier']} {OPTION[v['tier']]['label']}: extraction rejected. Ask the carrier to resend it.")
-    _refresh_default_carrier(conn, cid, actor_id)
-    return v
-
-
-def close_action(conn, cid: int, action_id: int, actor_id: int, note: str | None):
-    n = conn.execute("""UPDATE indication_actions SET status='done', closed_by=%s, closed_at=now(), close_note=%s
-                        WHERE id=%s AND client_id=%s AND status='open' RETURNING id""",
-                     (actor_id, note, action_id, cid)).fetchone()
-    if not n:
-        raise LookupError("no open action with that id")
 
 
 def pick_default_carrier(rows: list[dict]) -> str | None:
@@ -630,12 +437,6 @@ def after_change(conn, cid: int, actor_id: int):
     if conn.execute("SELECT 1 FROM report_versions WHERE client_id=%s", (cid,)).fetchone():
         report.refresh_working(conn, cid, actor_id, edited=False)
     render_wiki(conn, cid)
-
-
-def log_result(slug: str, res: dict, actor: str):
-    wiki_render.log(f"indication | {slug} — {res['carrier']} via {res['channel']}, input {res['input_method']} by {actor} "
-                    f"({res['extractor']}): " + "; ".join(res["options"])
-                    + (f"; {len(res['failed_checks'])} figure(s) to confirm" if res["failed_checks"] else ""))
 
 
 def ingest_file(path: str, slug: str = CLIENT_SLUG, actor: str = "Pipeline (AI)") -> dict:

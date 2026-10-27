@@ -64,6 +64,8 @@ Decisions made while designing and building the prototype (Oct 25–26, 2026), w
 
 | 53 | **Stage 1's screen is the five fields only; the carrier-exchange screen (step B) is removed from the UI** | Randy, Oct 26: not needed for the demo. Indications are still loaded by the pipeline so the client pack has prices; the backend (versions, checks, paste/API ingest) stays in the code, unused by the UI. | Randy |
 
+| 54 | **Cleanup: code for the removed carrier-exchange screen deleted** (paste / conversation / API inputs, carrier-figure editing, review and action endpoints, the retired Quillfeather client, old caches). Under Git from here | Randy, Oct 26: changes were getting slow. The pipeline still ingests carrier reply files for the client pack's prices; decisions #49 and #51's carrier editing are withdrawn with the screen. | Randy |
+
 ## Things flagged but not yet resolved
 
 - Whether Wispr Flow captures **phone calls** or only meetings and dictation. The design says

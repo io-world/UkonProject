@@ -31,17 +31,10 @@ Activity history: [[log]].
 
 ## Carrier replies — Sloan's Lake (SIMULATED: fictional carriers, real insured)
 - [[raw/sloanslake/indications/2026-10-27_northwind_indication.pdf|Northwind letter, Oct 27]] — $1M $2,980 · $2M $4,720
-- Demo samples for **Add a carrier reply** (`raw/sloanslake/indications/samples/`):
-  [[raw/sloanslake/indications/samples/cobalt_harbor_email|Cobalt Harbor email]] (paste from clipboard; "5.29k" to confirm) ·
-  [[raw/sloanslake/indications/samples/cobalt_underwriter_call|call with Cobalt's underwriter]] (conversation) ·
-  `aspen_line_api.json` (carrier API, a fourth carrier). Pasted and imported replies are saved next to the files above.
+- [[raw/sloanslake/indications/2026-10-28_cobalt_harbor_email|Cobalt Harbor email, Oct 28]] — $2M written as "5.29k" (figure to confirm)
 - [[raw/sloanslake/indications/2026-10-28_ridgeline_underwriter_call|Ridgeline underwriter call, Oct 28]] — verbal "around twenty-six hundred"; $2M declined
 - [[raw/sloanslake/indications/2026-10-30_ridgeline_indication.pdf|Ridgeline letter, Oct 30]] — $1M $2,590 in writing; $2M declined
 - [[raw/sloanslake/indications/2026-11-06_northwind_indication_revised.pdf|Northwind revised letter, Nov 6]] — +10%, adds EDR (demo: ingest live)
-
-## Retired demo client
-- `raw/quillfeather/` — the original fictional client (Quillfeather Dental), kept for reference; no longer loaded.
-  Its [[raw/quillfeather/call_2026-11-04_wispr_mock|Wispr Flow mock capture]] still shows the raw Wispr format.
 
 ## Intake
 - [[raw/intake/intake_questions|Intake question bank]] — drives the call screen, extraction and the intake page

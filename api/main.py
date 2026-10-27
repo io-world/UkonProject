@@ -3,14 +3,14 @@ import re
 from datetime import date
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from pathlib import Path
 
-from pipeline import html_report, indications, intake, intake_ingest, report, wiki_render
+from pipeline import html_report, intake, intake_ingest, report, wiki_render
 from pipeline.config import RAW, WIKI
 from pipeline.sources import read_source
 from pipeline.db import client_by_slug, connect, j, user_id
@@ -519,173 +519,6 @@ def intake_ingest_call(slug: str, body: IngestCall):
         return intake_ingest.run(slug, str(path))
     except SystemExit as e:
         raise HTTPException(400, str(e))
-
-
-# --- Stage 1: the agent <-> carrier exchange ---------------------------------------------------
-# No route writes a carrier figure. People can only confirm/reject a flagged extraction, close an
-# action, ingest a reply that's already in the wiki, or re-request with the current basis.
-
-class IndicationReview(Actor):
-    decision: str
-    note: str | None = None
-
-
-class ActionClose(Actor):
-    note: str | None = None
-
-
-class ReplyIngest(Actor):
-    path: str
-
-
-@app.get("/api/clients/{slug}/indications")
-def indications_view(slug: str):
-    with connect() as conn:
-        return indications.state(conn, client_by_slug(conn, slug)["id"])
-
-
-@app.post("/api/clients/{slug}/indications/versions/{vid}/review")
-def indication_review(slug: str, vid: int, body: IndicationReview):
-    if body.decision not in ("confirmed", "rejected"):
-        raise HTTPException(400, "decision must be 'confirmed' or 'rejected'")
-    if body.decision == "rejected" and not body.note:
-        raise HTTPException(400, "say why it's rejected")
-    with connect() as conn:
-        c = client_by_slug(conn, slug)
-        uid = user_id(conn, body.actor)
-        try:
-            v = indications.review(conn, c["id"], vid, uid, body.decision, body.note)
-        except LookupError as e:
-            raise HTTPException(404, str(e))
-        except ValueError as e:
-            raise HTTPException(409, str(e))
-        indications.after_change(conn, c["id"], uid)
-    wiki_render.log(f"review | {slug} — {body.actor} {body.decision} {v['carrier']} {v['tier']} v{v['version_no']}"
-                    + (f" ({body.note})" if body.note else ""))
-    return {"ok": True}
-
-
-@app.post("/api/clients/{slug}/indications/actions/{aid}/close")
-def indication_action_close(slug: str, aid: int, body: ActionClose):
-    with connect() as conn:
-        c = client_by_slug(conn, slug)
-        uid = user_id(conn, body.actor)
-        try:
-            indications.close_action(conn, c["id"], aid, uid, body.note)
-        except LookupError as e:
-            raise HTTPException(404, str(e))
-        indications.render_wiki(conn, c["id"])
-    return {"ok": True}
-
-
-@app.post("/api/clients/{slug}/indications/ingest")
-def indication_ingest(slug: str, body: ReplyIngest):
-    """Ingest a carrier reply that's already saved in wiki/raw/<slug>/indications/."""
-    name = Path(body.path).name
-    path = indications.inbox_dir(slug) / name
-    if not path.exists():
-        raise HTTPException(404, f"no reply {name} in wiki/raw/{slug}/indications/")
-    try:
-        return indications.ingest_file(str(path), slug, body.actor)
-    except SystemExit as e:
-        raise HTTPException(400, str(e))
-
-
-class ReplyText(Actor):
-    method: str                      # 'conversation' (Wispr Flow transcript) | 'clipboard'
-    text: str
-    carrier: str | None = None
-    note: str | None = None
-
-
-class ReplyApi(Actor):
-    payload: dict
-    api_name: str = "carrier API"
-
-
-def _ingest_via(slug: str, actor: str, fn):
-    with connect() as conn:
-        c = client_by_slug(conn, slug)
-        uid = user_id(conn, actor)
-        try:
-            res = fn(conn, c["id"], uid)
-        except ValueError as e:
-            raise HTTPException(400, str(e))
-        except SystemExit as e:              # no API key and no cached extraction
-            raise HTTPException(400, str(e))
-        indications.after_change(conn, c["id"], uid)
-    indications.log_result(slug, res, actor)
-    return res
-
-
-@app.post("/api/clients/{slug}/indications/paste")
-def indication_paste(slug: str, body: ReplyText):
-    """A reply pasted in the app: a conversation transcript (Wispr Flow) or text copied to the clipboard."""
-    return _ingest_via(slug, body.actor, lambda conn, cid, uid: indications.ingest_text(
-        conn, cid, slug, body.text, body.method, uid, body.carrier, body.note))
-
-
-@app.post("/api/clients/{slug}/indications/import")
-def indication_import(slug: str, body: ReplyApi):
-    """A structured reply from a carrier API (simulated: we don't know which carriers offer one)."""
-    return _ingest_via(slug, body.actor, lambda conn, cid, uid: indications.ingest_api(
-        conn, cid, slug, body.payload, uid, body.api_name))
-
-
-@app.get("/api/clients/{slug}/indications/samples")
-def indication_samples(slug: str):
-    return indications.samples(slug)
-
-
-class OptionEdit(Actor):
-    carrier: str
-    tier: str
-    changes: dict                    # premium, limit_amount, deductible, expires_on, status, sublimits{...}
-    source_type: str = "manual"      # conversation | clipboard | api | manual
-    source_ref: str | None = None
-    note: str | None = None
-
-
-@app.post("/api/clients/{slug}/indications/edit")
-def indication_edit(slug: str, body: OptionEdit):
-    """Mockup: an agent can correct any carrier figure. It never overwrites: it adds a new version marked
-    as edited, with who, why and where the figure came from."""
-    with connect() as conn:
-        c = client_by_slug(conn, slug)
-        uid = user_id(conn, body.actor)
-        try:
-            v = indications.edit_option(conn, c["id"], body.carrier, body.tier, body.changes, uid,
-                                        body.source_type, body.source_ref, body.note)
-        except (ValueError, LookupError) as e:
-            raise HTTPException(400, str(e))
-        indications.after_change(conn, c["id"], uid)
-    wiki_render.log(f"edit | {slug} — {body.actor} edited {body.carrier} {body.tier} → v{v['version_no']} "
-                    f"(source: {body.source_type}{', ' + body.source_ref if body.source_ref else ''})")
-    return {"version_no": v["version_no"]}
-
-
-@app.post("/api/clients/{slug}/indications/request")
-def indication_request(slug: str, body: Actor):
-    """Re-request from every carrier with the current five fields. Gated: entity + flagged fields reviewed."""
-    with connect() as conn:
-        c = client_by_slug(conn, slug)
-        uid = user_id(conn, body.actor)
-        try:
-            n = indications.request_all(conn, c["id"], uid, "re-request with current basis")
-        except ValueError as e:
-            raise HTTPException(409, str(e))
-        indications.render_wiki(conn, c["id"])
-    wiki_render.log(f"request | {slug} — {body.actor} re-requested indications from {n} carriers")
-    return {"sent": n}
-
-
-@app.get("/api/clients/{slug}/indications/source")
-def indication_source(slug: str, path: str):
-    """Open a carrier reply as received (PDF, email, call transcript). Only files under wiki/raw/<slug>/."""
-    f = (WIKI / path).resolve()
-    if not str(f).startswith(str((RAW / slug).resolve())) or not f.exists():
-        raise HTTPException(404)
-    return FileResponse(f, media_type="application/pdf" if f.suffix == ".pdf" else "text/plain; charset=utf-8")
 
 
 @app.post("/api/clients/{slug}/ask")
