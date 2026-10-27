@@ -35,7 +35,22 @@ export default function Brief({ tick, actor }) {
   const r = b.recommended
   const src = b.sources || {}
 
+  const jump = (id) => (e) => { e.preventDefault(); document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }
+  const NAV = [
+    b.people?.length > 0 && ['brief-people', 'People at the practice', b.people.length],
+    b.research?.length > 0 && ['brief-research', 'Talking points from recent events', b.research.length],
+    ['brief-application', 'Application preview', b.application_preview.length],
+  ].filter(Boolean)
+
   return (
+    <div className="brief-layout">
+    <nav className="brief-nav" aria-label="Jump to">
+      <div className="brief-nav-k">Jump to</div>
+      {NAV.map(([id, label, n]) => (
+        <a key={id} href={`#${id}`} onClick={jump(id)}>{label}<span className="brief-nav-n">{n}</span></a>
+      ))}
+      <a href="#top" className="brief-nav-top" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }) }}>Back to top</a>
+    </nav>
     <div className="stack">
       <section className="intro">
         <h2>Stage 4 · Equip the agent</h2>
@@ -101,7 +116,7 @@ export default function Brief({ tick, actor }) {
         </section>
 
         {b.people?.length > 0 && (
-          <section className="card wide">
+          <section className="card wide" id="brief-people">
             <h3>People at the practice</h3>
             <p className="muted small">Who you'll be talking to, from the client's wiki. Every note is labeled:
               <span className="pill k-public">public record</span> real and sourced,
@@ -128,7 +143,7 @@ export default function Brief({ tick, actor }) {
         )}
 
         {b.research?.length > 0 && (
-          <section className="card wide">
+          <section className="card wide" id="brief-research">
             <h3>Talking points from recent events</h3>
             <p className="muted small">Gathered from the web by the <code>client-research</code> skill, every item cited. Use them to make
               "could this happen to us?" concrete. Don't speculate past what the source says.</p>
@@ -142,7 +157,7 @@ export default function Brief({ tick, actor }) {
           </section>
         )}
 
-        <section className="card wide">
+        <section className="card wide" id="brief-application">
           <h3>Application preview: what the client will be asked</h3>
           <p className="muted small">Pre-qualify these in the meeting. Gate questions can decide eligibility.</p>
           <ul className="appq">
@@ -158,6 +173,7 @@ export default function Brief({ tick, actor }) {
           <Sources label="Answers so far from" paths={src.application?.slice(1)} />
         </section>
       </div>
+    </div>
     </div>
   )
 }

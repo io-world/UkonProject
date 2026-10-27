@@ -425,3 +425,14 @@ details > summary { cursor: pointer; }
 .pill.k-call { background: #efe9f7; color: #5b3f8c; }
 .pill.k-ai { background: var(--accent-2); color: var(--accent); }
 .person li .wpath { justify-self: start; }
+
+/* Stage 4: left jump menu */
+.brief-layout { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 18px; align-items: start; }
+.brief-nav { position: sticky; top: 14px; display: grid; gap: 4px; padding: 12px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+.brief-nav-k { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 4px; }
+.brief-nav a { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; padding: 7px 9px; border-radius: 7px; color: var(--ink); text-decoration: none; font-size: 13px; font-weight: 500; line-height: 1.3; }
+.brief-nav a:hover { background: var(--accent-2); color: var(--accent); }
+.brief-nav-n { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.brief-nav a.brief-nav-top { margin-top: 6px; border-top: 1px solid var(--line-2); border-radius: 0; padding-top: 10px; color: var(--muted); font-size: 12px; }
+#brief-people, #brief-research, #brief-application { scroll-margin-top: 14px; }
+@media (max-width: 980px) { .brief-layout { grid-template-columns: 1fr; } .brief-nav { position: static; grid-auto-flow: column; overflow-x: auto; } .brief-nav-k, .brief-nav-top { display: none; } }
