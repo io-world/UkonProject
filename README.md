@@ -31,7 +31,7 @@ scripts/db.sh init            # first time only (later: scripts/db.sh start)
 # optional: create .env (git-ignored) with ANTHROPIC_API_KEY=... to run the AI steps live
 uv run python -m pipeline.run_all
 
-# Carrier replies: ingest a saved file (no screen for this; the client pack uses the result)
+# Carrier replies: Stage 2 → Carrier inbox → "Read it in", or ingest a saved file from the command line
 # uv run python -m pipeline.indications wiki/raw/sloanslake/indications/2026-11-06_northwind_indication_revised.pdf
 
 # 3. Terminal 1 — backend (API on :8000)
