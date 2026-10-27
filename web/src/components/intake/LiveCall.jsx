@@ -172,7 +172,6 @@ export default function LiveCall({ data, actor, onSaved }) {
             })}
           </Fold>}
 
-          <h3 className="section-h">Section 1 · Exposure questions</h3>
             {groups.map((g) => { const gi = exposure.filter((i) => i.group === g.title); if (filter !== 'all' && !gi.some(keep)) return null; return (
               <Fold key={g.title} id={`g-${g.title}`} title={g.title} sub={g.feeds ? `feeds ${g.feeds}` : null}
                     open={folds.isOpen(`g-${g.title}`)} onToggle={() => folds.toggle(`g-${g.title}`)}
