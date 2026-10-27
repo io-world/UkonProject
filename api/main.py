@@ -431,7 +431,29 @@ def brief(slug: str):
                            "escalate": "Escalate to CPL" in row[1]})
     specimen = read_source(RAW / "carriers" / "specimen_map.md")
     questions = read_source(RAW / "carriers" / "application_questions.md")["questions"]
+    # Where every block on this page comes from, as wiki paths (shown on the page, openable via /api/wiki).
+    industry_path = "wiki/industries/621210-dental-offices.md"
+    with connect() as conn:
+        letter = conn.execute("""SELECT s.path FROM indications i JOIN indication_versions v ON v.id = i.id
+                                 JOIN indication_sources s ON s.id = v.source_id
+                                 WHERE i.client_id=%s AND i.carrier=%s ORDER BY i.tier LIMIT 1""",
+                              (c["id"], snap["selected_carrier"])).fetchone()
+    letter_path = f"wiki/{letter['path']}" if letter else None
+    cached = snap["narrative"].get("_provenance") == "cached"
+    sources = {
+        "pitch": [industry_path, f"wiki/clients/{slug}.md"] + ([f"wiki/raw/_cache/narrative_{slug}.md"] if cached else []),
+        "pitch_figures": [p for p in [letter_path] if p],
+        "objections": [f"{industry_path}#Objection library"]
+                      + ([f"wiki/raw/_cache/narrative_{slug}.md"] if cached else []),
+        "escalations": [f"{industry_path}#Escalation triggers"],
+        "specimen": ["wiki/raw/carriers/specimen_map.md"],
+        "specimen_form": [p for p in [letter_path] if p],
+        "conditions": [p for p in [letter_path] if p] + [f"wiki/clients/{slug}-indications.md"],
+        "research": sorted({f"wiki/{r['wiki']}.md" for r in report.research_items("621210", "agent_brief")}),
+        "application": ["wiki/raw/carriers/application_questions.md", f"wiki/clients/{slug}-intake.md"],
+    }
     return {
+        "sources": sources,
         "pitch": snap["narrative"]["agent_pitch"],
         "recommended": snap["options"].get("recommended"),
         "carrier": snap["selected_carrier"],
@@ -439,7 +461,7 @@ def brief(slug: str):
         "escalations": _bullets(industry, "## Escalation triggers"),
         "specimen": specimen.get(snap["selected_carrier"], {}),
         "conditions": next((c["conditions"] for c in snap["carriers"] if c["carrier"] == snap["selected_carrier"]), []),
-        "research": report.research_items("621210", "agent_brief"),
+        "research": [dict(r, wiki=f"wiki/{r['wiki']}.md") for r in report.research_items("621210", "agent_brief")],
         "application_preview": [{"key": q["key"], "plain": q["plain"], "gate": q.get("gate", False)}
                                 for q in questions if not q.get("prefill_from")],
         "application_status": {a["question_key"]: a["status"] for a in apps},
@@ -702,10 +724,12 @@ def chat(slug: str, body: ChatRequest):
 @app.get("/api/wiki")
 def wiki_page(path: str):
     """Read-only view of one wiki page, so a cited source can be opened from the chat."""
-    from fastapi.responses import PlainTextResponse
-    p = (WIKI / path.removeprefix("wiki/")).resolve()
-    if not str(p).startswith(str(WIKI.resolve())) or p.suffix != ".md" or not p.exists():
+    from fastapi.responses import FileResponse, PlainTextResponse
+    p = (WIKI / path.split("#", 1)[0].removeprefix("wiki/")).resolve()
+    if not str(p).startswith(str(WIKI.resolve())) or p.suffix not in (".md", ".pdf") or not p.exists():
         raise HTTPException(404, "no such wiki page")
+    if p.suffix == ".pdf":
+        return FileResponse(p, media_type="application/pdf")
     return PlainTextResponse(p.read_text())
 
 

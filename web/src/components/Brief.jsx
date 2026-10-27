@@ -2,6 +2,27 @@ import { useEffect, useState } from 'react'
 import { api, money, short } from '../api.js'
 import WikiChat from './WikiChat.jsx'
 
+// A wiki path, printed in full and openable (pages as text, carrier letters as PDF). "#Section" names a heading.
+export function WikiPath({ path }) {
+  const [file, section] = path.split('#')
+  return (
+    <a className="wpath" href={api.wikiUrl(file)} target="_blank" rel="noreferrer" title="Open in the wiki">
+      {file}{section && <span className="wpath-sec"> § {section}</span>}
+    </a>
+  )
+}
+
+function Sources({ label = 'Source', paths, note }) {
+  if (!paths?.length) return null
+  return (
+    <div className="sources-line">
+      <span className="sources-k">{label}</span>
+      {paths.map((p) => <WikiPath key={p} path={p} />)}
+      {note && <span className="muted">{note}</span>}
+    </div>
+  )
+}
+
 const STATUS = { prefilled: 'answered', needs_followup: 'follow up', confirmed: 'confirmed', unanswered: 'not asked yet' }
 
 export default function Brief({ tick, actor }) {
@@ -11,6 +32,7 @@ export default function Brief({ tick, actor }) {
   useEffect(() => { api.brief().then(setB) }, [tick])
   if (!b) return <div className="muted">Loading brief…</div>
   const r = b.recommended
+  const src = b.sources || {}
 
   return (
     <div className="stack">
@@ -27,6 +49,8 @@ export default function Brief({ tick, actor }) {
           <h3>60-second pitch</h3>
           <blockquote className="pitch">{b.pitch}</blockquote>
           {r && <p className="small">Lead with <b>{short(r.limit)}</b> from {b.carrier}: <b>{money(r.monthly)}/mo</b> ({money(r.premium)}/yr), {money(r.deductible)} deductible.</p>}
+          <Sources label="Written by AI from" paths={src.pitch} />
+          <Sources label="Figures from" paths={src.pitch_figures} note="(database, Stage 2)" />
         </section>
 
         <section className="card">
@@ -53,11 +77,13 @@ export default function Brief({ tick, actor }) {
               )}
             </div>
           ))}
+          <Sources label="Approved answers from" paths={src.objections} />
         </section>
 
         <section className="card">
           <h3>Loop in your Cyber Practice Leader when…</h3>
           <ul>{b.escalations.map((e) => <li key={e}>{e}</li>)}</ul>
+          <Sources paths={src.escalations} />
         </section>
 
         <section className="card">
@@ -68,6 +94,9 @@ export default function Brief({ tick, actor }) {
             <tbody>{b.specimen.items?.map((i) => <tr key={i.topic}><td>{i.topic}</td><td>{i.section}</td><td>{i.page}</td></tr>)}</tbody>
           </table>
           <p className="small">Carrier conditions: {b.conditions.join(' · ')}</p>
+          <Sources label="Form number from" paths={src.specimen_form} />
+          <Sources label="Sections and pages from" paths={src.specimen} note="(simulated: no real specimen PDF yet)" />
+          <Sources label="Conditions from" paths={src.conditions} />
         </section>
 
         {b.research?.length > 0 && (
@@ -79,7 +108,7 @@ export default function Brief({ tick, actor }) {
               {b.research.map((r) => (
                 <li key={r.id}><b>{r.headline}</b> <span className="pill">{r.category}</span>
                   <div className="small">{r.for_this_client}</div>
-                  <div className="muted small"><a href={r.url} target="_blank" rel="noreferrer">{r.source}</a>, {r.date}</div></li>
+                  <div className="muted small"><a href={r.url} target="_blank" rel="noreferrer">{r.source}</a>, {r.date} · <WikiPath path={r.wiki} /></div></li>
               ))}
             </ul>
           </section>
@@ -97,6 +126,8 @@ export default function Brief({ tick, actor }) {
               </li>
             ))}
           </ul>
+          <Sources label="Questions from" paths={src.application?.slice(0, 1)} />
+          <Sources label="Answers so far from" paths={src.application?.slice(1)} />
         </section>
       </div>
     </div>

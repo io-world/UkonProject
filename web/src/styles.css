@@ -375,3 +375,10 @@ details > summary { cursor: pointer; }
 .srcchip.web { color: #2f55b3; border-color: #c9d6f3; }
 .chat-input { display: flex; gap: 8px; }
 .chat-input input { flex: 1; }
+
+/* Wiki paths printed on the Equip-the-agent page */
+.sources-line { display: flex; flex-wrap: wrap; gap: 6px; align-items: baseline; margin-top: 10px; font-size: 11.5px; }
+.sources-k { color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; font-size: 10.5px; }
+.wpath { font: 11.5px ui-monospace, Menlo, monospace; color: var(--accent); background: var(--accent-2); padding: 1px 6px; border-radius: 4px; text-decoration: none; word-break: break-all; }
+.wpath:hover { text-decoration: underline; }
+.wpath-sec { font-family: Inter, sans-serif; font-weight: 600; }
