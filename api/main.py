@@ -451,7 +451,10 @@ def brief(slug: str):
         "conditions": [p for p in [letter_path] if p] + [f"wiki/clients/{slug}-indications.md"],
         "research": sorted({f"wiki/{r['wiki']}.md" for r in report.research_items("621210", "agent_brief")}),
         "application": ["wiki/raw/carriers/application_questions.md", f"wiki/clients/{slug}-intake.md"],
+        "people": [f"wiki/raw/{slug}/people.md"],
     }
+    people_file = RAW / slug / "people.md"
+    people = read_source(people_file)["people"] if people_file.exists() else []
     return {
         "sources": sources,
         "pitch": snap["narrative"]["agent_pitch"],
@@ -465,6 +468,7 @@ def brief(slug: str):
         "application_preview": [{"key": q["key"], "plain": q["plain"], "gate": q.get("gate", False)}
                                 for q in questions if not q.get("prefill_from")],
         "application_status": {a["question_key"]: a["status"] for a in apps},
+        "people": people,
     }
 
 

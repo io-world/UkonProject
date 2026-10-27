@@ -24,6 +24,7 @@ Activity history: [[log]].
 - [[raw/sloanslake/dns_records|DNS email records]] — Paubox + Microsoft 365, SPF -all, no DMARC
 - [[raw/sloanslake/directory_listings|Directory listings]] — stale second address; 7 dentists listed (former affiliates)
 - [[raw/sloanslake/press_releases|Press releases]] — Aug/Sep 2025, self-reported
+- [[raw/sloanslake/people|People at the practice]] — notes for the agent: public record, simulated call, or AI-suggested opener (labeled)
 - [[raw/sloanslake/signals|Extracted signals]] — what the ingest step pulled out, per source
 - [[raw/sloanslake/ams_export|AMS export]] — SIMULATED agency record: no revenue, no headcount
 - [[raw/sloanslake/call_1_intake|Intake call 1]] — SIMULATED; owner (role); revenue left to the accountant; one coverage question for a CPL

@@ -23,6 +23,7 @@ function Sources({ label = 'Source', paths, note }) {
   )
 }
 
+const NOTE_KIND = { public: 'public record', call: 'simulated call', ai: 'AI-suggested' }
 const STATUS = { prefilled: 'answered', needs_followup: 'follow up', confirmed: 'confirmed', unanswered: 'not asked yet' }
 
 export default function Brief({ tick, actor }) {
@@ -98,6 +99,33 @@ export default function Brief({ tick, actor }) {
           <Sources label="Sections and pages from" paths={src.specimen} note="(simulated: no real specimen PDF yet)" />
           <Sources label="Conditions from" paths={src.conditions} />
         </section>
+
+        {b.people?.length > 0 && (
+          <section className="card wide">
+            <h3>People at the practice</h3>
+            <p className="muted small">Who you'll be talking to, from the client's wiki. Every note is labeled:
+              <span className="pill k-public">public record</span> real and sourced,
+              <span className="pill k-call">simulated call</span> invented for the demo and tied to a role, not a real person,
+              <span className="pill k-ai">AI-suggested</span> an opener written from the public notes. Nothing personal is made up about a real person.</p>
+            <div className="people">
+              {b.people.map((p) => (
+                <article key={p.name} className={`person ${p.simulated ? 'sim' : ''}`}>
+                  <header><b>{p.name}</b><span className="muted small">{p.role}</span></header>
+                  <ul>
+                    {p.notes.map((n, i) => (
+                      <li key={i}>
+                        <span className={`pill k-${n.kind}`}>{NOTE_KIND[n.kind]}</span>
+                        <span>{n.text}</span>
+                        <WikiPath path={n.source} />
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+              ))}
+            </div>
+            <Sources label="Compiled in" paths={src.people} />
+          </section>
+        )}
 
         {b.research?.length > 0 && (
           <section className="card wide">

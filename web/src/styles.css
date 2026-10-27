@@ -412,3 +412,16 @@ details > summary { cursor: pointer; }
 .fu-summary { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .fu-summary a { text-decoration: none; }
 @media (max-width: 700px) { .cmp-charts { grid-template-columns: 1fr; } .cmp-row { grid-template-columns: 110px 1fr; } .cmp-axis { margin-left: 110px; } }
+
+/* Stage 4: people at the practice */
+.people { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; margin-top: 10px; }
+.person { border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; background: var(--card); display: grid; gap: 8px; align-content: start; }
+.person.sim { border-style: dashed; background: var(--wash); }
+.person header { display: grid; gap: 1px; }
+.person ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.person li { display: grid; gap: 3px; font-size: 13px; }
+.person li .pill { justify-self: start; }
+.pill.k-public { background: var(--green-bg); color: var(--green); }
+.pill.k-call { background: #efe9f7; color: #5b3f8c; }
+.pill.k-ai { background: var(--accent-2); color: var(--accent); }
+.person li .wpath { justify-self: start; }
