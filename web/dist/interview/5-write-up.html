@@ -126,6 +126,9 @@ footer.foot .wrap{display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space
 .fstep{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:12px;align-items:center}
 .fbar{height:36px;border-radius:4px;background:var(--accent);color:var(--on-accent);display:flex;align-items:center;padding:0 12px;font-size:.84rem;font-weight:600;margin:0 auto;white-space:nowrap}
 .fstep p{margin:0;font-size:.84rem;color:var(--ink-2)}
+.fbar{min-width:max-content}
+.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media (max-width:760px){.three{grid-template-columns:1fr}}
 .north{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:14px}
 .north .big{font-family:var(--serif);font-size:1.5rem;font-weight:600}
 .risk td:first-child{white-space:nowrap;font-weight:600}
@@ -159,15 +162,22 @@ footer.foot .wrap{display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space
 
     <h2>How I'd measure success</h2>
     <div class="north"><span class="big">Agent minutes per bound policy</span><span class="pill plain">North star</span></div>
-    <p>It captures both halves of the goal: more policies bound, with less work per policy. The funnel shows where clients drop out. Baselines would come from the producer interviews; the bar widths below are illustrative, not data.</p>
-    <div class="funnel" aria-label="Funnel stages from renewals in the window to bound policies">
-      <div class="fstep"><span class="fbar" style="width:100%">Renewals in the window</span><p>How many clients without cyber are renewing in 60–120 days</p></div>
-      <div class="fstep"><span class="fbar" style="width:82%">Indication-ready</span><p>Speed: renewal spotted → indications back</p></div>
-      <div class="fstep"><span class="fbar" style="width:64%">Presented</span><p>Share of agents actually using it, week to week</p></div>
-      <div class="fstep"><span class="fbar" style="width:46%">Applied</span><p>Owner questions per pack; CPL escalations per client</p></div>
-      <div class="fstep"><span class="fbar" style="width:30%">Bound</span><p>Within the renewal window</p></div>
+    <div class="north" style="margin-top:6px"><span class="small">paired with</span><span class="big" style="font-size:1.2rem">Share of renewing clients bound with cyber</span></div>
+    <p>The first measures effort, the second growth. Minutes per policy alone can improve by binding only the easy clients; the pair can't. Baselines come from the event log built first, not from interviews. The bar widths below are illustrative, not data.</p>
+    <div class="funnel" aria-label="Funnel from renewals in the window to renewed at year two">
+      <div class="fstep"><span class="fbar" style="width:100%">Renewals in the window</span><p>Clients without cyber renewing in 60–120 days</p></div>
+      <div class="fstep"><span class="fbar" style="width:80%">Offered</span><p>The agent raised cyber</p></div>
+      <div class="fstep"><span class="fbar" style="width:68%">Indication-ready</span><p>Five fields confirmed, indications back</p></div>
+      <div class="fstep"><span class="fbar" style="width:56%">Presented</span><p>The owner saw the pack</p></div>
+      <div class="fstep"><span class="fbar" style="width:44%">Quoted</span><p>Firm quote after the application</p></div>
+      <div class="fstep"><span class="fbar" style="width:34%">Bound</span><p>Within the renewal window</p></div>
+      <div class="fstep"><span class="fbar" style="width:28%">Year-2 renewal</span><p>Kept, not dropped or declined</p></div>
     </div>
-    <p><strong>Quality</strong> is measured alongside the funnel: field accuracy against a golden set of 15–20 known businesses, how often a low-confidence flag was actually wrong, and the override rate per field from the audit trail. Where people keep overriding the AI is where the estimators need work.</p>
+    <div class="three mt">
+      <div class="card"><h3 style="font-size:.95rem;font-weight:600">Why deals are lost</h3><p class="small">The share of each loss reason at each step: price, "already covered," no need, carrier requirements, timing. This is what settles whether the problem is manual work or something else.</p></div>
+      <div class="card"><h3 style="font-size:.95rem;font-weight:600">Speed and adoption</h3><p class="small">Days from renewal spotted to bound; the share of agents using it week to week.</p></div>
+      <div class="card"><h3 style="font-size:.95rem;font-weight:600">AI quality</h3><p class="small">Field accuracy against known businesses; override rate per field (where people keep overriding is where the AI needs work); and review time per client versus doing it by hand, which tests whether checking the AI actually saves time.</p></div>
+    </div>
 
     <h2>Biggest risks</h2>
     <div class="tablewrap mt"><table class="risk">
