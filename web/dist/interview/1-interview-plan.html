@@ -275,6 +275,64 @@ footer.foot .wrap{display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space
 
     </div>
   </section>
+
+  <section class="block" id="after-bind">
+    <h2>Open question 1: what happens after a policy is bound?</h2>
+    <p class="sub">The brief stops at "bound". But the business only works if the policy is still in force a year later, and the client's security can drift during the year. What I know going in, and what I'd ask.</p>
+    <div class="grid2 mt">
+      <div class="card">
+        <h3 style="font-size:1rem">What's publicly known</h3>
+        <ul class="tight small">
+          <li><b>Some carriers monitor during the policy year.</b> Coalition, for example, says it scans the internet continuously and sends policyholders personalized alerts with recommended fixes (<a href="https://coalitioninc.com/active-monitoring" target="_blank" rel="noreferrer">Coalition</a>). This varies by carrier; many don't.</li>
+          <li><b>Renewal is re-underwriting, not a rubber stamp.</b> A new application and fresh evidence of controls (MFA, endpoint detection, tested backups, an incident response plan). Missing proof leads to a price jump or a decline (<a href="https://www.cyberduo.com/blog/cyber-insurance-renewal-denied-2026-checklist/" target="_blank" rel="noreferrer">CyberDuo, Dec 2025</a>, citing Aon and carrier applications).</li>
+          <li><b>The application is a legal representation.</b> If a control the client said was in place wasn't, a claim can be disputed. That's why the prototype never turns a hedged answer into "yes".</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3 style="font-size:1rem">What I don't know yet</h3>
+        <ul class="tight small">
+          <li>Which of UKON's carriers scan after bind, how often, and who gets the alert: the client, the agent, or UKON?</li>
+          <li>Does anyone check mid-term that the controls from the application are still in place?</li>
+          <li>Who owns the client between bind and renewal: the producer, the account manager, or UKON's CPL?</li>
+          <li>How many cyber policies UKON writes are still in force at year two, and why the others aren't.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card mt tablewrap">
+      <table>
+        <thead><tr><th>Ask</th><th>Question</th><th>What the answer changes</th></tr></thead>
+        <tbody>
+          <tr><td><a href="#carriers">Carriers</a></td><td>Do you scan or monitor insureds after bind? How often, and who receives the findings? What happens if a control on the application lapses mid-term?</td><td>Whether the workbench needs a "post-bind alerts" queue, and whether alerts go to the agent too.</td></tr>
+          <tr><td><a href="#carriers">Carriers</a></td><td>At renewal, what do you re-check: a new application, a rescan, attestations, evidence?</td><td>How much of the intake can carry forward a year; what to collect again.</td></tr>
+          <tr><td><a href="#cpl">CPLs</a></td><td>When a claim is disputed, how often is it because the application didn't match reality?</td><td>How hard to push the "confirm, don't assume" guardrails, and which answers need evidence.</td></tr>
+          <tr><td><a href="#ops">Ops / wholesale</a></td><td>What share of cyber policies renew at year two? Of the ones that don't, who ended it: the client or the carrier?</td><td>Whether retention is a bigger lever than new sales.</td></tr>
+          <tr><td><a href="#producers">Producers / AMs</a></td><td>What do you do for a cyber client between bind and renewal? Do you hear about carrier alerts?</td><td>Who the post-bind features are for.</td></tr>
+          <tr><td><a href="#owners">Business owners</a></td><td>If your insurer told you mid-year that something on your network was exposed, what would you do with that?</td><td>Whether a security check-in is a reason to stay, or just noise.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout mt">Design idea to test: a <b>mid-term check-in</b> six months after bind. Re-run the public checks (email security, exposed services), confirm the application's controls are still true, and give the agent a reason to call that isn't a bill. It turns renewal from re-underwriting into a formality.</div>
+  </section>
+
+  <section class="block" id="why-not">
+    <h2>Open question 2: why don't small businesses buy cyber, or keep it?</h2>
+    <p class="sub">The brief's explanation is distribution: agents don't bring it up because getting a client from "no cyber" to "protected" is too much manual work. I think that's real but incomplete, and I'd test it against the other explanations before betting the roadmap on it.</p>
+    <div class="callout warn mt">Two different problems hide in one question. The brief's "renewal window" is the renewal of the client's <i>other</i> policies, the moment to sell cyber for the first time. A client <i>dropping</i> a cyber policy at its own renewal is a retention problem, with different causes.</div>
+    <div class="card mt tablewrap">
+      <table>
+        <thead><tr><th>Explanation</th><th>Evidence so far</th><th>How I'd test it</th><th>If it's true, the design changes to…</th></tr></thead>
+        <tbody>
+          <tr><td><b>Agents don't raise it</b> (the brief's view): too much manual work, low confidence explaining cyber</td><td>The brief; matches what brokers say about effort. No numbers yet.</td><td>Producers: how many renewing clients were offered cyber last quarter, and why not the rest? Compare offer rate to acceptance rate.</td><td>What the prototype already does: pre-filled indications and a ready pack, so offering costs the agent minutes.</td></tr>
+          <tr><td><b>Price</b>, especially next to rising property, liability and auto premiums</td><td>Brokers report owners holding off on cost (<a href="https://amp.insurancejournal.com/magazines/mag-features/2024/03/04/762505.htm" target="_blank" rel="noreferrer">Insurance Journal, 2024</a>); GlobalData says many smaller firms are "priced out" (<a href="https://www.insurancejournal.com/news/international/2026/06/30/875833.htm" target="_blank" rel="noreferrer">2026</a>).</td><td>Owners who declined: what monthly price would have been a yes? Ops: acceptance rate by premium band.</td><td>Lead with a lower-limit option and monthly pricing; show cost next to one closed day.</td></tr>
+          <tr><td><b>"We're already covered"</b> by a business-owner's policy or another endorsement</td><td>Among UK mid-market firms that had dropped standalone cyber, 35% believed their wider policy covered them (<a href="https://www.insuranceage.co.uk/node/7957668" target="_blank" rel="noreferrer">Coalition survey, Nov 2025</a>). UK and a carrier's own research, so treat as directional.</td><td>Agency systems: how many clients have a cyber endorsement, and with what limit? Owners: what do you think your current policy covers?</td><td>An endorsement-vs-standalone comparison step in the pack (CPL-approved, never interpreted by AI).</td></tr>
+          <tr><td><b>Don't see the value</b>: "too small to be a target", "my IT company handles it", nothing happened last year</td><td>GlobalData: often seen as "an unnecessary product" (<a href="https://www.insurancejournal.com/news/international/2026/06/30/875833.htm" target="_blank" rel="noreferrer">2026</a>). Older Argo survey: 32% cited no interest from management (<a href="https://www.businessinsurance.com/small-and-medium-enterprises-forgoing-cyber-coverage-argo-survey/" target="_blank" rel="noreferrer">2017</a>).</td><td>Owners: what would make you take it seriously? Retention data: do claim-free clients drop more often at year two?</td><td>Real local incidents in the pack (already built), and the mid-term check-in as visible value.</td></tr>
+          <tr><td><b>Carriers say no</b>: the client can't show MFA, endpoint detection or tested backups, so it's declined or re-priced at renewal</td><td>Missing controls are standard refusal criteria; missing proof means price shock or decline (<a href="https://www.cyberduo.com/blog/cyber-insurance-renewal-denied-2026-checklist/" target="_blank" rel="noreferrer">CyberDuo, Dec 2025</a>). Argo: 42% of SMEs doubted their own security (2017).</td><td>Ops: of non-renewals, how many were the carrier's decision, and which control was missing?</td><td>A remediation path before renewal: what to fix, with the IT provider, 60 days out.</td></tr>
+          <tr><td><b>The application is the wall</b>: too many technical questions the owner can't answer</td><td>Unknown. The prototype's intake assumes owners need help translating questions.</td><td>CPLs and ops: where do applications stall, and on which questions?</td><td>More of the application pre-filled; the IT provider answers the technical part directly.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small mt">My current read, with low confidence until we see UKON's own data: first-time adoption is mostly the brief's distribution problem plus price; dropping a policy is mostly price at renewal and carriers re-underwriting controls. The one number that would settle it fastest is ops' split of non-renewals into "client walked" and "carrier declined", with reasons.</p>
+  </section>
 </main>
 
 <footer class="foot"><div class="wrap"><span>UKON final-round project · Randy Hesse · October 2026</span><span>Example client and its public records are real (Sloan's Lake Dental, Denver); agency, calls and carriers are simulated; benchmarks and news items are real and cited in the prototype.</span></div></footer>

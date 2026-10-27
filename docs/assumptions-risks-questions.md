@@ -47,3 +47,16 @@ Raw material for the 1–2 page write-up.
 - How many clients per producer renew per month, and how many get cyber offered today?
 - Does Wispr Flow capture phone calls, or only meetings and dictation?
 - Where do CPLs spend their time per bound policy now?
+
+### After bind (added Oct 27)
+- Which carriers monitor insureds after bind, how often, and who receives the alerts (client, agent, UKON)?
+- What happens when a control from the application lapses mid-term? How often are claims disputed because the application didn't match reality?
+- At renewal, what is re-checked: new application, rescan, attestations, evidence?
+- What share of UKON's cyber policies renew at year two, and of the rest, who ended it (client or carrier) and why?
+
+### Why SMBs don't buy or keep cyber (added Oct 27)
+The brief says agents don't raise it because it's too much manual work. Competing explanations to test: price, belief
+they're already covered by another policy, low perceived value, carriers declining or re-pricing on missing controls, and
+an application owners can't answer. See the interview plan page (`web/public/interview/1-interview-plan.html#why-not`)
+for evidence, tests and design consequences. The fastest single answer: ops' split of non-renewals into client vs carrier.
+
