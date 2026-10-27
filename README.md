@@ -1,7 +1,7 @@
 # Cyber in the Renewal Window — prototype
 
 One real client (Sloan's Lake Dental, legal name Sage Dentistry, PLLC: a three-dentist practice in Denver, CO)
-taken through five stages, from "renewal coming up" to an application ready to sign. Everything public
+taken through six stages, from "renewal coming up" to a bound policy (simulated) and a plan for the year after. Everything public
 about the practice is real and saved in `wiki/raw/sloanslake/` with links (start at `00_overview.md`); the agency's records, the
 calls and the carriers are simulated and labeled.
 
@@ -66,8 +66,9 @@ is regenerated from the database; annotate the industry page or raw sources inst
 
 ## Demo script (≈8 minutes of the 30)
 
-Five stages: UKON's four, with its Stage 1 split into **confirm data** and **get indications** (decision #55).
-**1 Confirm data → 2 Get indications → 3 Proposal pack → 4 Equip the agent → 5 Present, apply, bind.**
+Six stages: UKON's four, with its Stage 1 split into **confirm data** and **get indications** (decision #55) and its
+Stage 4 split into **questionnaire** and **decision, bind, report** (decisions #59–60).
+**1 Confirm data → 2 Get indications → 3 Proposal pack → 4 Equip the agent → 5 Questionnaire → 6 Decision, bind, report.**
 The app's tabs are the stages; each shows a status derived from the data (done, to do, in progress).
 
 1. **Stage 1 · Confirm data.** Five real registry/NPI candidates. "Sloans Lake Dental PLLC" matches the trade name and
@@ -90,14 +91,18 @@ The app's tabs are the stages; each shows a status derived from the data (done, 
    *From the wiki* with the pages it used; "Any recent ransomware news for dental practices?" (with web on) is labelled
    *From the web* with links; "Would a breach at Peak Tech be covered?" escalates to the CPL. Then the pitch,
    objections (+/−), news talking points and specimen map. Without an API key the chat falls back to a keyword search.
-5. **Stage 5 · Present, apply, bind → Live call.** Numbered questions, tap answers, "Client unsure," coverage
-   questions logged for a CPL, the limit walkthrough. Tap Q2 as "50–75%" (the recording says "Over 75%").
-   Call 1 (sample) is already ingested (seeded early so the pack has answers to show).
-   **After the call:** recording vs taps, quotes, flags. Re-ingest call 1 → Q2 becomes a CONFLICT. Revenue stays
-   open (the owner deferred to the accountant): type the confirmed figure → Stage 1 and the pack update (logged).
-   Click **Ingest** next to `call_2_followup.md` (or record one in Wispr Flow and run `call-ingest`): MFA and IT
-   software close; backups stay open. **Application & bind:** e-sign stays off until every answer is confirmed.
-6. **Audit trail + Ask.** "Who changed what?" and "Would a ransomware payment be covered?" (escalates).
+5. **Stage 5 · Questionnaire.** Seeded with call 1, call 2 and an email from the office manager (all simulated, in the
+   wiki), so 3 of 25 questions are open. Filter **Not answered**; sections fold. Answers already on record show with the
+   line they came from; **Correct** opens the inputs. On **Live call**, tap Q2 as "50–75%" (the recording says "Over 75%");
+   **After the call**, re-ingest call 1 → Q2 becomes a CONFLICT. The email's "I think the limit is $50,000" (a breach
+   endorsement on their business owner's policy) is flagged: the "already covered" belief, in the client's words.
+   **Application:** confirm the answers (the client signs a complete application).
+6. **Stage 6 · Decision, bind, report.** Record **the owner's choice** (Northwind, $1M / $10K) or "not now" with a reason.
+   **Take in** Northwind's firm quote: every figure checked against the PDF; $2,980 → $3,410 (+14%) with the carrier's
+   reason quoted (revenue $2.52M, no phishing training, backups untested). **Owner accepts**, mark the two before-binding
+   conditions met with evidence, **Bind coverage** (simulated policy number). **Report:** client summary, deal record
+   (milestones, who did what, sources, outcome), and **After bind: 30-60-90 + the year** to renewal.
+7. **Audit trail + Ask.** "Who changed what?" and "Would a ransomware payment be covered?" (escalates).
 
 ## Docs
 
@@ -117,7 +122,8 @@ The app's tabs are the stages; each shows a status derived from the data (done, 
 
 ## What's fictional
 
-The client, agency, carriers, indications, specimen sections and call transcripts are invented.
+The agency, carriers, indications, firm quote, binder, specimen sections, call transcripts and the office manager's email are
+invented and labelled; everything about the practice itself is public and real.
 The news items in `wiki/raw/research/` are real, cited events. Premium
 levels, dental revenue benchmarks and claim costs are real published figures, with sources in
 `wiki/raw/benchmarks/`.

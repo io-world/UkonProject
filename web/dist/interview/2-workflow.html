@@ -220,25 +220,25 @@ details .tablewrap{padding-bottom:14px}
       </div>
 
       <div class="col" role="listitem" style="grid-column:7">
-        <div class="ch"><span class="s">Stage 5 · UKON 4</span><h3>Present and ask</h3><span class="pill green">Built</span></div>
-        <div class="cell ai"><span class="mlab">AI / system</span><div class="node ai">Pull answers from the call recording with the quote each came from; check them against the agent's taps; merge across calls.</div></div>
-        <div class="cell hu"><span class="mlab">Person</span><div class="node hu">Agent runs one or more plain-language calls, tapping answers live. Opens with recording consent.</div><div class="node hu">Agent confirms what matters; a corrected revenue flows back to Stage 1.</div></div>
+        <div class="ch"><span class="s">Stage 5 · UKON 4, part 1</span><h3>Questionnaire</h3><span class="pill green">Built</span></div>
+        <div class="cell ai"><span class="mlab">AI / system</span><div class="node ai">Pull answers from call recordings and emails with the line each came from; check calls against the agent's taps; merge across sources.</div></div>
+        <div class="cell hu"><span class="mlab">Person</span><div class="node hu">Agent works the open questions over as many calls and emails as it takes, tapping answers live. Calls open with recording consent.</div><div class="node hu">Agent confirms what matters; a corrected revenue flows back to Stage 1.</div></div>
         <div class="cell risk"><span class="mlab">Could go wrong → caught by</span><span class="rk"><b>"Mostly" becomes "yes"</b> → a fixed hedge check overrides the model and flags it.</span><span class="rk"><b>Recording and tap disagree</b> → flagged as a conflict, never auto-resolved.</span></div>
       </div>
 
       <div class="col" role="listitem" style="grid-column:8">
-        <div class="ch"><span class="s">Stage 5 · UKON 4</span><h3>Apply and bind</h3><span class="pill plain">Partly built</span></div>
-        <div class="cell ai"><span class="mlab">AI / system</span><div class="node ai">Pre-fill the carrier application from confirmed intake answers.</div><div class="node sys">Carrier confirms final terms; bind.</div></div>
-        <div class="cell hu"><span class="mlab">Person</span><div class="node hu">Agent closes open items.</div><div class="node hu">Client reviews and e-signs the application.</div></div>
-        <div class="cell risk"><span class="mlab">Could go wrong → caught by</span><span class="rk"><b>Misrepresentation voids a claim</b> → the client signs; e-sign stays off until every answer is confirmed.</span></div>
+        <div class="ch"><span class="s">Stage 6 · UKON 4, part 2</span><h3>Decision, bind, report</h3><span class="pill green">Built</span></div>
+        <div class="cell ai"><span class="mlab">AI / system</span><div class="node ai">Read the carrier's firm quote; check every figure against the PDF; compare it with the indication.</div><div class="node sys">Bind (simulated). Client summary, deal record, and a 30-60-90 plan with touchpoints to renewal.</div></div>
+        <div class="cell hu"><span class="mlab">Person</span><div class="node hu">Records the owner's choice, or "not now" with a reason.</div><div class="node hu">Owner accepts the final terms; agent marks each condition met with evidence; client e-signs.</div></div>
+        <div class="cell risk"><span class="mlab">Could go wrong → caught by</span><span class="rk"><b>The price changed since the pack</b> → shown side by side with the carrier's reason before the yes.</span><span class="rk"><b>Binding with an open condition</b> → Bind stays off and says why.</span></div>
       </div>
     </div>
-    <p class="loop"><svg width="34" height="18" viewBox="0 0 34 18" aria-hidden="true"><path d="M30 4 C30 14, 4 14, 4 6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M1 8 L4 4 L7 8" fill="none" stroke="currentColor" stroke-width="2"/></svg>After binding, a debrief feeds the client and industry pages, so next year's renewal starts ahead (designed).</p>
+    <p class="loop"><svg width="34" height="18" viewBox="0 0 34 18" aria-hidden="true"><path d="M30 4 C30 14, 4 14, 4 6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M1 8 L4 4 L7 8" fill="none" stroke="currentColor" stroke-width="2"/></svg>After binding, the 30-60-90 plan and touchpoints carry the client to next year's renewal, which starts from this year's confirmed answers.</p>
   </section>
 
   <section class="block">
-    <h2>Why five stages, not four</h2>
-    <p class="sub">UKON's Stage 1, "get indications," hides two jobs with different owners and failure modes: confirming the five facts (mostly already in the agency's file at renewal) and the round trip with carriers (requests out, replies in, versions, follow-ups). Splitting them puts a person's approval between the two, before client data leaves the agency. Stages 3–5 are UKON's 2–4. The detailed questions about the business and its security practices wait for Stage 5: asking them before the owner has seen a price adds the friction the renewal window can't afford. The seeded demo runs one Stage 5 call early so the pack can show what the owner has said so far; in production the pack goes first.</p>
+    <h2>Why six stages, not four</h2>
+    <p class="sub">UKON's Stage 1, "get indications," hides two jobs with different owners and failure modes: confirming the five facts (mostly already in the agency's file at renewal) and the round trip with carriers (requests out, replies in, versions, follow-ups). Splitting them puts a person's approval between the two, before client data leaves the agency. UKON's Stage 4 is split too: the questionnaire usually takes several calls and emails and is where deals stall, so it gets its own stage (5); the owner's choice, firm quote, bind and report are Stage 6. Stages 3 and 4 are UKON's 2 and 3. The detailed questions about the business and its security practices wait until after the pack: asking them before the owner has seen a price adds the friction the renewal window can't afford. The seeded demo runs one call early so the pack can show what the owner has said so far; in production the pack goes first.</p>
   </section>
 
   <section class="block">
@@ -277,14 +277,23 @@ details .tablewrap{padding-bottom:14px}
         <tr><td>Ask the wiki (chat)</td><td>Searches and reads the client wiki first (numbers from the database); searches the web only if the wiki doesn't cover it. Labels each answer wiki, web, both or unverified, with the paths and links it used.</td><td>Asks; can switch to "wiki only."</td><td>Web content mistaken for the client's file → the label comes from the tools that ran. Coverage interpretation → escalates. A requested change → told to use the logged control.</td></tr>
       </tbody></table></div></details>
 
-      <details><summary>Stage 5 · Present, apply, bind</summary><div class="tablewrap"><table>
+      <details><summary>Stage 5 · Questionnaire</summary><div class="tablewrap"><table>
         <thead><tr><th>Step</th><th>AI does</th><th>Person does</th><th>Could go wrong → caught by</th></tr></thead><tbody>
         <tr><td>Question list</td><td>Plain-language questions from the carrier question bank, minus what's already known.</td><td>—</td><td>Jargon → plain wording ("a code from your phone" for MFA).</td></tr>
-        <tr><td>Call(s)</td><td>—</td><td>Reads numbered questions, taps answers, marks "client unsure," logs coverage questions for a CPL.</td><td>No consent → transcript not used. Coverage question → escalated and logged.</td></tr>
-        <tr><td>Extract and merge</td><td>Pulls answers with the quote and time for each call; checks them against the taps; merges with earlier calls.</td><td>—</td><td>Hedged answer → forced follow-up. Later call contradicts a confirmed answer → reopened, never overwritten.</td></tr>
+        <tr><td>Calls and emails</td><td>—</td><td>Reads numbered questions, taps answers, marks "client unsure," logs coverage questions for a CPL. The owner or office manager can also answer by email.</td><td>No consent → transcript not used. Coverage question → escalated and logged.</td></tr>
+        <tr><td>Extract and merge</td><td>Pulls answers with the line each came from; checks calls against the taps; merges with earlier sources.</td><td>—</td><td>Hedged answer ("I think") → forced follow-up. Later source contradicts a confirmed answer → reopened, never overwritten.</td></tr>
+        <tr><td>Navigate</td><td>Filter: all / not answered / answered; collapsible sections.</td><td>Works only what's left.</td><td>Losing track over several touches → "not answered" shows the open items.</td></tr>
         <tr><td>Confirm</td><td>—</td><td>Confirms answers; confirmed revenue and record counts update the pack as logged changes.</td><td>Wrong answer reaches the application → agent review now, client signature later.</td></tr>
-        <tr><td>Close gaps</td><td>—</td><td>Closes items still "to confirm" (short call or a link).</td><td>Binding on an open answer → e-sign stays off.</td></tr>
-        <tr><td>Sign and bind</td><td>—</td><td>Client reviews and e-signs; carrier confirms terms; bind.</td><td>Misrepresentation → the client signs; the transcript is never the final word.</td></tr>
+        <tr><td>Close gaps</td><td>—</td><td>Closes items still "to confirm" (short call, email or a link).</td><td>Binding on an open answer → Bind stays off.</td></tr>
+      </tbody></table></div></details>
+
+      <details><summary>Stage 6 · Decision, bind, report</summary><div class="tablewrap"><table>
+        <thead><tr><th>Step</th><th>AI does</th><th>Person does</th><th>Could go wrong → caught by</th></tr></thead><tbody>
+        <tr><td>Owner's choice</td><td>—</td><td>Records the option chosen, or "not now" with a reason (price, already covered, no need, carrier requirements, timing, other).</td><td>Lost deals with no reason → a "no" can't be saved without one.</td></tr>
+        <tr><td>Firm quote in</td><td>Reads the quote; checks every figure and date against the PDF; compares with the indication; tags each condition before or after binding.</td><td>Confirms any figure the check couldn't find.</td><td>Price moved → side by side with the carrier's stated reason. Quote for the wrong option → refused.</td></tr>
+        <tr><td>Final terms</td><td>—</td><td>Owner accepts, or declines with a reason.</td><td>Surprise at bind → changes are presented before the yes.</td></tr>
+        <tr><td>Bind</td><td>Records the binder (simulated).</td><td>Marks each before-binding condition met with evidence; client e-signs the complete application.</td><td>Misrepresentation → the client signs; the transcript is never the final word.</td></tr>
+        <tr><td>Report</td><td>Client summary, deal record (milestones, who did what, sources, outcome), 30-60-90 and touchpoints to renewal, by rules.</td><td>Owns the touchpoints.</td><td>Unknown owners → labelled "proposed"; asked of UKON.</td></tr>
       </tbody></table></div></details>
 
     </div>

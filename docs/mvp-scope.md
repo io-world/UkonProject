@@ -19,7 +19,7 @@ The problems were scope and who does the work:
    **renewal queue**: everyone renewing in 90 days, ranked, with stage and blockers.
 4. **Frame it around agent economics.** Agents skip cyber because premium (and commission) is small
    relative to effort. → North-star metric: **agent minutes per bound policy.**
-5. **Stage 5 (UKON's Stage 4): offer the call or a link.** The call is right for relationship clients; a phone-
+5. **Stage 5 (questionnaire, UKON's Stage 4): offer the call or a link.** The call is right for relationship clients; a phone-
    friendly link keeps low-touch clients from eating agent time.
 6. **Be ready for "why a wiki *and* a database?"** → The DB holds facts and versions; the wiki holds
    evidence and industry knowledge that compounds across clients and years.
@@ -32,7 +32,7 @@ for many clients even though the prototype runs one.
 
 ## Built
 
-Five stages: UKON's four, with its Stage 1 split in two (decision #55).
+Six stages: UKON's four, with its Stage 1 split in two (decision #55) and its Stage 4 split in two (decisions #59–60).
 
 - Stage 1 · Confirm data: ingest → entity resolution (human-confirmed) → the five fields with ranges,
   confidence, method, sources; review by exception
@@ -43,8 +43,12 @@ Five stages: UKON's four, with its Stage 1 split in two (decision #55).
   trail; standalone HTML files in `reports/`; cited industry research from the web
 - Stage 4 · Equip the agent: brief (pitch, CPL objection library, escalations, specimen map,
   application preview) + "Ask about this client" (app panel + Claude Code skill)
-- Stage 5 · Present, apply, bind: one or more call transcripts → answers merged across calls, with
-  quotes, hedge flags and agent confirmation; application filled from them; e-sign gated (binding simulated)
+- Stage 5 · Questionnaire: calls and emails → answers merged across sources, with quotes, hedge flags and
+  agent confirmation; filter (all / not answered / answered) and collapsible sections; answers on record shown
+  with their source until the agent corrects them; application filled from them
+- Stage 6 · Decision, bind, report: owner's choice or "not now" + reason; firm quote checked against the PDF and
+  compared with the indication; final yes/no; before-binding conditions met with evidence; bind (simulated);
+  client summary, deal record, after-bind 30-60-90 and touchpoints to renewal
 
 ## Later (designed, not built)
 

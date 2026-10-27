@@ -37,19 +37,27 @@ flowchart LR
   end
 
   S4 --> S5
-  subgraph S5[5 · Present, apply, bind · UKON 4]
-    I1{{Agent presents on a call<br/>taps answers live}} --> I2[Wispr Flow transcript → wiki<br/>answers with quotes · hedges flagged]
+  subgraph S5[5 · Questionnaire · UKON 4a]
+    I1{{Calls and emails<br/>agent taps answers live}} --> I2[Transcript or email → wiki<br/>answers with quotes · hedges flagged]
     I2 --> I3{{Agent confirms answers}}
-    I3 --> E2{{Client e-signs application}}
-    E2 --> F[Carrier final terms → bind]
   end
   I3 -.corrected revenue.-> S1
 
-  F -.debrief.-> W[(Client + industry wiki<br/>smarter next renewal)]
+  I3 --> S6
+  subgraph S6[6 · Decision, bind, report · UKON 4b]
+    C1{{Owner's choice<br/>or not now + reason}} --> C2[Firm quote in<br/>checked vs PDF · compared with indication]
+    C2 --> C3{{Owner accepts final terms}}
+    C3 --> C4{{Conditions met with evidence<br/>client e-signs}}
+    C4 --> F[Bind]
+    F --> C5[Reports: client summary · deal record<br/>30-60-90 + touchpoints to renewal]
+  end
+
+  C5 -.debrief, next renewal.-> W[(Client + industry wiki<br/>smarter next renewal)]
 ```
 
-UKON's brief has four stages; this splits its Stage 1 into **1 · Confirm data** and **2 · Get indications**,
-so stages 3–5 here are UKON's 2–4 (decision #55).
+UKON's brief has four stages; this splits its Stage 1 into **1 · Confirm data** and **2 · Get indications**
+(decision #55) and its Stage 4 into **5 · Questionnaire** and **6 · Decision, bind, report** (decisions #59–60),
+so stages 3 and 4 here are UKON's 2 and 3.
 
 Legend: rectangles = AI or system; hexagons = a human decision.
 
@@ -122,29 +130,34 @@ letter waits in Stage 2's carrier inbox for a live "Read it in" (or the command 
 | Ask about this client | Answers from DB (numbers) + wiki (reasons), cited; read-only. | Asks questions. | Coverage interpretation → **escalates to CPL**. Agent wants to change a value → told to use the slider so it's logged. |
 | Debrief *(designed)* | Ingests meeting notes and new objections into client + industry pages. | Logs outcome. | New objections bypass review → go to CPLs before entering the library. |
 
-## Stage 5 · Present and ask: the call, human in the loop (built)
+## Stage 5 · Questionnaire: calls and emails, human in the loop (built; UKON Stage 4, part 1)
 
-The agent presents the pack on a call and asks what the carrier application needs, in plain language. These
-questions used to come before the pack; they moved here because asking about security practices before the owner
-has seen a price adds friction. (The demo seed runs call 1 early so the pack shows answers so far.)
+The application questions, in plain language, answered over as many calls and emails as it takes. They come after
+the pack because asking about security practices before the owner has seen a price adds friction, and they don't
+depend on which carrier wins. (The demo seed runs call 1 before the pack, then call 2 and an email after it.)
 
 | Step | AI does | Human does | What could go wrong → how it's caught |
 |---|---|---|---|
 | Question list | Plain-language questions from the carrier question bank, minus what the wiki/DB already knows. | — | Jargon → plain wording ("a code from your phone" for MFA). |
-| Call(s) | — | Agent runs one or more calls from **Stage 5 → Live call**: reads the numbered questions, taps answers, marks "client unsure," logs coverage questions for a CPL, reads the limit walkthrough. Each call opens with recording consent; Wispr Flow captures it. | No consent → transcript not used. Agent answers a coverage question → script says escalate; it's logged. |
-| Extract & merge | Pulls intake + application answers with quote + timestamp per call; checks them against the live taps; merges with earlier calls. | — | "Mostly" → **hedge check forces follow-up**. Recording ≠ tap → **CONFLICT** flagged. A later call contradicts a confirmed answer → reopened, never silently overwritten. Re-ingesting an older call never overwrites a newer one. |
-| Proceed incomplete | Exposure score recalculated from controls confirmed so far. | Agent decides it's enough to build the pack. | Owner thinks the gaps block a price → pack lists them as "to confirm" and says they don't hold anything up. |
-| Confirm | — | Agent confirms in **Stage 5 → After the call**; that also confirms the application questions the answer fills; confirmed revenue/records update the report as logged changes. | Wrong answer reaches the application → agent review now, client signature later. |
+| Calls and emails | — | Agent runs calls from **Stage 5 → Live call** (numbered questions, taps, "client unsure", CPL questions logged, limit walkthrough), recorded with consent by Wispr Flow; the owner or office manager can also answer by email. Answers already on record show with their source; **Correct** opens the inputs. | No consent → transcript not used. Agent answers a coverage question → script says escalate; it's logged. |
+| Extract & merge | Pulls intake + application answers with the quoted line per call or email; checks calls against the live taps; merges with earlier sources. | — | "Mostly", "I think" → **hedge check forces follow-up**. Recording ≠ tap → **CONFLICT**. A later source contradicts a confirmed answer → reopened, never silently overwritten. Re-ingesting an older source never overwrites a newer one. |
+| Navigate | Filter: all / not answered / answered; collapsible sections with open/answered counts. | Works the open items. | Agent loses track over several touches → "not answered" shows only what's left. |
+| Proceed incomplete | Exposure score recalculated from controls confirmed so far. | Agent decides it's enough to build the pack. | Owner thinks the gaps block a price → pack lists them as "to confirm". |
+| Confirm | — | Agent confirms in **After the call** or **Application**; confirmed revenue/records update the report as logged changes. | Wrong answer reaches the application → agent review now, client signature later. |
 
-Demo: call 1 leaves three items open (MFA for hygienists, backups, EDR); call 2 closes two of
-them and exposure drops from 63 to 45. Backups stay open, and the pack still goes out.
+Demo: call 1 leaves items open; call 2 closes MFA and EDR (exposure 63 → 45); the office manager's email closes revenue
+($2.52M per the accountant), encryption and California, and flags "I think the limit is $50,000" on a breach
+endorsement: the "already covered" belief. Three questions stay open.
 
-## Stage 5 · Apply and bind (application built; carrier submission and binding simulated)
+## Stage 6 · Decision, bind, report (built; carrier side simulated; UKON Stage 4, part 2)
 
 | Step | AI does | Human does | What could go wrong → how it's caught |
 |---|---|---|---|
-| Close gaps | — | Agent closes items still "to confirm" (another short call, or the owner answers by link). | Binding on an open answer → e-sign button stays disabled until every answer is confirmed. |
-| Sign & bind | — | **Client reviews and e-signs** the pre-filled application; carrier confirms final terms; bind. | Misrepresentation voids a claim → the client signs; the transcript is never the final word. |
+| Owner's choice | — | Agent presents the pack and records the option chosen, or **not now** with a reason from a fixed list (price, already covered, no need, carrier requirements, timing, other). Append-only; locked once the firm quote is in. | Lost deals with no reason → a "no" can't be saved without one; reasons feed the deal record. |
+| Firm quote in | Extracts the carrier's firm quote (cached offline); checks every figure and the policy dates against the PDF; compares with the written indication; conditions compared by what they require, not wording; each tagged before or after binding. | Confirms a figure the check couldn't find. | Quote ≠ indication → shown side by side with the carrier's stated reason. Quote for the wrong option → refused. |
+| Final terms | — | Presents what changed and what's needed; owner **accepts**, or declines with a reason. | Owner surprised at bind → the change is presented before the yes. |
+| Bind | Records the binder (simulated policy number). | Marks each before-binding condition **met with evidence**; client e-signs the complete application. | Binding with an open condition, an unconfirmed answer or no "yes" → the Bind button stays disabled and says why. |
+| Report | Client summary (plain language; coverage questions go to a CPL); deal record (milestones, who did what, sources, outcome and reason); after-bind plan built by rules from the binder, post-bind conditions, weak answers and exposure findings: 30-60-90 plus touchpoints to renewal (120/90/60/30 days out). | Owns the touchpoints. | Who owns each touchpoint (agent, UKON, carrier) is unknown → owners are labelled "proposed"; it's an interview question. |
 
 Option for lower-touch clients *(designed)*: the same plain-language questions as a link the
 owner answers on their phone, with the call as the default for relationship clients.

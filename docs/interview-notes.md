@@ -1,6 +1,6 @@
 # Interview notes — Cyber in the Renewal Window
 
-Randy Hesse · UKON final round (Matt Hightower, David, executive team, engineering) · prepared Oct 26, 2026 · updated for the five-stage redesign
+Randy Hesse · UKON final round (Matt Hightower, David, executive team, engineering) · prepared Oct 26, 2026 · updated Oct 27 for the six-stage redesign
 
 These notes cover the whole project: what was built, why, the use cases, the conversations it
 supports, the workflows behind it, a demo talk track, and prep for the Q&A. Deeper detail lives in
@@ -40,9 +40,10 @@ raise it. The best moment is the renewal window, but getting a client from "no c
 "protected" is too much manual work, so the moment gets missed.
 
 The prototype takes one real client, **Sloan's Lake Dental** (Sage Dentistry, PLLC; three dentists,
-Denver CO; public data only, with a simulated renewal on Jan 15, 2027) through five stages. UKON's
+Denver CO; public data only, with a simulated renewal on Jan 15, 2027) through six stages. UKON's
 brief has four; I split its Stage 1 in two, because confirming the data and the round trip with
-carriers have different owners and a person's approval belongs between them.
+carriers have different owners and a person's approval belongs between them, and its Stage 4 in two,
+because the questionnaire takes several touches and is where deals stall.
 
 1. **Confirm data:** the five fields carriers need, mostly from the agency's own file at renewal,
    filled from public records with confidence and sources; a person reviews only what's uncertain
@@ -55,9 +56,12 @@ carriers have different owners and a person's approval belongs between them.
    estimates; carrier prices are locked. Every version is saved.
 4. **Equip the agent:** pitch, objection answers from an approved library, talking points, policy
    form map, and an "Ask about this client" assistant that never interprets coverage.
-5. **Present, apply, bind:** the agent presents on a call, tapping answers while Wispr Flow records;
-   the recording is checked against the taps. Answers fill the application; the client e-signs
-   once every answer is confirmed. **Missing answers never block the pack.**
+5. **Questionnaire:** the application questions over as many calls and emails as it takes; the agent
+   taps answers while Wispr Flow records, and the recording is checked against the taps. Filter to
+   what's not answered. **Missing answers never block the pack.**
+6. **Decision, bind, report:** the owner's choice (or "not now" and why); the carrier's firm quote,
+   checked and compared with the indication; the owner's yes; conditions met with evidence; bind
+   (simulated); a client summary, a deal record, and a 30-60-90 plan with touchpoints to renewal.
 
 The rule underneath all of it: **the database owns the numbers; the wiki owns the evidence.** AI
 reads, extracts, explains and writes prose. It never writes a price, limit, or any figure a client
@@ -135,17 +139,22 @@ flowchart LR
   end
 
   B --> I
-  subgraph I[5 · Present, apply, bind]
-    I1{{Call: present, tap answers}} --> I2[Wispr Flow recording → wiki<br/>quotes · hedges · conflicts flagged]
+  subgraph I[5 · Questionnaire]
+    I1{{Calls and emails<br/>tap answers live}} --> I2[Recording or email → wiki<br/>quotes · hedges · conflicts flagged]
     I2 --> I3{{Agent confirms}}
-    I3 -.another call if needed.-> I1
-    I3 --> I4{{Client e-signs}} --> I5[Carrier terms → bind]
+    I3 -.another call or email.-> I1
   end
   I3 -.corrected revenue.-> S1
-  I5 -.debrief.-> W[(Wiki: smarter next renewal)]
+  I3 --> D
+  subgraph D[6 · Decision, bind, report]
+    D1{{Owner's choice<br/>or not now + reason}} --> D2[Firm quote in<br/>checked · vs indication]
+    D2 --> D3{{Owner accepts · conditions met · e-sign}}
+    D3 --> D4[Bind] --> D5[Client summary · deal record<br/>30-60-90 + touchpoints]
+  end
+  D5 -.next renewal.-> W[(Wiki: smarter next renewal)]
 ```
 
-How the five stages map to UKON's four (decision #55):
+How the six stages map to UKON's four (decisions #55, #59, #60):
 
 | # | Stage | UKON stage | In the prototype |
 |---|---|---|---|
@@ -153,12 +162,15 @@ How the five stages map to UKON's four (decision #55):
 | 2 | Get indications | 1 (part 2) | **Send to carriers** (gated on Stage 1) → replies in, versioned, checked → follow-ups |
 | 3 | Client proposal pack | 2 | **Client pack** (HTML), estimates and benchmarks behind it |
 | 4 | Equip the agent | 3 | **Agent brief** + **Ask about this client** |
-| 5 | Present, apply, bind | 4 | **Call** (live taps + Wispr Flow recording) → **Application** → e-sign → bind (simulated) |
+| 5 | Questionnaire | 4 (part 1) | **Calls and emails** (live taps + Wispr Flow recording) → answers with quotes → **Application** |
+| 6 | Decision, bind, report | 4 (part 2) | **Owner's choice** → **firm quote** vs indication → yes → conditions → **bind** (simulated) → reports + 30-60-90 |
 
 Why split Stage 1: confirming five facts and the carrier round trip have different owners and failure
 modes, and a person's approval belongs between them, before client data leaves the agency. The detailed
-security questions moved to Stage 5: asking them before the owner has seen a price adds friction. The demo
-seed runs one Stage 5 call early so the pack shows what the owner has said so far.
+security questions moved after the pack: asking them before the owner has seen a price adds friction. Why split
+Stage 4: the questionnaire usually takes several calls and emails and doesn't depend on which carrier wins, so
+it gets its own stage; the owner's choice opens Stage 6. The demo seed runs call 1 early so the pack shows what the
+owner has said so far, then call 2 and the office manager's email.
 
 ---
 
@@ -170,20 +182,21 @@ no Docker and nothing installed system-wide.
 | Layer | What it is | Where |
 |---|---|---|
 | **Knowledge (wiki)** | Obsidian vault in the LLM-wiki pattern: raw sources, generated client and intake pages, shared industry page, research, schema | `wiki/` |
-| **System of record** | Postgres: fields with AI value vs current value, field-change log, indication requests / replies / versions (values locked by trigger) / follow-ups, immutable report versions, call answers, application answers, CPL questions, calls, ask log, audit view | `db/schema.sql` |
-| **Pipeline** | The five stages and their derived status (`stages.py`), deterministic estimators (no LLM), entity resolution, carrier exchange (requests, reply extraction with a source check, versions, rule-based follow-ups), narrative with a no-digits guard, call extraction and merge, HTML report export | `pipeline/` |
+| **System of record** | Postgres: fields with AI value vs current value, field-change log, indication requests / replies / versions (values locked by trigger) / follow-ups, immutable report versions, call and email answers, application answers, CPL questions, owner's decisions, firm quotes (locked), bind conditions, binders, ask log, audit view | `db/schema.sql` |
+| **Pipeline** | The six stages and their derived status (`stages.py`), deterministic estimators (no LLM), entity resolution, carrier exchange (requests, reply extraction with a source check, versions, rule-based follow-ups), narrative with a no-digits guard, call/email extraction and merge, firm quote + bind + after-bind plan (`bind.py`), HTML report export | `pipeline/` |
 | **API** | FastAPI; read-only "Ask" with tool use; serves the built front end | `api/` |
-| **Workbench** | React app, one tab per stage with a status: 1 Confirm data · 2 Get indications · 3 Proposal pack · 4 Equip the agent · 5 Present, apply, bind (Live call / After the call / Application & bind) · Audit · Ask | `web/` |
+| **Workbench** | React app, one tab per stage with a status: 1 Confirm data · 2 Get indications · 3 Proposal pack · 4 Equip the agent · 5 Questionnaire (Live call / After the call / Application, filter + collapsible sections) · 6 Decision, bind, report · Audit · Ask | `web/` |
 | **Client pack** | Standalone HTML file per version | `reports/sloanslake/` |
 | **Claude skills** | `client-ingest`, `indication-ingest` (carrier replies), `call-ingest` (Wispr Flow), `client-research` (web), `client-ask` | `.claude/skills/` |
-| **Docs** | Brief, decisions (58), workflow, call script, pack outline, scope, risks, architecture, chat log, these notes | `docs/` |
+| **Docs** | Brief, decisions (60), workflow, call script, pack outline, scope, risks, architecture, chat log, these notes | `docs/` |
 
 **The demo client in numbers (all from the database):**
 - Legal name **Sage Dentistry, PLLC** (Colorado registry, good standing since 2015; the NPI record ties it to the "Sloan's Lake Dental" trade name). A delinquent "Sloans Lake Dental PLLC" sits at the same address: 37% vs 100%.
 - Employees **12** estimated (range 9–15, low confidence): nothing public; 3 dentists on the team page × ~4 support staff (an assumption, flagged)
-- Revenue **$2,350,000** estimated (range $1.65M–$3.2M, low confidence): 12 staff × $152,600 = $1,831,200 and 3 dentists × $965,660 = $2,896,980. They disagree by ~$1.1M. On the (simulated) call the owner says it's higher and defers to the accountant, so it stays open.
+- Revenue **$2,350,000** estimated (range $1.65M–$3.2M, low confidence): 12 staff × $152,600 = $1,831,200 and 3 dentists × $965,660 = $2,896,980. They disagree by ~$1.1M. On the (simulated) call the owner says it's higher and defers to the accountant; the office manager's (simulated) email then gives **$2,520,000** from the accountant.
 - Exposure **68/100 → 63 after call 1 → 45 after call 2**; the starting score uses the practice's real DNS (Paubox email, SPF -all, no DMARC) and real online bill pay (Adit)
 - Indications: three fictional carriers calibrated to real 2026 benchmarks, two options each ($1M/$10K, $2M/$25K). Default by rule: Northwind **$2,980 a year ($248 a month)** for $1M, social-engineering sublimit $100K, ransomware to the full limit (Ridgeline is cheaper at $2,590 but caps ransomware at $500K and declines $2M). Northwind's revised letter, read in live, moves both premiums up 10% ($3,280 / $5,190) and adds an EDR condition. Cobalt's $2M figure ($5,290, written "5.29k") waits for a person.
+- Firm quote (fictional, Stage 6): Northwind $1M / $10K **$3,410** (+14% vs the $2,980 indication), with the carrier's stated reason: revenue $2.52M, no phishing training, backups never restore-tested. Two conditions before binding (MFA on email, a restore test), one within 60 days (phishing training).
 
 ---
 
@@ -230,21 +243,25 @@ Each use case: who, trigger, what happens, outcome, guardrail. ✅ = built, ◻ 
   revenue drift beyond ±15% from the carrier's basis raises "re-request"
 
 ### UC6 · Stage 5 · Run the live call ✅
-- **Actor:** agent, on the phone with the owner · **Screen:** Stage 5 → Live call
+- **Actor:** agent, on the phone with the owner · **Screen:** Stage 5 (Questionnaire) → Live call
 - **Flow:** open with recording consent → confirm identity items (prefilled from Stage 1, with
   confidence) → application questions read by number, answers tapped → "Client unsure" on hedges →
   log coverage questions for a CPL → limit walkthrough with the client's own answers filled in
-- **Outcome:** taps saved to the database as the agent goes
+- **Outcome:** taps saved to the database as the agent goes. Answers already on record (an earlier call or
+  email) show as answered with their source; **Correct** opens the inputs. Filter to "not answered" on a
+  follow-up call; sections collapse.
 - **Guardrails:** figures in the walkthrough come from the database or show "not modelled yet";
   the agent never estimates a number on the call
 
-### UC7 · Stage 5 · Ingest the recording and reconcile; follow-up calls ✅
-- **Actor:** agent or Claude (`call-ingest` skill) · **Trigger:** call ends
+### UC7 · Stage 5 · Ingest the recording or an email and reconcile; follow-ups ✅
+- **Actor:** agent or Claude (`call-ingest` skill) · **Trigger:** a call ends or the client emails answers
 - **Flow:** Wispr Flow transcript → saved to the wiki → AI extracts call + application answers,
   each with a quote and timestamp → hedge check → compare with live taps → merge across calls
 - **Outcome:** each item is "Recorded · confirm," "Needs follow-up," or a **CONFLICT** (recording ≠ tap)
 - **Demo:** call 2 (office manager) confirms MFA for everyone and EDR on all nine computers;
-  backups stay untested; exposure 63 → 45; the HTML pack updates itself
+  backups stay untested; exposure 63 → 45; the HTML pack updates itself. The office manager's email
+  gives revenue ($2.52M per the accountant), encryption, no California patients, and "I think the limit is
+  $50,000" on a breach endorsement: flagged, and the "already covered" belief in the client's own words
 - **Guardrails:** hedged "yes" is never a yes; conflicts are never auto-resolved; an older call
   re-ingested never overwrites a newer one; a contradiction of a confirmed answer reopens it
 
@@ -294,10 +311,26 @@ Each use case: who, trigger, what happens, outcome, guardrail. ✅ = built, ◻ 
   incidents, regulation) → cited items in the wiki → pack and brief update
 - **Guardrails:** no URL, no item; figures quoted from the source; a person skims before sending
 
-### UC15 · Stage 5 · Application and e-signature ◻ (partly built)
-- **Built:** application answers filled by the same calls; confirming a call answer confirms the
-  application questions it fills; e-sign button disabled until everything is confirmed
-- **Designed:** pre-filled application sent for e-signature → carrier final terms → bind
+### UC15 · Stage 6 · Owner's choice, firm quote, bind ✅ (carrier side simulated)
+- **Actor:** agent · **Screen:** Stage 6 (Decision, bind, report)
+- **Flow:** record the owner's choice, or "not now" with a reason (price, already covered, no need,
+  carrier requirements, timing, other) → take in the carrier's firm quote (every figure and date checked
+  against the PDF; compared with the indication; conditions tagged before / after binding) → owner
+  accepts or declines with a reason → mark each before-binding condition met with evidence → bind
+- **Demo:** Northwind $2,980 → $3,410 (+14%) with the carrier's reason quoted; phishing training is a new
+  60-day condition; bind gives a simulated policy number
+- **Guardrails:** the choice locks once a quote is in; Bind stays off (and says why) until the quote is
+  checked, the owner said yes, conditions are met and every application answer is confirmed; e-signature
+  and the carrier's binder are simulated
+
+### UC15b · Stage 6 · Reports and the year after bind ✅
+- **Client summary:** what they bought in plain words, what to do if something happens, what they agreed
+  to keep in place; "would this be covered?" goes to a CPL
+- **Deal record (agency + UKON):** outcome (bound, or lost with the reason), milestones, who did what,
+  sources behind every number
+- **After bind:** 30-60-90 (welcome call, carrier onboarding, condition check and deadline, weak-spot
+  follow-ups like DMARC, first quarterly check-in) and touchpoints to renewal (mid-year, then 120 / 90 /
+  60 / 30 days out), built by rules; owners are proposed, because who owns them at UKON is an open question
 
 ### UC16 · Compliance and audit review ✅
 - **Flow:** Audit tab: every human action with actor, role, time and reason; overrides double as
@@ -390,15 +423,18 @@ raw sources (wiki) ──extract──▶ signals ──estimators (no LLM)─�
                                                                      │
 carrier replies (wiki) ──extract──▶ source check ──▶ indication_versions (DB, locked) ──▶ indications view
                                                                      │
-live taps (UI) ─▶ intake_answers (DB) ◀── merge ◀── extraction ◀── call transcript (wiki)
+live taps (UI) ─▶ intake_answers (DB) ◀── merge ◀── extraction ◀── call transcript / email (wiki)
                         │                                   └──▶ application_answers (DB)
                         └──▶ exposure credits ──▶ fields
                                                                      ▼
               narrative (LLM, no digits) + research (wiki, cited) ──▶ report snapshot (DB) ──▶ reports/*.html
+
+owner's choice ─▶ firm quote (wiki) ──extract──▶ source check ──▶ firm_quotes (DB, locked) ──vs indication──▶ final yes
+                 ──▶ bind_conditions (met with evidence) ──▶ binder (simulated) ──▶ client summary · deal record · 30-60-90
 ```
 
 ### 8.2 Stage status
-Five stages, each with a status derived from the data on every request (`pipeline/stages.py`), not set by hand:
+Six stages, each with a status derived from the data on every request (`pipeline/stages.py`), not set by hand:
 
 | Stage | Done when | Needs attention when |
 |---|---|---|
@@ -406,7 +442,8 @@ Five stages, each with a status derived from the data on every request (`pipelin
 | 2 Get indications | a written, checked indication is in and no follow-ups are open | open follow-ups or a figure to check |
 | 3 Proposal pack | a version is submitted (locked) | — |
 | 4 Equip the agent | the pack has been sent | — |
-| 5 Present, apply, bind | every application answer is confirmed | — |
+| 5 Questionnaire | every application answer is confirmed | — |
+| 6 Decision, bind, report | bound, or lost with a reason (not now / declined) | a firm quote is in and not yet bound |
 
 ### 8.3 Intake answer status
 ```
@@ -458,14 +495,14 @@ earns nothing. An agent's manual override is kept; only the AI's recommendation 
 
 ## 10. Key decisions and trade-offs
 
-Full log (58 entries): `docs/decisions.md`. The ones most likely to come up:
+Full log (60 entries): `docs/decisions.md`. The ones most likely to come up:
 
 | Decision | Trade-off |
 |---|---|
 | Prototype the whole flow for **one client, deep**, not many shallow | Shows judgment end to end; scale shown on a slide (renewal queue) rather than built |
 | **Wiki + database**, not one or the other | Two stores to keep in sync → solved by generating wiki pages from the DB |
-| **Five stages: UKON's Stage 1 split in two** | One more stage to explain; puts a person's approval between confirming data and sending it to carriers |
-| **Application questions after the price** (Stage 5), never blocking | The pack has fewer answers to quote; the owner isn't asked about security practices before seeing a price |
+| **Six stages: UKON's Stages 1 and 4 each split in two** | Two more stages to explain; puts a person's approval between confirming data and sending it to carriers, and gives the questionnaire (several touches, where deals stall) its own stage |
+| **Application questions after the price** (Stage 5), never blocking; the owner's choice opens Stage 6 | The pack has fewer answers to quote; the owner isn't asked about security practices before seeing a price |
 | **Live taps + recording** | More moving parts; gives a built-in second opinion and catches mishearing both ways |
 | **Lock carrier numbers**, flag drift instead of recalculating | Agents can't "fix" a price; prevents misrepresenting the carrier |
 | **No digits in AI prose** | Narrative is a bit more general; hallucinated figures become impossible |
@@ -550,8 +587,9 @@ rule, fake-invoice fraud patterns).
 2. **Stage 2 · Get indications:** try Send before Stage 1 is done (refused) → send. **Read in** Northwind's revised letter: +10% and a new EDR condition become follow-ups. Cobalt's "5.29k" → **Matches the source**.
 3. **Stage 3 · Proposal pack:** open the HTML: price first, "What you've told us so far," real Colorado news items. Revenue to $2.8M → refresh banner, premiums unchanged → reset → submit → `v1.html` → send → client view.
 4. **Stage 4 · Equip the agent:** objections; Ask "Would a ransomware payment be covered?" → escalates.
-5. **Stage 5 · Live call:** numbered questions, prefilled identity, "Client unsure," CPL log, walkthrough. Tap Q2 "50–75%." **After the call:** re-ingest call 1 → **Q2 conflict**; ingest call 2 → MFA/EDR close, backups open → exposure 45. **Application & bind:** e-sign stays off until everything is confirmed.
-6. **Audit + Obsidian (30 sec):** who changed what; graph view and the call page with quotes.
+5. **Stage 5 · Questionnaire:** call 1, call 2 and the office manager's email are in; filter **Not answered** → 3 left. Answers on record show with their source; **Correct** opens the inputs. Tap Q2 "50–75%" → **After the call:** re-ingest call 1 → **Q2 conflict**. Show the email's flagged "I think the limit is $50,000" breach endorsement (the "already covered" belief). Confirm the application answers (keep this short).
+6. **Stage 6 · Decision, bind, report:** owner chooses Northwind $1M → take in the firm quote ($2,980 → $3,410, reason quoted) → owner accepts → mark the two conditions met → **Bind**. Open the three reports; spend the time on **After bind: 30-60-90 + the year**.
+7. **Audit + Obsidian (30 sec):** who changed what; graph view and the call page with quotes.
 
 **If something breaks:** `uv run python -m pipeline.run_all` resets in seconds; screenshots and the
 HTML file work without the app.
@@ -569,11 +607,13 @@ HTML file work without the app.
   only; carrier numbers locked; consent on recordings; the client signs the application; full audit trail.
 - *Why a dental practice?* Health data, single-system dependency and front-office payment fraud
   make it a clear case, and the industry page carries over to every dental client.
-- *Why five stages when we gave you four?* Your Stage 1 hides two jobs: confirming five facts we
+- *Why six stages when we gave you four?* Your Stage 1 hides two jobs: confirming five facts we
   mostly already have, and the carrier round trip. Splitting them puts a person's approval before
-  client data leaves the agency, and makes each half measurable on its own.
+  client data leaves the agency, and makes each half measurable on its own. Your Stage 4 also hides
+  two: the questionnaire, which takes several calls and emails and is where deals stall, and the close
+  (choice, firm quote, bind), which needs its own record of why deals are won or lost.
 - *What would you build first?* Renewal queue + Stage 1 with review by exception + pack, then
-  carrier integrations. Skip binding and e-sign until carriers are integrated.
+  carrier integrations. Binding and e-sign stay simulated until carriers are integrated.
 - *How do you know the estimates are right?* Two independent methods, ranges, confidence, confirmed
   on the call; next step is a golden set of 15–20 businesses for field-level accuracy.
 
@@ -595,19 +635,17 @@ HTML file work without the app.
 
 ---
 
-## 16. Interview plan (draft)
+## 16. Interview plan
 
-*Proposed; not yet reviewed with UKON. Built from the open questions raised while designing.*
+The current plan is `web/public/interview/1-interview-plan.html` (and `docs/assumptions-risks-questions.md`):
+11 questions, each tagged with the gap it closes (**A** how the work moves today, **B** after bind, **C** why the
+renewal window is missed) and who to ask. Rule: only ask what only UKON can answer. The three that matter most:
 
-| Who | Why | Questions |
-|---|---|---|
-| **UKON execs** | Strategy and economics | Which agencies and segments matter most? What does a bound policy earn UKON and the agent? Where do deals die today? What does success look like in 12 months? |
-| **CPLs** | They support agents and own coverage accuracy | Where does your time go per bound policy? Which objections come up most? Which questions must never be answered by an agent? What makes a submission "clean"? |
-| **UKON ops / wholesale** | They touch carriers | How do indications come back (API, portal, email)? Do carriers accept revenue bands? What causes declines and re-quotes? |
-| **Agency producers & account managers** | Primary users | What do you have in your agency system for a renewing client? Why don't you bring up cyber? How long does a cyber quote take today? Would you run a recorded intake call? |
-| **Business owners** | End customers | What would make you take a cyber conversation seriously? What do you need to see before you'd buy? Phone call or a link to answer? |
-| **Carriers / underwriters** | Pricing and application gates | Minimum data for an indication? Which controls are gates? How do you treat recorded intake answers vs a signed application? |
-| **Compliance / legal** | Guardrails | Recording consent by state; licensing boundary for AI-written material; data retention for transcripts |
+- **Matt:** "You wrote that the renewal moment is missed because it's too much manual work. What is that based on?"
+  (with public research on price, "already covered" and carrier requirements, sources on the page)
+- **CPL, with Ops:** "Here's the workflow I built in six stages. Where is it wrong? Does the application happen before
+  or after the client picks a carrier?"
+- **Service:** "Once a policy is bound, what are the touchpoints during the year, and who owns each one?"
 
 ---
 
@@ -670,7 +708,7 @@ Optional: put `ANTHROPIC_API_KEY` in `.env` to run extraction, narrative and Ask
 | `docs/interview-notes.md` | This document |
 | `docs/decisions.md` | All 58 design decisions with reasons and who made them |
 | `docs/workflow.md` | Per-step AI / human / failure modes + diagram |
-| `docs/client-intake.md` | Stage 5 call questions and limit walkthrough script |
+| `docs/client-intake.md` | Stage 5 questionnaire questions and limit walkthrough script |
 | `docs/proposal-pack.md` | Client pack outline |
 | `docs/mvp-scope.md` | Critique, built / later / skipped |
 | `docs/assumptions-risks-questions.md` | Write-up raw material |
@@ -681,5 +719,5 @@ Optional: put `ANTHROPIC_API_KEY` in `.env` to run extraction, narrative and Ask
 | `wiki/clients/sloanslake.md`, `…-indications.md`, `…-intake.md` | Generated client, carrier-indication and call-answer pages |
 | `wiki/raw/` | Sources, benchmarks, research, carriers, intake bank, transcripts |
 | `reports/sloanslake/` | HTML client packs |
-| `pipeline/`, `api/`, `web/`, `db/`, `scripts/` | The app (`pipeline/stages.py` defines the five stages) |
+| `pipeline/`, `api/`, `web/`, `db/`, `scripts/` | The app (`pipeline/stages.py` defines the six stages) |
 | `.claude/skills/` | `client-ingest`, `indication-ingest`, `call-ingest`, `client-research`, `client-ask` |

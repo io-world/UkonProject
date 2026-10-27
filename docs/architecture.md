@@ -29,22 +29,23 @@ reaches a client.
 | Path | Role |
 |---|---|
 | `wiki/` | LLM-wiki knowledge layer. Raw sources as Markdown (JSON in a code block where structured); generated client page; shared industry page; `log.md`; schema in `wiki/CLAUDE.md`. |
-| `db/schema.sql` | `fields` (value, AI value, range, confidence, method, sources), `field_changes` (append-only audit), `indication_requests` (basis as sent), `indication_sources` (each carrier reply), `indication_versions` (append-only, values locked by trigger), `indication_actions` (follow-ups), `indications` (read-only view: latest written, checked version), `report_versions` (immutable once submitted), `intake_calls` / `intake_answers` / `intake_escalations` (Stage 5 calls), `application_answers`, `ask_log`, `audit_trail` view. |
-| `pipeline/stages.py` | The five stages (UKON's four, Stage 1 split) and each stage's status, derived from the data. |
+| `db/schema.sql` | `fields` (value, AI value, range, confidence, method, sources), `field_changes` (append-only audit), `indication_requests` (basis as sent), `indication_sources` (each carrier reply), `indication_versions` (append-only, values locked by trigger), `indication_actions` (follow-ups), `indications` (read-only view: latest written, checked version), `report_versions` (immutable once submitted), `intake_calls` / `intake_answers` / `intake_escalations` (Stage 5 calls and emails), `application_answers`, `client_decisions` (owner's choice and final yes/no, append-only, with a reason on any no), `firm_quotes` (values locked by trigger), `bind_conditions` (met with evidence), `binders`, `ask_log`, `audit_trail` view. |
+| `pipeline/stages.py` | The six stages (UKON's four, Stages 1 and 4 each split) and each stage's status, derived from the data. |
 | `pipeline/sources.py` | Reads/writes the JSON block inside a wiki Markdown source. |
 | `pipeline/entity_resolution.py` | Weighted match on name 25%, state 20%, address 30%, domain 25%. |
 | `pipeline/estimators.py` | Employees, revenue waterfall, exposure score, revenue drift. No LLM. |
 | `pipeline/narrative.py` | LLM prose with placeholders; rejects any digit; cached fallback. |
 | `pipeline/stage3_proposal.py`, `pipeline/report.py` | Stage 3: draft v1; snapshot builder; working → submitted → sent → superseded. |
-| `pipeline/intake.py` | Stage 5 call rules with no database: question bank, extraction prompt, hedge check, recording-vs-live-tap reconciliation, intake wiki page. |
-| `pipeline/intake_ingest.py` | One call → intake + application answers; merges across calls; conflicts with live taps; CPL questions; exposure; pack + wiki refresh. |
+| `pipeline/intake.py` | Stage 5 questionnaire rules with no database: question bank, extraction prompt, hedge check, recording-vs-live-tap reconciliation, intake wiki page. |
+| `pipeline/intake_ingest.py` | One call or email (`call_N.md`, `email_N.md`) → intake + application answers; merges across sources; conflicts with live taps; CPL questions; exposure; pack + wiki refresh. |
 | `pipeline/indication_extract.py` | Carrier reply → text (pypdf / file) → LLM extraction (cached fallback) → deterministic check that every figure appears in the source. |
 | `pipeline/indications.py` | Stage 2: requests out (gated on Stage 1, chosen carriers); replies in; versions + diffs; rule-based follow-ups; review of a flagged figure; condition status from the call answers; generated `wiki/clients/<slug>-indications.md`. |
+| `pipeline/bind.py` | Stage 6: owner's choice (or not now + reason); firm quote in (extraction + figure/date check, compared with the written indication; conditions by what they require); final yes/no; conditions met with evidence; bind (simulated binder); client summary, deal record and after-bind plan (30-60-90 + touchpoints to renewal, by rules); generated `wiki/clients/<slug>-bind.md`. |
 | `pipeline/html_report.py` | Snapshot → standalone HTML file in `reports/<slug>/`. |
 | `pipeline/config.py` | Every review threshold in one place; loads `.env`. |
 | `api/main.py`, `api/ask.py` | REST for the app (no route writes a carrier figure); Ask uses read-only tools (live with an API key, rule-based offline). |
 | `api/chat.py` | Stage 4 "Ask the wiki" chat: searches and reads the wiki first, Anthropic web search only as a fallback; the wiki / web / both / unverified label is set from the tools that ran. Offline: keyword search over the wiki. `/api/wiki` serves a cited page read-only. |
-| `web/` | Workbench, one tab per stage with a derived status: 1 Confirm data · 2 Get indications · 3 Proposal pack · 4 Equip the agent · 5 Present, apply, bind (Live call · After the call · Application & bind) · Audit, plus Ask drawer. |
+| `web/` | Workbench, one tab per stage with a derived status: 1 Confirm data · 2 Get indications · 3 Proposal pack · 4 Equip the agent · 5 Questionnaire (Live call · After the call · Application; filter + collapsible sections) · 6 Decision, bind, report · Audit, plus Ask drawer. |
 | `.claude/skills/` | `client-ingest`, `indication-ingest` (carrier replies), `call-ingest` (Wispr Flow intake), `client-research` (web), `client-ask`. |
 | `reports/` | Generated HTML client packs: `current.html` + `v<N>.html` per submitted version. |
 
@@ -65,4 +66,4 @@ reaches a client.
 - **Obsidian + LLM-wiki pattern:** knowledge that compounds across renewals and is readable by people.
 - **FastAPI + React (Vite):** fastest path to a clickable, honest prototype.
 - **uv:** reproducible Python environment from one lockfile.
-- **Wispr Flow:** call capture for Stage 5 calls and underwriter calls (Stage 2), pulled into the wiki by Claude skills.
+- **Wispr Flow:** call capture for Stage 5 questionnaire calls and underwriter calls (Stage 2), pulled into the wiki by Claude skills.

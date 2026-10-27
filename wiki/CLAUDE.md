@@ -25,16 +25,18 @@ wiki/
   index.md             catalog of every page, one line each
   log.md               append-only: ingest | estimate | review | report | call | ask
   raw/                 immutable sources (never edited after landing)
-    <client-slug>/     AMS export, filings, website capture, DNS, call transcripts, signals
+    <client-slug>/     AMS export, filings, website capture, DNS, call transcripts (call_N), emails (email_N), signals
     benchmarks/        published industry + premium benchmarks, with URLs
     research/          cited recent events per industry (client-research skill)
-    intake/            Stage 5 call question bank + limit walkthrough script
+    intake/            Stage 5 questionnaire question bank + limit walkthrough script
     <client-slug>/indications/  carrier replies as received: PDF letters, emails, underwriter calls
+    <client-slug>/quotes/       carrier firm quotes as received (Stage 6)
     carriers/          carrier panel, specimen map, coverage language, application question bank
     _cache/            cached AI output used when no API key is set
   clients/<slug>.md    one page per client (generated from DB + raw, re-rendered on change)
-  clients/<slug>-intake.md  the Stage 5 call answers, answer by answer (generated)
+  clients/<slug>-intake.md  the Stage 5 questionnaire answers, answer by answer (generated)
   clients/<slug>-indications.md  requests, every carrier reply as a version, diffs, actions (generated)
+  clients/<slug>-bind.md  Stage 6: owner's decisions, firm quote vs indication, conditions, binder, after-bind plan (generated)
   industries/<naics>.md shared industry pages — compound across every client in that industry
 ```
 
@@ -58,7 +60,8 @@ wiki/
 | review | human confirms/overrides | DB records actor + reason; client page re-renders |
 | report | agent submits | immutable report version snapshot in DB; log entry |
 | indication | carrier reply lands (PDF, email, call) | extract → check figures in source → new version + diff → actions; pack refresh |
-| call | Stage 5 call transcript lands (one of several) | extract answers, merge with earlier calls; hedged answers flagged; exposure + pack refresh |
+| call / email | Stage 5 call transcript or client email lands (one of several) | extract answers, merge with earlier sources; hedged answers flagged; exposure + pack refresh |
+| quote | carrier firm quote lands (Stage 6) | extract → check figures and dates in source → compare with indication → conditions; bind page refresh |
 | research | building/refreshing a pack | cited industry events into `raw/research/`; human-reviewed |
 | ask | agent asks a question | answer from DB (numbers) + wiki (why), cited, read-only |
 | lint | weekly / pre-renewal | stale facts (>12 mo), unresolved conflicts, missing sources |

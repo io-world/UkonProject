@@ -1,9 +1,9 @@
-# Stage 5 call: questions and limit-sizing script
+# Stage 5 questionnaire: questions and limit-sizing script
 
-Used on the Stage 5 call(s) (Present, apply, bind), captured by Wispr Flow, after the owner has seen the pack.
+Used on the Stage 5 questionnaire calls, captured by Wispr Flow, after the owner has seen the pack (answers can also come by email).
 The file keeps its old name; the app and code still call these answers "intake." The
 question bank behind it is `wiki/raw/intake/intake_questions.md` and the walkthrough script is
-`wiki/raw/intake/walkthrough_script.md`; the agent screen is the app's **Stage 5 (Present, apply, bind) → Live call** view
+`wiki/raw/intake/walkthrough_script.md`; the agent screen is the app's **Stage 5 (Questionnaire) → Live call** view
 (the original standalone screen is kept at `docs/archive/client-intake.html`). Say each number aloud
 on the call ("Question 7") so the recording can be matched to the list. **[E]** = Stage 1 can usually pre-fill it, so the agent confirms rather than asks.
 Offer ranges, not exact numbers, wherever the client is likely to guess.
