@@ -66,6 +66,11 @@ section.block > .sub{color:var(--ink-2);margin-top:6px;max-width:72ch}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:16px}
 .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+.quad{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+@media (max-width:980px){.quad{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:760px){.pair,.quad{grid-template-columns:1fr}}
+.pair>*,.quad>*{min-width:0}
 
 .pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 9px;font-size:.72rem;font-weight:600;letter-spacing:.02em;white-space:nowrap}
 .pill.ai{background:var(--ai-bg);color:var(--ai)}
@@ -120,7 +125,7 @@ footer.foot .wrap{display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space
 .toc{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
 .toc a{font-size:.82rem;text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:4px 11px;color:var(--ink-2);background:var(--card)}
 .toc a:hover{border-color:var(--accent);color:var(--accent)}
-.agent{display:grid;gap:10px}
+.agent{display:grid;gap:10px;align-content:start}
 .agent h3{font-family:var(--serif);font-weight:600;font-size:1.18rem;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
 .agent .n{font-family:var(--sans);font-size:.75rem;font-weight:700;color:var(--accent);letter-spacing:.06em}
 .kv{display:grid;grid-template-columns:118px 1fr;gap:6px 14px;font-size:.9rem}
@@ -129,6 +134,8 @@ footer.foot .wrap{display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space
 .agent,.grid2>*,.grid3>*{min-width:0}
 @media (max-width:520px){.kv{grid-template-columns:1fr}.kv dt{padding-top:6px}}
 .flow svg{width:100%;height:auto;display:block}
+.mapwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+@media (max-width:760px){.mapwrap svg{width:820px;max-width:none}.maphint{display:inline!important}}
 .flow text{font-family:var(--sans);fill:var(--ink);font-size:12.5px}
 .flow .t2{fill:var(--ink-2);font-size:11px}
 .flow .box{fill:var(--card);stroke:var(--line);stroke-width:1.2}
@@ -174,7 +181,7 @@ code{font:12.5px ui-monospace,Menlo,monospace;background:var(--wash);padding:1px
     <h2>System map</h2>
     <p class="sub">Teal boxes are AI agents (a model makes judgments). Grey boxes are plain code (deterministic, reproducible). Amber boxes are people. Everything lands in two stores: the evidence wiki and the database.</p>
     <div class="legend mt"><span><i class="sw ai"></i>AI agent</span><span><i class="sw" style="background:var(--muted)"></i>Plain code</span><span><i class="sw hu"></i>Person</span><span><i class="sw" style="background:var(--accent)"></i>Store</span></div>
-    <div class="card">
+    <div class="card mapwrap">
     <svg viewBox="0 0 1060 470" role="img" aria-label="Agent system map: a renewal trigger starts the client agents (entity resolver, footprint collector, signal extractor), then plain-code estimators and a verifier, then human review; the industry researcher, research verifier and tailor run on a schedule; both feed the evidence wiki and database, which feed the client pack and agent brief.">
       <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker></defs>
       <rect class="lane" x="8" y="8" width="1044" height="214" rx="10"/><text class="lanel" x="20" y="28">PER CLIENT · AT RENEWAL</text>
@@ -203,17 +210,17 @@ code{font:12.5px ui-monospace,Menlo,monospace;background:var(--wash);padding:1px
       <path class="arr" d="M882 167 H896 V123 H910"/><path class="arr" d="M346 303 H376"/><path class="arr" d="M538 303 H568"/>
       <path class="arr" d="M710 303 H740"/><path class="arr" d="M500 417 H528"/><path class="arr" d="M730 417 H788"/>
       <path class="arr" d="M976 152 V386"/><path class="arr" d="M812 332 V360 H900 V386"/>
-      <path class="arr" d="M448 106 V228 H362 V386"/>
+      <path class="arr" d="M448 106 V229 H174 V417 H298"/>
     </svg>
     </div>
-    <p class="small mt">Hover a box for what it does. Numbered boxes are the seven agents described below.</p>
+    <p class="small mt"><span class="maphint" style="display:none">Swipe sideways to see the whole map. </span>Hover a box for what it does. Numbered boxes are the seven agents described below.</p>
   </section>
 
   <section class="block" id="client">
     <h2>The client agents</h2>
     <p class="sub">They run in order for each renewing client. Each one writes its output to the wiki (evidence) and the database (values), so the next agent and any person can see exactly what it did.</p>
 
-    <div class="grid2 mt">
+    <div class="pair mt">
       <article class="card agent">
         <h3><span class="n">AGENT 1</span> Entity resolver</h3>
         <p class="small">Turns "the account the agency calls Sloan's Lake Dental" into one legal entity that can be the named insured.</p>
@@ -381,7 +388,7 @@ code{font:12.5px ui-monospace,Menlo,monospace;background:var(--wash);padding:1px
 
   <section class="block" id="breaks">
     <h2>Where it breaks</h2>
-    <div class="grid2 mt">
+    <div class="quad mt">
       <div class="card"><h3 style="font-size:1rem">Common names</h3><p class="small" style="margin-top:6px">"Smith Dental" returns dozens of candidates. Without an address or domain from the agency, the resolver must stop and ask rather than guess.</p></div>
       <div class="card"><h3 style="font-size:1rem">Coverage gaps</h3><p class="small" style="margin-top:6px">States without open registries; very small businesses with no website; sole proprietors with no entity at all.</p></div>
       <div class="card"><h3 style="font-size:1rem">Stale third parties</h3><p class="small" style="margin-top:6px">Directories keep old addresses and old staff, as with Sloan's Lake's second listing. Official records win every tie.</p></div>
