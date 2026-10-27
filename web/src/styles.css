@@ -66,7 +66,8 @@ select, input { font: inherit; padding: 7px 9px; border: 1px solid var(--line); 
 .chip.ok { border-color: #bfe0cc; background: var(--green-bg); color: var(--green); }
 .chip.mid { border-color: #f1d9a8; background: var(--amber-bg); color: var(--amber); }
 .chip.no { border-color: #f2c9c5; background: var(--red-bg); color: var(--red); }
-.chip.ask { cursor: pointer; }
+.chip.ask { cursor: pointer; font: 500 12.5px Inter, system-ui, sans-serif; color: var(--ink-2); padding: 4px 10px; }
+.chip.ask:hover { border-color: var(--accent); color: var(--accent); }
 .status { font-size: 12px; font-weight: 600; text-transform: capitalize; }
 .status.confirmed { color: var(--green); }
 

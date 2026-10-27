@@ -208,15 +208,15 @@ details .tablewrap{padding-bottom:14px}
       <div class="col" role="listitem" style="grid-column:5">
         <div class="ch"><span class="s">Stage 3 · UKON 2</span><h3>Client proposal pack</h3><span class="pill green">Built</span></div>
         <div class="cell ai"><span class="mlab">AI / system</span><div class="node ai">Write why it matters, scenarios and next steps, with no digits allowed. Find recent, cited incidents in the client's industry.</div><div class="node sys">Every figure rendered from the database.</div></div>
-        <div class="cell hu"><span class="mlab">Person</span><div class="node hu">Agent adjusts estimates; carrier numbers stay locked.</div><div class="node hu">Agent submits (version locked), then sends.</div></div>
+        <div class="cell hu"><span class="mlab">Person</span><div class="node hu">Agent adjusts estimates; carrier numbers stay locked.</div><div class="node hu">Agent submits (version locked), then sends. Before sending, a submit can be undone: the version is kept as withdrawn, never unlocked.</div></div>
         <div class="cell risk"><span class="mlab">Could go wrong → caught by</span><span class="rk"><b>AI invents a figure</b> → any digit fails validation.</span><span class="rk"><b>Stale price after an edit</b> → ±15% revenue drift shows "indication needs refresh."</span></div>
       </div>
 
       <div class="col" role="listitem" style="grid-column:6">
         <div class="ch"><span class="s">Stage 4 · UKON 3</span><h3>Equip the agent</h3><span class="pill green">Built</span></div>
-        <div class="cell ai"><span class="mlab">AI / system</span><div class="node ai">Tailor a 60-second pitch. Pick objection answers from the CPL-approved library. Map where items sit in the policy form. Answer questions about the client, read-only.</div></div>
+        <div class="cell ai"><span class="mlab">AI / system</span><div class="node ai">Tailor a 60-second pitch. Pick objection answers from the CPL-approved library. Map where items sit in the policy form.</div><div class="node ai">"Ask the wiki" chat: answers from the client wiki first, the web only if the wiki doesn't cover it, each answer labelled with where it came from.</div></div>
         <div class="cell hu"><span class="mlab">Person</span><div class="node hu">Agent reads the brief and presents to the client.</div></div>
-        <div class="cell risk"><span class="mlab">Could go wrong → caught by</span><span class="rk"><b>AI makes up an answer</b> → library only; tailoring can't add claims.</span><span class="rk"><b>"Would this be covered?"</b> → always escalates to a CPL.</span></div>
+        <div class="cell risk"><span class="mlab">Could go wrong → caught by</span><span class="rk"><b>AI makes up an answer</b> → library only; tailoring can't add claims.</span><span class="rk"><b>"Would this be covered?"</b> → always escalates to a CPL.</span><span class="rk"><b>A web answer passed off as the client's file</b> → the wiki / web label is set by which tools ran, not by the model; every block shows its wiki path.</span></div>
       </div>
 
       <div class="col" role="listitem" style="grid-column:7">
@@ -268,13 +268,13 @@ details .tablewrap{padding-bottom:14px}
         <tr><td>Draft</td><td>Why it matters, three industry scenarios, exposure explainer, next steps, with placeholders for any number.</td><td>—</td><td>Invented figure → any digit fails validation; figures come from the database.</td></tr>
         <tr><td>Coverage text</td><td>— (CPL-approved plain-language library)</td><td>—</td><td>Overstating coverage → library text only; the funds-transfer limit is flagged visually.</td></tr>
         <tr><td>Adjust</td><td>Shows its recommendation next to the current value.</td><td>Moves revenue, employees, exposure or records, with a reason.</td><td>Revenue drifts from what carriers priced on → refresh banner; premiums aren't recalculated.</td></tr>
-        <tr><td>Lock and send</td><td>—</td><td>Submits, then sends. Later changes create a new version.</td><td>Client sees an unreviewed draft → the client view shows only submitted versions.</td></tr>
+        <tr><td>Lock and send</td><td>—</td><td>Submits, then sends. Later changes create a new version. Can undo a submit before sending; a dropdown opens any locked version.</td><td>Client sees an unreviewed draft → the client view shows only submitted versions. A mistaken submit → withdrawn with who, when and why, never unlocked; a sent version can't be withdrawn.</td></tr>
       </tbody></table></div></details>
 
       <details><summary>Stage 4 · Equip the agent</summary><div class="tablewrap"><table>
         <thead><tr><th>Step</th><th>AI does</th><th>Person does</th><th>Could go wrong → caught by</th></tr></thead><tbody>
         <tr><td>Agent brief</td><td>Tailored pitch; objection answers selected from the approved library; policy-form map.</td><td>Reads it before the meeting.</td><td>Invented answer → library only. Form references must match real text on the cited page, or they're dropped.</td></tr>
-        <tr><td>Ask about this client</td><td>Answers from the database (numbers) and wiki (reasons), cited, read-only.</td><td>Asks.</td><td>Coverage interpretation → escalates. A requested change → told to use the logged control.</td></tr>
+        <tr><td>Ask the wiki (chat)</td><td>Searches and reads the client wiki first (numbers from the database); searches the web only if the wiki doesn't cover it. Labels each answer wiki, web, both or unverified, with the paths and links it used.</td><td>Asks; can switch to "wiki only."</td><td>Web content mistaken for the client's file → the label comes from the tools that ran. Coverage interpretation → escalates. A requested change → told to use the logged control.</td></tr>
       </tbody></table></div></details>
 
       <details><summary>Stage 5 · Present, apply, bind</summary><div class="tablewrap"><table>
