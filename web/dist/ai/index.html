@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Research Agents</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>:root{
+  --ink:#16202e; --ink-2:#3c4a5c; --muted:#5f6b7c; --line:#e3e0d8; --line-2:#eeebe4;
+  --paper:#fbfaf7; --card:#ffffff; --wash:#f3f1ec;
+  --accent:#0f6b62; --accent-2:#e7f2f0; --on-accent:#ffffff;
+  --ai:#00897b; --ai-bg:#e3f3f1; --hu:#c27400; --hu-bg:#fff2dd;
+  --amber:#a35f00; --amber-bg:#fff4e0; --red:#b3372f; --red-bg:#fdecea; --green:#2f7d4b; --green-bg:#e9f5ee;
+  --grid:#e9e6df;
+  --shadow:0 1px 2px rgba(22,32,46,.06),0 4px 16px rgba(22,32,46,.04);
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --radius:10px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ink:#e6e9ee; --ink-2:#b9c2ce; --muted:#95a1b2; --line:#2c333d; --line-2:#242a33;
+  --paper:#11151b; --card:#181d25; --wash:#1f252e;
+  --accent:#4fb3a7; --accent-2:#17302d; --on-accent:#0c1714;
+  --ai:#26a69a; --ai-bg:#14302c; --hu:#c27400; --hu-bg:#332410;
+  --amber:#e3a24a; --amber-bg:#33270f; --red:#f08479; --red-bg:#3a1d1b; --green:#6cc28b; --green-bg:#16301f;
+  --grid:#272e38;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25); color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --ink:#e6e9ee; --ink-2:#b9c2ce; --muted:#95a1b2; --line:#2c333d; --line-2:#242a33;
+  --paper:#11151b; --card:#181d25; --wash:#1f252e;
+  --accent:#4fb3a7; --accent-2:#17302d; --on-accent:#0c1714;
+  --ai:#26a69a; --ai-bg:#14302c; --hu:#c27400; --hu-bg:#332410;
+  --amber:#e3a24a; --amber-bg:#33270f; --red:#f08479; --red-bg:#3a1d1b; --green:#6cc28b; --green-bg:#16301f;
+  --grid:#272e38;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25); color-scheme:dark;}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.6}
+h1,h2,h3,h4{margin:0;text-wrap:balance;line-height:1.2}
+p{margin:0}
+a{color:var(--accent)}
+.wrap{max-width:1120px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-left,0px))}
+.narrow{max-width:820px}
+
+/* top bar */
+.top{border-bottom:1px solid var(--line);background:var(--card)}
+.top .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px;padding-block:12px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font-weight:600;font-size:.92rem}
+.brand i{width:14px;height:14px;background:var(--accent);transform:rotate(45deg);border-radius:2px;display:inline-block}
+.top nav{display:flex;flex-wrap:wrap;gap:4px;margin-left:auto}
+.top nav a{font-size:.84rem;color:var(--ink-2);text-decoration:none;padding:5px 10px;border-radius:7px}
+.top nav a:hover{background:var(--wash);color:var(--ink)}
+.top nav a[aria-current]{background:var(--accent-2);color:var(--accent);font-weight:600}
+
+/* hero */
+.hero{padding:44px 0 28px}
+.eyebrow{font-size:.74rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);font-weight:700}
+.hero h1{font-family:var(--serif);font-weight:600;font-size:clamp(1.9rem,4vw,2.7rem);margin-top:8px}
+.lede{font-size:1.1rem;color:var(--ink-2);margin-top:12px;max-width:68ch}
+.meta{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:16px;font-size:.84rem;color:var(--muted)}
+
+section.block{padding:26px 0}
+section.block > h2{font-family:var(--serif);font-weight:600;font-size:1.55rem}
+section.block > .sub{color:var(--ink-2);margin-top:6px;max-width:72ch}
+.mt{margin-top:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 9px;font-size:.72rem;font-weight:600;letter-spacing:.02em;white-space:nowrap}
+.pill.ai{background:var(--ai-bg);color:var(--ai)}
+.pill.hu{background:var(--hu-bg);color:var(--amber)}
+.pill.green{background:var(--green-bg);color:var(--green)}
+.pill.red{background:var(--red-bg);color:var(--red)}
+.pill.amber{background:var(--amber-bg);color:var(--amber)}
+.pill.plain{background:var(--wash);color:var(--ink-2)}
+.sw{display:inline-block;width:10px;height:10px;border-radius:3px;vertical-align:baseline}
+.sw.ai{background:var(--ai)} .sw.hu{background:var(--hu)}
+
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th{text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700;padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:10px;border-bottom:1px solid var(--line-2);vertical-align:top}
+.tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+.callout{border-left:3px solid var(--accent);background:var(--accent-2);padding:14px 16px;border-radius:0 8px 8px 0;color:var(--ink)}
+.callout.warn{border-color:var(--hu);background:var(--hu-bg)}
+.small{font-size:.84rem;color:var(--ink-2)}
+.muted{color:var(--muted)}
+ul.tight{margin:8px 0 0;padding-left:20px} ul.tight li{margin:4px 0}
+
+/* charts */
+.chart{width:100%;height:auto;display:block;overflow:visible}
+.chart text{font-family:var(--sans);fill:var(--ink-2);font-size:13px}
+.chart .axis{stroke:var(--line)} .chart .gridl{stroke:var(--grid)}
+.chart .lbl{fill:var(--ink);font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.82rem;color:var(--ink-2);margin-bottom:8px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+[data-tip]{cursor:default}
+.tip{position:fixed;z-index:60;pointer-events:none;background:var(--ink);color:var(--paper);font-size:.8rem;line-height:1.4;padding:7px 10px;border-radius:7px;max-width:280px;box-shadow:var(--shadow)}
+.tip[hidden]{display:none}
+
+/* shots */
+figure{margin:0}
+figure img{width:100%;height:auto;display:block;border-radius:8px;border:1px solid var(--line)}
+figcaption{font-size:.84rem;color:var(--ink-2);margin-top:8px}
+
+footer.foot{border-top:1px solid var(--line);margin-top:30px;padding:20px 0 36px;font-size:.82rem;color:var(--muted)}
+footer.foot .wrap{display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space-between}
+
+@media print{
+  .top nav,.tip{display:none!important}
+  body{background:#fff;font-size:10.5pt}
+  .card{box-shadow:none}
+  section.block{padding:10px 0;break-inside:avoid-page}
+  .hero{padding:10px 0}
+}
+</style></head><body>
+<header class="top"><div class="wrap"><a class="brand" href="../interview/index.html"><i></i>Cyber in the renewal window · Randy Hesse</a><nav aria-label="Deliverables"><a href="../interview/index.html">Overview</a><a href="../interview/1-interview-plan.html">Interview plan</a><a href="../interview/2-workflow.html">Workflow</a><a href="../interview/3-proposal-pack.html">Proposal pack</a><a href="../interview/4-prototype.html">Prototype</a><a href="../interview/5-write-up.html">Write-up</a><a href="index.html" aria-current=page>AI agents</a></nav></div></header>
+<style>
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.toc a{font-size:.82rem;text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:4px 11px;color:var(--ink-2);background:var(--card)}
+.toc a:hover{border-color:var(--accent);color:var(--accent)}
+.agent{display:grid;gap:10px}
+.agent h3{font-family:var(--serif);font-weight:600;font-size:1.18rem;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.agent .n{font-family:var(--sans);font-size:.75rem;font-weight:700;color:var(--accent);letter-spacing:.06em}
+.kv{display:grid;grid-template-columns:118px 1fr;gap:6px 14px;font-size:.9rem}
+.kv dt{color:var(--muted);font-size:.74rem;text-transform:uppercase;letter-spacing:.07em;font-weight:700;padding-top:3px}
+.kv dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.agent,.grid2>*,.grid3>*{min-width:0}
+@media (max-width:520px){.kv{grid-template-columns:1fr}.kv dt{padding-top:6px}}
+.flow svg{width:100%;height:auto;display:block}
+.flow text{font-family:var(--sans);fill:var(--ink);font-size:12.5px}
+.flow .t2{fill:var(--ink-2);font-size:11px}
+.flow .box{fill:var(--card);stroke:var(--line);stroke-width:1.2}
+.flow .box.ai{fill:var(--ai-bg);stroke:var(--ai)}
+.flow .box.hu{fill:var(--hu-bg);stroke:var(--hu)}
+.flow .box.code{fill:var(--wash);stroke:var(--line)}
+.flow .box.store{fill:var(--accent-2);stroke:var(--accent)}
+.flow .arr{stroke:var(--muted);stroke-width:1.4;fill:none;marker-end:url(#ah)}
+.flow .lane{fill:none;stroke:var(--line);stroke-dasharray:4 4}
+.flow .lanel{fill:var(--muted);font-size:10.5px;font-weight:700;letter-spacing:.08em}
+.trace li{margin:8px 0}
+.trace b{color:var(--accent)}
+code{font:12.5px ui-monospace,Menlo,monospace;background:var(--wash);padding:1px 5px;border-radius:4px}
+</style>
+<main class="wrap">
+  <div class="hero">
+    <span class="eyebrow">How it scales</span>
+    <h1>Research agents: from one practice to every renewal</h1>
+    <p class="lede">For the prototype I researched one real business by hand: its legal entity, its web and email footprint, and the recent incidents in its industry. This page describes how that becomes a set of AI agents that does the same for every client an agency renews, which steps the model does, which steps are plain code, and where a person stays in the loop.</p>
+    <div class="meta"><span>Companion to the workflow and the prototype</span><span>Worked example: Sloan's Lake Dental, Denver (real public data)</span></div>
+    <nav class="toc" aria-label="On this page"><a href="#split">Two jobs</a><a href="#map">System map</a><a href="#client">Client agents</a><a href="#industry">Industry agents</a><a href="#sources">Source adapters</a><a href="#confidence">Confidence &amp; review</a><a href="#guardrails">Guardrails</a><a href="#trace">Worked example</a><a href="#measure">Measuring it</a><a href="#breaks">Where it breaks</a><a href="#build">Build order</a></nav>
+  </div>
+
+  <section class="block" id="split">
+    <h2>The core idea: two jobs, run on different clocks</h2>
+    <p class="sub">The research splits cleanly into work that is specific to one business and work that is shared by every business in an industry. Keeping them apart is what makes it cheap at scale.</p>
+    <div class="grid2 mt">
+      <div class="card">
+        <span class="pill ai">Per client · at each renewal</span>
+        <h3 style="font-family:var(--serif);font-weight:600;margin-top:10px">Client profile</h3>
+        <p class="small" style="margin-top:6px">Who exactly is this business, what does it do, how big is it, what does it expose to the internet, which vendors hold its data? Runs 90–120 days before renewal and refreshes only what changed the next year.</p>
+      </div>
+      <div class="card">
+        <span class="pill ai">Per industry · on a schedule</span>
+        <h3 style="font-family:var(--serif);font-weight:600;margin-top:10px">Industry threat file</h3>
+        <p class="small" style="margin-top:6px">What is actually happening to businesses like this one: breaches, ransomware, vendor incidents, regulation. Runs weekly per industry code. One dental file serves every dental client; only a one-line tailoring step is per client.</p>
+      </div>
+    </div>
+    <div class="callout mt">A thousand dental practices need one dental threat file plus a thousand cheap client profiles, not a thousand research projects.</div>
+  </section>
+
+  <section class="block flow" id="map">
+    <h2>System map</h2>
+    <p class="sub">Teal boxes are AI agents (a model makes judgments). Grey boxes are plain code (deterministic, reproducible). Amber boxes are people. Everything lands in two stores: the evidence wiki and the database.</p>
+    <div class="legend mt"><span><i class="sw ai"></i>AI agent</span><span><i class="sw" style="background:var(--muted)"></i>Plain code</span><span><i class="sw hu"></i>Person</span><span><i class="sw" style="background:var(--accent)"></i>Store</span></div>
+    <div class="card">
+    <svg viewBox="0 0 1060 470" role="img" aria-label="Agent system map: a renewal trigger starts the client agents (entity resolver, footprint collector, signal extractor), then plain-code estimators and a verifier, then human review; the industry researcher, research verifier and tailor run on a schedule; both feed the evidence wiki and database, which feed the client pack and agent brief.">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker></defs>
+      <rect class="lane" x="8" y="8" width="1044" height="214" rx="10"/><text class="lanel" x="20" y="28">PER CLIENT · AT RENEWAL</text>
+      <rect class="lane" x="8" y="236" width="1044" height="120" rx="10"/><text class="lanel" x="20" y="256">PER INDUSTRY · WEEKLY</text>
+
+      <g data-tip="Plain code: watches the agency system for policies renewing in 90–120 days; skips clients that already have cyber."><rect class="box code" x="22" y="48" width="132" height="58" rx="8"/><text x="34" y="72">Renewal scout</text><text class="t2" x="34" y="90">agency system → queue</text></g>
+      <g data-tip="AI agent: queries the registries, scores candidates on name, address, state, domain and status, and explains its pick."><rect class="box ai" x="186" y="48" width="150" height="58" rx="8"/><text x="198" y="72">1 · Entity resolver</text><text class="t2" x="198" y="90">registries → ranked match</text></g>
+      <g data-tip="Person: confirms the legal entity. The one step that is never automated."><rect class="box hu" x="186" y="140" width="150" height="54" rx="8"/><text x="198" y="163">Confirm company</text><text class="t2" x="198" y="180">account manager</text></g>
+      <g data-tip="AI agent: fetches the website, DNS, directories, press, job posts; saves each as a dated raw source."><rect class="box ai" x="368" y="48" width="160" height="58" rx="8"/><text x="380" y="72">2 · Footprint collector</text><text class="t2" x="380" y="90">web, DNS, listings</text></g>
+      <g data-tip="AI agent: reads the raw sources into structured signals, each tied to its source and line."><rect class="box ai" x="560" y="48" width="150" height="58" rx="8"/><text x="572" y="72">3 · Signal extractor</text><text class="t2" x="572" y="90">sources → facts + cites</text></g>
+      <g data-tip="Plain code: revenue and headcount estimates, exposure score. Ranges, confidence and a written method; no model."><rect class="box code" x="742" y="48" width="140" height="58" rx="8"/><text x="754" y="72">Estimators</text><text class="t2" x="754" y="90">ranges + confidence</text></g>
+      <g data-tip="AI agent (critic): every claim has a source? sources agree? anything contradictory or stale? Flags, never fixes."><rect class="box ai" x="742" y="140" width="140" height="54" rx="8"/><text x="754" y="163">4 · Verifier</text><text class="t2" x="754" y="180">checks the profile</text></g>
+      <g data-tip="Person: reviews only what is flagged (low confidence, conflicts). Review by exception."><rect class="box hu" x="912" y="94" width="128" height="58" rx="8"/><text x="924" y="118">Review flagged</text><text class="t2" x="924" y="136">account manager</text></g>
+
+      <g data-tip="AI agent: searches by industry code and region on a schedule; fetches and saves candidate items."><rect class="box ai" x="186" y="274" width="160" height="58" rx="8"/><text x="198" y="298">5 · Industry researcher</text><text class="t2" x="198" y="316">news, filings, regulators</text></g>
+      <g data-tip="AI agent (critic) + code: URL live, dated, named source, every figure quoted from the source; claims labeled as claims."><rect class="box ai" x="378" y="274" width="160" height="58" rx="8"/><text x="390" y="298">6 · Research verifier</text><text class="t2" x="390" y="316">qualify, dedupe, expire</text></g>
+      <g data-tip="Person: a Cyber Practice Leader approves what goes into the shared library before any client sees it."><rect class="box hu" x="570" y="274" width="140" height="58" rx="8"/><text x="582" y="298">CPL approves</text><text class="t2" x="582" y="316">shared library</text></g>
+      <g data-tip="AI agent: writes one line linking an approved item to this client's own facts. May not add a number."><rect class="box ai" x="742" y="274" width="140" height="58" rx="8"/><text x="754" y="298">7 · Tailor</text><text class="t2" x="754" y="316">one line per client</text></g>
+
+      <g data-tip="Immutable raw sources (Markdown, PDFs) with URL and retrieval date; generated client and industry pages."><rect class="box store" x="300" y="388" width="200" height="58" rx="8"/><text x="312" y="412">Evidence wiki</text><text class="t2" x="312" y="430">raw sources, citations</text></g>
+      <g data-tip="System of record: every value, its confidence, its source type, and every human change with who and why."><rect class="box store" x="530" y="388" width="200" height="58" rx="8"/><text x="542" y="412">Database</text><text class="t2" x="542" y="430">numbers, reviews, audit</text></g>
+      <g data-tip="Downstream: indications request, client proposal pack, agent brief."><rect class="box" x="790" y="388" width="250" height="58" rx="8"/><text x="802" y="412">Indications · proposal pack · brief</text><text class="t2" x="802" y="430">what the agent and owner see</text></g>
+
+      <path class="arr" d="M154 77 H184"/><path class="arr" d="M261 106 V138"/><path class="arr" d="M336 167 H352 V77 H366"/>
+      <path class="arr" d="M528 77 H558"/><path class="arr" d="M710 77 H740"/><path class="arr" d="M812 106 V138"/>
+      <path class="arr" d="M882 167 H896 V123 H910"/><path class="arr" d="M346 303 H376"/><path class="arr" d="M538 303 H568"/>
+      <path class="arr" d="M710 303 H740"/><path class="arr" d="M500 417 H528"/><path class="arr" d="M730 417 H788"/>
+      <path class="arr" d="M976 152 V386"/><path class="arr" d="M812 332 V360 H900 V386"/>
+      <path class="arr" d="M448 106 V228 H362 V386"/>
+    </svg>
+    </div>
+    <p class="small mt">Hover a box for what it does. Numbered boxes are the seven agents described below.</p>
+  </section>
+
+  <section class="block" id="client">
+    <h2>The client agents</h2>
+    <p class="sub">They run in order for each renewing client. Each one writes its output to the wiki (evidence) and the database (values), so the next agent and any person can see exactly what it did.</p>
+
+    <div class="grid2 mt">
+      <article class="card agent">
+        <h3><span class="n">AGENT 1</span> Entity resolver</h3>
+        <p class="small">Turns "the account the agency calls Sloan's Lake Dental" into one legal entity that can be the named insured.</p>
+        <dl class="kv">
+          <dt>Input</dt><dd>Account name, mailing address, contact email domain from the agency system.</dd>
+          <dt>Tools</dt><dd>State business-registry adapters; industry registries (NPI for healthcare, licensing boards for trades, FINRA for advisors); web search on the trade name.</dd>
+          <dt>Does</dt><dd>Searches wide (legal names, trade names, "doing business as" records), then scores every candidate on name, address, state, domain and registry status together. A delinquent or dissolved entity is down-weighted even if name and address match exactly.</dd>
+          <dt>Output</dt><dd>A ranked candidate list, each with the signals that matched and its source record.</dd>
+          <dt>Human</dt><dd><span class="pill hu">Always confirms</span> Quoting the wrong company is the worst failure in the whole process.</dd>
+          <dt>Model's job</dt><dd>Generating search variants and reading messy registry pages. The score itself is code.</dd>
+        </dl>
+      </article>
+
+      <article class="card agent">
+        <h3><span class="n">AGENT 2</span> Footprint collector</h3>
+        <p class="small">Gathers everything public about the confirmed business, and saves it before anyone reads it.</p>
+        <dl class="kv">
+          <dt>Input</dt><dd>The confirmed entity and its domain.</dd>
+          <dt>Tools</dt><dd>Fetcher (website pages: home, team, services, privacy policy), public DNS lookups (mail provider, sender policy, DMARC), directory and review sites, press releases, job postings.</dd>
+          <dt>Does</dt><dd>Decides which pages are worth fetching, follows only same-business links, and saves each fetch as an immutable raw source with its URL and retrieval date.</dd>
+          <dt>Output</dt><dd>A folder of raw sources per client, e.g. <code>wiki/raw/sloanslake/website.md</code>, <code>dns_records.md</code>.</dd>
+          <dt>Human</dt><dd>None at this step.</dd>
+          <dt>Model's job</dt><dd>Choosing what to fetch and recognizing irrelevant or wrong-business pages. DNS lookups are plain code.</dd>
+        </dl>
+      </article>
+
+      <article class="card agent">
+        <h3><span class="n">AGENT 3</span> Signal extractor</h3>
+        <p class="small">Reads the raw sources into structured facts. The only step where the model interprets content.</p>
+        <dl class="kv">
+          <dt>Input</dt><dd>The client's raw sources.</dd>
+          <dt>Does</dt><dd>Pulls headcount signals, number of providers, services, online payments, vendors that hold data, data sensitivity, owner name, location. Every value carries the source file and the line it came from; conflicting values are kept side by side, not averaged.</dd>
+          <dt>Output</dt><dd>One signals record per client (<code>signals.md</code>), e.g. "3 dentists (team page, Oct 2026); WebMD lists 7 (stale)".</dd>
+          <dt>Human</dt><dd>None directly; conflicts surface at review.</dd>
+          <dt>Guardrail</dt><dd>Sources are data, never instructions: a web page that says "ignore previous instructions" is just text in a file.</dd>
+        </dl>
+      </article>
+
+      <article class="card agent">
+        <h3><span class="n">AGENT 4</span> Verifier (critic)</h3>
+        <p class="small">A second model that checks the profile instead of building it, the same proposer/critic pattern used for QA pipelines.</p>
+        <dl class="kv">
+          <dt>Input</dt><dd>Signals, estimates and the raw sources behind them.</dd>
+          <dt>Does</dt><dd>Checks that every claim cites a source, that cited text actually says it, that sources agree, and that nothing is stale (older than 24 months) or from the wrong entity. It flags; it never edits a value.</dd>
+          <dt>Output</dt><dd>Flags on fields ("needs review") with a plain reason.</dd>
+          <dt>Human</dt><dd>Reads the flags at review.</dd>
+        </dl>
+      </article>
+
+      <article class="card agent" style="grid-column:1/-1">
+        <h3><span class="n">NOT AN AGENT</span> Estimators (plain code)</h3>
+        <p class="small">Revenue, headcount and the exposure score are computed, not generated. Revenue uses a waterfall: the agency's own record, then a public filing, then two independent benchmark methods (staff × revenue per employee; providers × billings per provider). Each estimate has a range, a confidence and a written method. When nothing public gives a number, the estimator says so and flags it, as it did for Sloan's Lake's headcount. Keeping this out of the model means every number is reproducible and auditable.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="block" id="industry">
+    <h2>The industry agents</h2>
+    <p class="sub">They run on a schedule per industry code (and region), independent of any client. Their output is a shared, approved library.</p>
+    <div class="grid3 mt">
+      <article class="card agent">
+        <h3><span class="n">AGENT 5</span> Industry researcher</h3>
+        <dl class="kv">
+          <dt>Runs</dt><dd>Weekly per industry code, plus regional queries ("dental ransomware Colorado") and vendor queries for vendors that show up in client profiles (booking, payments, email, IT providers).</dd>
+          <dt>Sources</dt><dd>Trade press, the HHS breach portal for health, state attorney-general notices, regulator enforcement pages, security vendors' reports, ransomware leak trackers.</dd>
+          <dt>Output</dt><dd>Candidate items, each fetched and saved.</dd>
+        </dl>
+      </article>
+      <article class="card agent">
+        <h3><span class="n">AGENT 6</span> Research verifier</h3>
+        <dl class="kv">
+          <dt>Checks</dt><dd>URL is live; dated; named source; every figure in the summary appears in the source; duplicates merged; leak-site postings labeled "claimed", not "confirmed".</dd>
+          <dt>Expires</dt><dd>Items older than about 18 months leave the client pack but stay in the library.</dd>
+          <dt>Human</dt><dd><span class="pill hu">CPL approves</span> before an item can reach any client.</dd>
+        </dl>
+      </article>
+      <article class="card agent">
+        <h3><span class="n">AGENT 7</span> Tailor</h3>
+        <dl class="kv">
+          <dt>Runs</dt><dd>When a client pack or agent brief is built.</dd>
+          <dt>Does</dt><dd>Picks the approved items most relevant to this client and writes one line linking each to the client's own facts, e.g. a DMARC study linked to "your domain has no DMARC record".</dd>
+          <dt>Rule</dt><dd>May not introduce a number; figures come only from the cited source or the database.</dd>
+        </dl>
+      </article>
+    </div>
+    <div class="card mt">
+      <h3 style="font-family:var(--serif);font-weight:600">Also: the refresher</h3>
+      <p class="small" style="margin-top:6px">Between renewals, a light monitor re-checks a few cheap signals for every client and opens a follow-up when one changes: registry status (an entity goes delinquent), a new incident at a vendor the client uses, a DMARC record appearing. Next year's renewal starts from the existing wiki and re-fetches only what changed, so each client's file compounds instead of starting over.</p>
+    </div>
+  </section>
+
+  <section class="block" id="sources">
+    <h2>Source adapters: the real moat</h2>
+    <p class="sub">The model never "browses for the legal name". It calls adapters with known shapes and reads what they return. Building and maintaining these is most of the engineering work, and the part that is hardest to copy.</p>
+    <div class="card mt tablewrap">
+      <table>
+        <thead><tr><th>Source</th><th>Answers</th><th>Access</th><th>Trust</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>State business registries</td><td>Legal name, status, formation date, principal address, agent</td><td>Varies: open-data API (Colorado), search page only, or paid bulk file</td><td><span class="pill green">Official</span></td><td>The hardest adapter set: 50 different shapes. Commercial aggregators can cover the gaps.</td></tr>
+          <tr><td>Industry registries (NPI, licensing boards, FINRA)</td><td>Ties a trade name to an entity; providers; owner</td><td>Free APIs for NPI; boards vary</td><td><span class="pill green">Official</span></td><td>In the demo, the NPI record linked "Sloan's Lake Dental" to Sage Dentistry, PLLC.</td></tr>
+          <tr><td>Company website</td><td>Services, team size, vendors, online payments</td><td>Fetch, respecting robots rules and terms</td><td><span class="pill plain">Self-reported</span></td><td>Embedded scripts reveal vendors (booking, payments, marketing).</td></tr>
+          <tr><td>Public DNS</td><td>Email provider, sender policy, DMARC</td><td>Free, instant</td><td><span class="pill green">Fact</span></td><td>A lookup, not a scan. Feeds the exposure score.</td></tr>
+          <tr><td>Directories, reviews, press</td><td>Other addresses, staff names, size hints</td><td>Fetch</td><td><span class="pill amber">Often stale</span></td><td>Cited but never trusted over an official record.</td></tr>
+          <tr><td>Agency's own system</td><td>Revenue, payroll, headcount on existing policies</td><td>Integration or export</td><td><span class="pill green">Rating basis</span></td><td>Checked first in the revenue waterfall.</td></tr>
+          <tr><td>Benchmarks (Census, BLS, trade associations)</td><td>Revenue per employee, billings per provider</td><td>Published tables</td><td><span class="pill plain">Statistical</span></td><td>Used only by the estimators, always with the method written out.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="block" id="confidence">
+    <h2>Confidence and review: who looks at what</h2>
+    <div class="grid3 mt">
+      <div class="card"><span class="pill green">High</span><p class="small" style="margin-top:8px">An official record, or the agency's own rating data, under 12 months old. Passes without review.</p></div>
+      <div class="card"><span class="pill plain">Medium</span><p class="small" style="margin-top:8px">Two or more independent sources agree within ±20%. Passes; visible on hover.</p></div>
+      <div class="card"><span class="pill amber">Low</span><p class="small" style="margin-top:8px">One source, an old source, sources that disagree, or an estimate built on an assumption. Goes to a person.</p></div>
+    </div>
+    <div class="callout mt">Two items always go to a person regardless of confidence: the entity match, and any estimated revenue. Every human change is logged with who, why and where the new value came from; over time those overrides are labeled data that show where the agents are weakest.</div>
+  </section>
+
+  <section class="block" id="guardrails">
+    <h2>Guardrails</h2>
+    <div class="grid2 mt">
+      <div class="card"><h3 style="font-size:1rem">Evidence before claims</h3><p class="small" style="margin-top:6px">Every fetch is saved before it is read. Every fact cites a saved file. If it isn't in the wiki, it didn't happen.</p></div>
+      <div class="card"><h3 style="font-size:1rem">Numbers never come from the model</h3><p class="small" style="margin-top:6px">Figures come from a source (quoted) or the estimators (computed). Generated prose uses placeholders, and any digit in it fails validation.</p></div>
+      <div class="card"><h3 style="font-size:1rem">Sources are data, not instructions</h3><p class="small" style="margin-top:6px">Web content can carry prompt injection. Agents read it as quoted material in a fixed extraction format and cannot act on it.</p></div>
+      <div class="card"><h3 style="font-size:1rem">Business data, not personal data</h3><p class="small" style="margin-top:6px">An owner's name in a federal registry is fair game; a home address or personal social media is not. Respect robots rules, site terms and rate limits.</p></div>
+      <div class="card"><h3 style="font-size:1rem">An estimate is not a security rating</h3><p class="small" style="margin-top:6px">The exposure score is labeled as a rough proxy from public signals. It is never presented as a scan or an assessment of the client's security.</p></div>
+      <div class="card"><h3 style="font-size:1rem">Coverage questions escalate</h3><p class="small" style="margin-top:6px">No agent answers "would this be covered?". Those go to a Cyber Practice Leader, always.</p></div>
+    </div>
+  </section>
+
+  <section class="block" id="trace">
+    <h2>Worked example: what the agents would have done for Sloan's Lake Dental</h2>
+    <p class="sub">This is the research I did by hand for the prototype, written as the agents' steps. Everything here is real public data, retrieved October 2026.</p>
+    <div class="card mt">
+      <ol class="trace">
+        <li><b>Entity resolver:</b> searched the Colorado registry for "Sloan* Dental" and "Sage Dentist*". Found <i>Sage Dentistry, PLLC</i> in good standing at 2750 W 29th Ave, a <i>Sloans Lake Dental PLLC</i> at the same address but delinquent since May 2022, six dissolved "Sage Dentistry II–VII" offices, an unrelated 2005 entity, and a look-alike (Sloanside Dental) in Edgewater. The NPI organization record tied the trade name to Sage Dentistry, PLLC. Ranked: 100% vs 37% for the delinquent one. <span class="pill hu">Person confirms</span></li>
+        <li><b>Footprint collector:</b> saved the website (3 dentists, implant and cosmetic services, online booking and bill pay through a vendor, a marketing firm running the site), public DNS (encrypted email service, Microsoft 365, strict sender policy, <i>no DMARC record</i>), two directory listings (one at a stale second address), and two press releases.</li>
+        <li><b>Signal extractor:</b> 3 dentists (team page and press release agree; a directory's 7 is stale), online payments yes, patient health data yes, vendors listed with their roles. No published headcount or revenue.</li>
+        <li><b>Estimators:</b> headcount 12 (assumption, low confidence); revenue $2.35M with a $1.65M–$3.2M range from two methods that disagree by ~$1.1M, so low confidence; exposure 68/100 from public signals.</li>
+        <li><b>Verifier:</b> flagged revenue and headcount (estimated), noted the stale directory address and dentist count as ignored conflicts.</li>
+        <li><b>Industry researcher + verifier:</b> a Longmont, Colorado dental breach (3,735 people, reported Oct 2026), a ransomware group listing a Colorado dental practice (a claim, labeled as such), a 2026 report that most breached healthcare organizations lacked DMARC enforcement, phished staff mailboxes behind several 2026 dental breaches, and a settlement after attackers entered through a dental group's IT provider.</li>
+        <li><b>Tailor:</b> linked the DMARC report to this practice's missing DMARC record and its encrypted-email setup; linked the vendor incidents to its booking and payment vendor.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="block" id="measure">
+    <h2>Measuring it</h2>
+    <div class="card mt tablewrap">
+      <table>
+        <thead><tr><th>Metric</th><th>What it tells you</th></tr></thead>
+        <tbody>
+          <tr><td>Entity-match override rate</td><td>How often the person picks a different company than the agent's top candidate. The single most important accuracy number.</td></tr>
+          <tr><td>Share of fields auto-accepted</td><td>How much review the agents actually save. Too high with overrides later means the confidence rules are too loose.</td></tr>
+          <tr><td>Estimate error after confirmation</td><td>Gap between the estimated and the client-confirmed revenue and headcount, by industry.</td></tr>
+          <tr><td>Research items rejected by the CPL</td><td>Quality of the industry library; rising rejections mean the verifier needs tightening.</td></tr>
+          <tr><td>Time and cost per profile</td><td>Model calls, fetches and paid data per client; what the agency would otherwise spend in staff minutes.</td></tr>
+          <tr><td>Profiles that reach "indication-ready"</td><td>The business outcome: clients whose renewal now includes a cyber option.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="block" id="breaks">
+    <h2>Where it breaks</h2>
+    <div class="grid2 mt">
+      <div class="card"><h3 style="font-size:1rem">Common names</h3><p class="small" style="margin-top:6px">"Smith Dental" returns dozens of candidates. Without an address or domain from the agency, the resolver must stop and ask rather than guess.</p></div>
+      <div class="card"><h3 style="font-size:1rem">Coverage gaps</h3><p class="small" style="margin-top:6px">States without open registries; very small businesses with no website; sole proprietors with no entity at all.</p></div>
+      <div class="card"><h3 style="font-size:1rem">Stale third parties</h3><p class="small" style="margin-top:6px">Directories keep old addresses and old staff, as with Sloan's Lake's second listing. Official records win every tie.</p></div>
+      <div class="card"><h3 style="font-size:1rem">Revenue for private firms</h3><p class="small" style="margin-top:6px">Rarely public. Benchmarks give a range, not an answer, which is why estimated revenue always goes to a person and is confirmed with the client.</p></div>
+    </div>
+  </section>
+
+  <section class="block" id="build">
+    <h2>Build order</h2>
+    <div class="grid3 mt">
+      <div class="card"><span class="pill ai">First</span><p class="small" style="margin-top:8px">One industry, one region: dental in Colorado. The entity resolver with the state registry and NPI adapters, the footprint collector, the estimators, review by exception. Measure the override rate on real renewals.</p></div>
+      <div class="card"><span class="pill plain">Next</span><p class="small" style="margin-top:8px">The industry researcher and verifier with a CPL-approved dental library; the tailor; the refresher. Add the next two industries by renewal volume.</p></div>
+      <div class="card"><span class="pill plain">Later</span><p class="small" style="margin-top:8px">More state adapters (or a commercial aggregator), vendor-incident monitoring across all clients, and using override data to tune the confidence rules per industry.</p></div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot"><div class="wrap"><span>UKON final-round project · Randy Hesse · October 2026</span><span>Worked example uses real public records for Sloan's Lake Dental (Denver); agency, calls and carriers in the prototype are simulated.</span></div></footer>
+<script>(function(){var t=document.createElement('div');t.className='tip';t.hidden=true;document.body.appendChild(t);
+function show(e,el){t.textContent=el.getAttribute('data-tip');t.hidden=false;move(e)}
+function move(e){var x=e.clientX+14,y=e.clientY+14,w=t.offsetWidth,h=t.offsetHeight;if(x+w>innerWidth-8)x=e.clientX-w-14;if(y+h>innerHeight-8)y=e.clientY-h-14;t.style.left=x+'px';t.style.top=y+'px'}
+document.addEventListener('pointerover',function(e){var el=e.target.closest('[data-tip]');if(el)show(e,el)});
+document.addEventListener('pointermove',function(e){if(!t.hidden)move(e)});
+document.addEventListener('pointerout',function(e){var el=e.target.closest('[data-tip]');if(el&&!el.contains(e.relatedTarget))t.hidden=true});
+document.addEventListener('focusin',function(e){var el=e.target.closest('[data-tip]');if(!el)return;var r=el.getBoundingClientRect();show({clientX:r.left,clientY:r.bottom},el)});
+document.addEventListener('focusout',function(){t.hidden=true});})();</script></body></html>
