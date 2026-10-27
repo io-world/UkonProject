@@ -28,7 +28,7 @@ uv sync
 
 # 2. Database: project-local Postgres on port 5433, data in db/pgdata
 scripts/db.sh init            # first time only (later: scripts/db.sh start)
-cp .env.example .env          # optional: add ANTHROPIC_API_KEY to run the AI steps live
+# optional: create .env (git-ignored) with ANTHROPIC_API_KEY=... to run the AI steps live
 uv run python -m pipeline.run_all
 
 # Carrier replies: ingest a saved file (no screen for this; the client pack uses the result)
