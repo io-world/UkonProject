@@ -11,6 +11,7 @@ Activity history: [[log]].
 - [[clients/sloanslake|Sloan's Lake Dental (Sage Dentistry, PLLC)]] — REAL Denver dental practice; renews 2027-01-15 (simulated); no cyber on file. *Generated from the database.*
 - [[clients/sloanslake-indications|Sloan's Lake carrier indications]] — requests sent, every reply as a version, diffs, actions. *Generated.*
 - [[clients/sloanslake-intake|Sloan's Lake intake]] — every intake answer with its quote, call, status and conflicts. *Generated.*
+- [[clients/sloanslake-bind|Sloan's Lake decision, final terms, bind]] — owner's choice, firm quote vs indication, conditions, binder, after-bind plan. *Generated.*
 - [[raw/sloanslake/00_overview|What's real vs simulated for this client]] — start here.
 
 ## Industries

@@ -90,7 +90,36 @@ QUOTE_SYSTEM = ix.SYSTEM + """
 This document is a FIRM QUOTE (bindable), not an indication. Also return:
  "follows_indication": str|null, "effective_date": "YYYY-MM-DD"|null, "expiration_date": "YYYY-MM-DD"|null
  (the policy period as written), "premium_reason": str|null (the carrier's stated reason for the premium, verbatim).
-Put every subjectivity in "conditions" exactly as written, including any "before binding" / "within N days" wording."""
+Put every subjectivity in "conditions" exactly as written, including any "before binding" / "within N days" wording.
+Only the items the carrier lists as subjectivities or conditions; never general disclaimers ("coverage is not in force
+until bound", "premium excludes taxes and fees", cancellation warnings)."""
+
+_BULLET = re.compile(r"^\s*[\x7f\u2022\uf0b7\-\*\u25aa\u25cf]\s*")
+
+
+def listed_items(text: str) -> list[str]:
+    """Bulleted items in the source, joined across wrapped lines. A condition must be one of these: the model can
+    read a disclaimer paragraph as a condition; code checks it was actually listed (deterministic, like the figures)."""
+    items, cur = [], None
+    for line in text.splitlines():
+        if _BULLET.match(line):
+            if cur:
+                items.append(cur)
+            cur = _BULLET.sub("", line).strip()
+        elif cur is not None and line.strip() and not line.strip()[0].isupper():
+            cur += " " + line.strip()            # wrapped continuation of the same bullet
+        else:
+            if cur:
+                items.append(cur)
+            cur = None
+    if cur:
+        items.append(cur)
+    return [" ".join(i.split()).lower() for i in items]
+
+
+def _is_listed(cond: str, items: list[str]) -> bool:
+    c = " ".join(cond.split()).lower()
+    return any(c[:60] in i or i[:60] in c for i in items)
 
 
 def quote_dir(slug: str) -> Path:
@@ -159,6 +188,11 @@ def ingest_quote(conn, cid: int, path: str | Path, actor_id: int) -> dict:
             checks.append({"scope": "carrier", "field": field, "value": ext[field], "found": ok,
                            "note": None if ok else f"{field.replace('_', ' ').capitalize()} isn't written in the source"})
     fails = ix.failures_for(checks, o["limit"])
+    items = listed_items(text)
+    dropped = [t for t in ext.get("conditions") or [] if items and not _is_listed(t, items)]
+    if dropped:
+        checks.append({"scope": "carrier", "field": "conditions", "value": dropped, "found": True,
+                       "note": None, "dropped": "not listed as a subjectivity in the source"})
 
     prev = conn.execute("""SELECT * FROM indication_versions WHERE client_id=%s AND carrier=%s AND tier=%s
                            AND trust='written' AND status='indicated' ORDER BY version_no DESC LIMIT 1""",
@@ -182,6 +216,8 @@ def ingest_quote(conn, cid: int, path: str | Path, actor_id: int) -> dict:
                         ext.get("effective_date"), ext.get("expiration_date"), ext.get("premium_reason"),
                         prev["id"] if prev else None, j(changes), actor_id)).fetchone()["id"]
     for t in ext.get("conditions") or []:
+        if t in dropped:
+            continue
         timing, due = _timing(t)
         st = indications.condition_status(conn, cid, t)
         keys = set(indications.condition_keys(t))
