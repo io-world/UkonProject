@@ -40,23 +40,30 @@ Raw material for the 1–2 page write-up.
 
 ## Open questions (for interviews)
 
-- How do carriers return indications today: API, portal, email? Which carriers matter most?
-- Do carriers accept revenue bands for indications?
-- What does the agency actually have in its AMS, and will it share an export?
-- Which step do agents say kills the deal today: data gathering, explaining cyber, or the application?
-- How many clients per producer renew per month, and how many get cyber offered today?
-- Does Wispr Flow capture phone calls, or only meetings and dictation?
-- Where do CPLs spend their time per bound policy now?
+Rule: only ask what only UKON can answer (its process, systems, numbers, recent cases). Anything
+answerable from public research is in the background section of the interview plan instead.
+Full list by person: `web/public/interview/1-interview-plan.html`. The three gaps:
 
-### After bind (added Oct 27)
-- Which carriers monitor insureds after bind, how often, and who receives the alerts (client, agent, UKON)?
-- What happens when a control from the application lapses mid-term? How often are claims disputed because the application didn't match reality?
-- At renewal, what is re-checked: new application, rescan, attestations, evidence?
-- What share of UKON's cyber policies renew at year two, and of the rest, who ended it (client or carrier) and why?
+### A. How the work actually moves today
+- Walk through three recent deals (bound, stalled, died): who did what, when, in which tool.
+- What an agent actually sends to start a quote (see a redacted one).
+- Per carrier: how an indication is requested, how it comes back (portal, email, PDF, API, phone), how long.
+- How carriers are chosen for a client; last quarter's declines and info requests, and why.
+- Who tells the agent when an indication arrives; where data is re-typed; existing carrier integrations.
+- How an agency runs a renewal (120/90/60/30) and what UKON can see from agency systems.
+- How UKON and the agent are paid on cyber, new and renewal.
 
-### Why SMBs don't buy or keep cyber (added Oct 27)
-The brief says agents don't raise it because it's too much manual work. Competing explanations to test: price, belief
-they're already covered by another policy, low perceived value, carriers declining or re-pricing on missing controls, and
-an application owners can't answer. See the interview plan page (`web/public/interview/1-interview-plan.html#why-not`)
-for evidence, tests and design consequences. The fastest single answer: ops' split of non-renewals into client vs carrier.
+### B. What happens after bind
+- Who the client's contact is for the policy year; what UKON does between bind and renewal.
+- Which panel carriers monitor mid-term, and whether alerts reach UKON or the agent.
+- The last incident a UKON client reported, end to end; any disputed claims and why.
+- How the cyber policy's own renewal starts and what is collected again; mid-term changes.
+- Who is responsible when an application answer turns out wrong.
 
+### C. Why the renewal window is missed (Matt's view vs research)
+- What the "too much manual work" diagnosis is based on.
+- Which of price / "already covered" / low perceived value / carrier declines UKON actually sees.
+- Year-two retention, and the split between client-walked and carrier-declined.
+- First-time adoption vs retention: which is the bigger prize.
+- Reason codes for quoted-not-bound and non-renewal; the offered → quoted → bound → year-2 funnel.
+- What agents say when a renewing client wasn't offered cyber; what UKON has already tried.
