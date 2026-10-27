@@ -1,0 +1,127 @@
+import { useEffect, useState } from 'react'
+import { api, money, when } from '../api.js'
+import ReportDocument from './ReportDocument.jsx'
+
+const STATE_LABEL = {
+  ai_draft: 'AI draft', agent_edited: 'Agent edited', submitted: 'Submitted · locked',
+  sent: 'Sent to client', superseded: 'Superseded',
+}
+
+function Slider({ label, k, fact, min, max, step, fmt, actor, onApplied, aiOverride }) {
+  const current = Number(fact?.value ?? aiOverride)
+  const ai = Number(fact?.ai_value ?? aiOverride)
+  const [v, setV] = useState(current)
+  const [reason, setReason] = useState('')
+  useEffect(() => setV(current), [current])
+  const dirty = v !== current
+  return (
+    <div className="slider">
+      <div className="slider-top">
+        <span>{label}</span>
+        <strong>{fmt(v)}</strong>
+      </div>
+      <input type="range" min={min} max={max} step={step} value={v} onChange={(e) => setV(Number(e.target.value))} />
+      <div className="slider-meta">
+        <span>AI recommended <b>{fmt(ai)}</b></span>
+        {current !== ai && <span className="you">In report: {fmt(current)}</span>}
+      </div>
+      {dirty && (
+        <div className="apply">
+          <input placeholder="Why? (logged with your name)" value={reason} onChange={(e) => setReason(e.target.value)} />
+          <button className="btn" onClick={async () => { await api.changeField(k, v, actor, reason || null); setReason(''); onApplied() }}>Apply</button>
+          <button className="btn ghost" onClick={() => setV(current)}>Reset</button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default function ReportTab({ actor, onChange, tick }) {
+  const [mode, setMode] = useState('agent')
+  const [rep, setRep] = useState(null)
+  const [versions, setVersions] = useState([])
+  const [busy, setBusy] = useState(false)
+
+  useEffect(() => {
+    api.report(mode).then(setRep)
+    api.versions().then(setVersions)
+  }, [mode, tick])
+
+  if (!rep) return <div className="muted">Loading report…</div>
+  const s = rep.snapshot
+  const v = rep.version
+  const locked = v && ['submitted', 'sent'].includes(v.state)
+
+  const act = async (fn) => { setBusy(true); try { await fn(actor) } finally { setBusy(false); onChange() } }
+
+  return (
+    <div className="stack">
+      <div className="report-bar">
+        <div className="seg" role="tablist" aria-label="Report view">
+          <button className={mode === 'agent' ? 'on' : ''} onClick={() => setMode('agent')}>Agent view</button>
+          <button className={mode === 'client' ? 'on' : ''} onClick={() => setMode('client')}>Client view</button>
+        </div>
+        {v && <div className={`vbadge s-${v.state}`}>v{v.version_no} · {STATE_LABEL[v.state]}</div>}
+        {v && <a className="btn ghost" href={api.htmlUrl(mode === 'client' ? v.version_no : null)} target="_blank" rel="noreferrer">Open HTML report ↗</a>}
+        {mode === 'agent' && v && (
+          <div className="row">
+            {!locked && <button className="btn" disabled={busy} onClick={() => act(api.submit)}>Submit & lock v{v.version_no}</button>}
+            {v.state === 'submitted' && <button className="btn primary" disabled={busy} onClick={() => act(api.send)}>Send to client</button>}
+            {locked && <span className="muted">Locked. Any change creates v{v.version_no + 1}.</span>}
+          </div>
+        )}
+      </div>
+
+      {mode === 'client' && !v && (
+        <div className="card empty">Nothing has been submitted yet. The client only ever sees a locked version.</div>
+      )}
+
+      {s && (
+        <div className={mode === 'agent' ? 'split' : ''}>
+          {mode === 'agent' && (
+            <aside className="controls">
+              <h3>Adjust estimates</h3>
+              <p className="muted small">Estimates move. Carrier numbers don't: premiums, limits and deductibles are locked to the indications.</p>
+              {s.revenue_drift?.needs_refresh && (
+                <div className="banner warn">
+                  Revenue is {Math.round(s.revenue_drift.drift * 100)}% from what carriers priced on
+                  (tolerance ±{Math.round(s.revenue_drift.tolerance * 100)}%). <b>Indication needs refresh</b>; premiums are not recalculated here.
+                </div>
+              )}
+              <Slider label="Annual revenue" k="annual_revenue" fact={s.facts.annual_revenue} min={1000000} max={3500000}
+                      step={50000} fmt={money} actor={actor} onApplied={onChange} />
+              <Slider label="Employees" k="employee_count" fact={s.facts.employee_count} min={1} max={40} step={1}
+                      fmt={(n) => n} actor={actor} onApplied={onChange} />
+              <Slider label="Exposure score" k="exposure_score" fact={{ value: s.exposure.score, ai_value: s.exposure.ai_score }}
+                      min={0} max={100} step={1} fmt={(n) => `${n} / 100`} actor={actor} onApplied={onChange} />
+              <Slider label="Patient records held" k="records_estimate" fact={s.facts.records_estimate} min={1000} max={20000}
+                      step={500} fmt={(n) => Number(n).toLocaleString()} actor={actor} onApplied={onChange} />
+              <div className="slider">
+                <div className="slider-top"><span>Carrier shown to client</span></div>
+                <select value={s.selected_carrier}
+                        onChange={async (e) => { await api.changeField('selected_carrier', e.target.value, actor, 'Agent switched carrier'); onChange() }}>
+                  {s.carriers.map((c) => <option key={c.carrier}>{c.carrier}</option>)}
+                </select>
+              </div>
+
+              <p className="small muted">On disk: <code>reports/sloanslake/current.html</code> (working draft) and <code>v&lt;N&gt;.html</code> for each submitted version.</p>
+              <h3 className="mt">Versions</h3>
+              <table className="vtable">
+                <thead><tr><th>v</th><th>State</th><th>Revenue</th><th>By</th><th>When</th></tr></thead>
+                <tbody>
+                  {versions.map((x) => (
+                    <tr key={x.version_no}>
+                      <td>{x.version_no}</td><td>{STATE_LABEL[x.state]}</td><td>{money(x.revenue)}</td>
+                      <td>{x.submitted_by || x.created_by}</td><td>{when(x.submitted_at || x.created_at)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </aside>
+          )}
+          <ReportDocument s={s} version={v} agentMode={mode === 'agent'} />
+        </div>
+      )}
+    </div>
+  )
+}

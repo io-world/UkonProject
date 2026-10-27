@@ -1,0 +1,603 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quillfeather Intake Call</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&display=swap" rel="stylesheet">
+<style>
+/* Layout: sticky call bar · left section index · center script and capture · right rail of guardrails, flags and escalations.
+   Tokens follow the UKON workbench (web/src/styles.css). */
+:root{
+  --ink:#16202e; --ink-2:#3c4a5c; --muted:#6b7788; --line:#e3e0d8; --line-2:#eeebe4;
+  --paper:#fbfaf7; --card:#ffffff; --wash:#f3f1ec;
+  --accent:#0f6b62; --accent-2:#e7f2f0; --on-accent:#ffffff;
+  --amber:#b26a00; --amber-bg:#fff4e0; --red:#b3372f; --red-bg:#fdecea; --green:#2f7d4b; --green-bg:#e9f5ee;
+  --shadow:0 1px 2px rgba(22,32,46,.06),0 4px 16px rgba(22,32,46,.04);
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --radius:10px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ink:#e6e9ee; --ink-2:#b9c2ce; --muted:#8e9aab; --line:#2c333d; --line-2:#242a33;
+  --paper:#11151b; --card:#181d25; --wash:#1f252e;
+  --accent:#4fb3a7; --accent-2:#17302d; --on-accent:#0c1714;
+  --amber:#e3a24a; --amber-bg:#33270f; --red:#f08479; --red-bg:#3a1d1b; --green:#6cc28b; --green-bg:#16301f;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25); color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --ink:#e6e9ee; --ink-2:#b9c2ce; --muted:#8e9aab; --line:#2c333d; --line-2:#242a33;
+  --paper:#11151b; --card:#181d25; --wash:#1f252e;
+  --accent:#4fb3a7; --accent-2:#17302d; --on-accent:#0c1714;
+  --amber:#e3a24a; --amber-bg:#33270f; --red:#f08479; --red-bg:#3a1d1b; --green:#6cc28b; --green-bg:#16301f;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25); color-scheme:dark;}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--card)}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{text-wrap:balance;margin:0}
+.wrap{max-width:1440px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* Call bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--card);border-bottom:1px solid var(--line)}
+.bar .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:10px 20px;padding-block:10px}
+.who{display:flex;flex-direction:column;min-width:0;flex:1 1 280px}
+.who h1{font-family:var(--serif);font-weight:600;font-size:1.25rem;line-height:1.2}
+.who .meta{color:var(--muted);font-size:.82rem;display:flex;flex-wrap:wrap;gap:4px 12px}
+.example{color:var(--amber);font-weight:600}
+.tools{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:7px 12px;font-size:.85rem;font-weight:500;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--wash)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.primary:hover{filter:brightness(1.07);background:var(--accent)}
+.btn.warn{border-color:var(--red);color:var(--red)}
+.btn.warn:hover{background:var(--red-bg)}
+.timer{font-variant-numeric:tabular-nums;font-weight:600}
+.progress{display:flex;align-items:center;gap:10px;font-size:.82rem;color:var(--ink-2)}
+.meter{width:110px;height:6px;border-radius:3px;background:var(--line-2);overflow:hidden}
+.meter i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
+.pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:1px 8px;font-size:.72rem;font-weight:600;letter-spacing:.02em;white-space:nowrap}
+.pill.amber{background:var(--amber-bg);color:var(--amber)}
+.pill.green{background:var(--green-bg);color:var(--green)}
+.pill.red{background:var(--red-bg);color:var(--red)}
+.pill.teal{background:var(--accent-2);color:var(--accent)}
+.pill.plain{background:var(--wash);color:var(--ink-2)}
+
+/* Shell */
+.shell{display:grid;grid-template-columns:210px minmax(0,1fr) 300px;gap:28px;padding-block:24px 64px;align-items:start}
+nav.index{position:sticky;top:calc(env(safe-area-inset-top,0px) + 84px);font-size:.85rem;max-height:calc(100vh - 110px);overflow:auto;padding-right:4px}
+nav.index h4{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:16px 0 6px;font-weight:600}
+nav.index h4:first-child{margin-top:0}
+nav.index a{display:flex;justify-content:space-between;gap:8px;padding:4px 8px;border-radius:6px;color:var(--ink-2);text-decoration:none}
+nav.index a:hover{background:var(--wash);color:var(--ink)}
+nav.index .ct{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.78rem}
+nav.index .ct.done{color:var(--green);font-weight:600}
+main{min-width:0;display:flex;flex-direction:column;gap:36px}
+section.part{display:flex;flex-direction:column;gap:14px;scroll-margin-top:96px}
+.part-head{display:flex;flex-direction:column;gap:4px}
+.eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--accent);font-weight:600}
+.part-head h2{font-family:var(--serif);font-weight:600;font-size:1.6rem;line-height:1.2}
+.part-head p{margin:0;color:var(--ink-2);max-width:68ch}
+
+/* Question groups */
+.group{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);scroll-margin-top:96px}
+.group-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 12px;padding:12px 18px;border-bottom:1px solid var(--line-2)}
+.group-head h3{font-size:1rem;font-weight:600}
+.group-head .feeds{font-size:.78rem;color:var(--muted)}
+.q{display:grid;grid-template-columns:44px minmax(0,1fr);gap:4px 12px;padding:16px 18px;border-top:1px solid var(--line-2);scroll-margin-top:96px}
+.group-head + .q{border-top:0}
+.q.flash{animation:flash 1.2s ease}
+@keyframes flash{0%{background:var(--accent-2)}100%{background:transparent}}
+.qnum{font-variant-numeric:tabular-nums;font-weight:600;color:var(--muted);font-size:.85rem;padding-top:2px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.qnum .st{width:10px;height:10px;border-radius:50%;border:2px solid var(--line)}
+.qnum .st.ok{background:var(--green);border-color:var(--green)}
+.qnum .st.flag{background:var(--amber);border-color:var(--amber)}
+.qbody{min-width:0;display:flex;flex-direction:column;gap:8px}
+.ask{font-family:var(--serif);font-size:1.08rem;line-height:1.45;margin:0;max-width:70ch}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.hint{font-size:.82rem;color:var(--ink-2);margin:0}
+.signal{font-size:.82rem;color:var(--ink-2);background:var(--wash);border-radius:6px;padding:6px 10px;margin:0}
+.signal b{color:var(--ink);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:5px 12px;font-size:.85rem;cursor:pointer}
+.chip:hover{border-color:var(--accent)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.field{width:100%;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:8px 10px;font-size:.9rem}
+.field:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-2)}
+.field.note{font-size:.82rem;padding:6px 10px;background:transparent}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.row .field{flex:1 1 220px;min-width:0}
+.toggle{border:1px solid var(--line);background:transparent;border-radius:8px;padding:5px 10px;font-size:.8rem;cursor:pointer;color:var(--ink-2)}
+.toggle:hover{background:var(--wash)}
+.toggle.ok[aria-pressed="true"]{background:var(--green-bg);border-color:var(--green);color:var(--green);font-weight:600}
+.toggle.fl[aria-pressed="true"]{background:var(--amber-bg);border-color:var(--amber);color:var(--amber);font-weight:600}
+.prefill{display:flex;flex-direction:column;gap:6px}
+.prefill .src{font-size:.78rem;color:var(--muted)}
+
+/* Script */
+.step{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;display:flex;flex-direction:column;gap:12px;scroll-margin-top:96px}
+.step-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px}
+.step-head .n{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);font-size:.85rem;letter-spacing:.04em}
+.step-head h3{font-size:1.05rem;font-weight:600}
+.built{font-size:.82rem;color:var(--ink-2);margin:0}
+.built b{font-weight:600;color:var(--ink)}
+.say{background:var(--wash);border-radius:8px;padding:14px 16px}
+.say .lbl,.check .lbl{display:block;font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;font-weight:700;color:var(--muted);margin-bottom:4px}
+.say p{margin:0;font-family:var(--serif);font-size:1.15rem;line-height:1.6;max-width:66ch}
+.tok{display:inline-flex;align-items:baseline;gap:5px;border-radius:5px;padding:0 6px;font-family:var(--sans);font-size:.9rem;line-height:1.5;white-space:nowrap;vertical-align:baseline}
+.tok-rep{background:var(--accent-2);color:var(--accent);font-weight:600;cursor:help}
+.tok-rep .tok-src{font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;opacity:.8;font-weight:700}
+.tok-ans{background:var(--green-bg);color:var(--green);font-weight:600;white-space:normal}
+.tok-miss{background:transparent;border:1px dashed var(--amber);color:var(--amber);font-weight:600;cursor:pointer;padding:0 6px}
+.check{border-top:1px dashed var(--line);padding-top:12px;display:flex;flex-direction:column;gap:8px}
+.check p{margin:0;font-family:var(--serif);font-size:1.02rem}
+.note-box{font-size:.84rem;color:var(--ink-2);margin:0;padding-left:12px;border-left:2px solid var(--line)}
+.lowconf{font-size:.82rem;color:var(--amber);margin:0;font-weight:500}
+.skip{font-size:.85rem;background:var(--green-bg);color:var(--green);border-radius:6px;padding:8px 12px;margin:0;font-weight:500}
+.step.skipped .say{opacity:.55}
+.scen{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.scen div{border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.scen b{display:block;font-size:.88rem}
+.scen span{font-size:.8rem;color:var(--ink-2);font-variant-numeric:tabular-nums}
+
+/* Rail */
+aside.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 84px);display:flex;flex-direction:column;gap:14px;max-height:calc(100vh - 110px);overflow:auto}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.panel h4{margin:0;font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:700}
+.panel ul{margin:0;padding-left:18px;font-size:.84rem;color:var(--ink-2);display:flex;flex-direction:column;gap:6px}
+.panel.cpl{border-color:var(--red)}
+.panel.cpl h4{color:var(--red)}
+.panel .say-line{font-family:var(--serif);font-size:.95rem;margin:0}
+.top3{display:flex;flex-direction:column;gap:6px;font-size:.84rem}
+.top3 a{display:flex;justify-content:space-between;gap:8px;color:var(--ink-2);text-decoration:none}
+.top3 a:hover{color:var(--ink)}
+.empty{font-size:.82rem;color:var(--muted);margin:0}
+.esc-list{list-style:none;padding:0!important}
+.esc-list li{border-top:1px solid var(--line-2);padding-top:6px}
+.esc-list time{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.75rem;margin-right:6px}
+.flag-list a{color:var(--amber);text-decoration:none}
+.flag-list a:hover{text-decoration:underline}
+
+.fallback{position:fixed;inset:auto max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));max-width:640px;margin-left:auto;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;z-index:40;display:flex;flex-direction:column;gap:8px}
+.fallback textarea{width:100%;height:220px;border:1px solid var(--line);border-radius:8px;background:var(--paper);padding:8px;font-size:.8rem;font-family:ui-monospace,Menlo,monospace}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--paper);padding:8px 14px;border-radius:8px;font-size:.85rem;z-index:50}
+
+@media (max-width:1180px){
+  .shell{grid-template-columns:190px minmax(0,1fr)}
+  aside.rail{grid-column:2;position:static;max-height:none;overflow:visible}
+}
+@media (max-width:820px){
+  .shell{grid-template-columns:minmax(0,1fr);gap:18px;padding-top:12px}
+  aside.rail{grid-column:1}
+  nav.index{position:static;max-height:none;display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;min-width:0;max-width:100%}
+  nav.index h4{display:none}
+  nav.index a{flex:0 0 auto;border:1px solid var(--line);background:var(--card)}
+  .bar{position:static}
+  section.part,.group,.q,.step{scroll-margin-top:12px}
+  .q{grid-template-columns:32px minmax(0,1fr);padding:14px}
+  .say p{font-size:1.06rem}
+}
+</style>
+
+<header class="bar">
+  <div class="wrap">
+    <div class="who">
+      <h1 id="clientName">Quillfeather Family Dentistry, PLLC</h1>
+      <div class="meta">
+        <span>Cyber renewal 2027-01-15</span><span>Lakewood, CO</span><span>Offices of Dentists</span>
+        <span class="example">Example client (fictional)</span>
+      </div>
+    </div>
+    <div class="tools">
+      <div class="progress" aria-live="polite"><div class="meter" aria-hidden="true"><i id="meterFill"></i></div><span id="progText">0 of 23 answered</span><span id="flagPill" class="pill amber" hidden></span></div>
+      <button class="btn" id="timerBtn" type="button">Start call <span class="timer" id="timerText">00:00</span></button>
+      <button class="btn warn" id="cplBtn" type="button">Coverage question</button>
+      <button class="btn primary" id="copyBtn" type="button">Copy call notes</button>
+      <button class="btn" id="exportBtn" type="button" title="Copies your taps as data, so the call recording can be checked against them">Copy answers for ingest</button>
+      <button class="btn" id="resetBtn" type="button">Clear</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="shell">
+    <nav class="index" id="index" aria-label="Sections"></nav>
+    <main id="main"></main>
+    <aside class="rail">
+      <div class="panel cpl" id="cplPanel">
+        <h4>Coverage questions go to a CPL</h4>
+        <p class="say-line">“Good question. I'll get a coverage specialist to confirm that in writing.”</p>
+        <div class="row"><input class="field note" id="cplInput" placeholder="What did the client ask?" aria-label="Client's coverage question"><button class="btn" id="cplAdd" type="button">Log it</button></div>
+        <ul class="esc-list" id="escList"></ul>
+      </div>
+      <div class="panel">
+        <h4>Short on time? Get these three</h4>
+        <div class="top3" id="top3"></div>
+      </div>
+      <div class="panel">
+        <h4>Flagged for follow-up</h4>
+        <ul class="flag-list" id="flagList"></ul>
+      </div>
+      <div class="panel">
+        <h4>On this call</h4>
+        <ul>
+          <li>Read figures from the report. Never estimate one on the call.</li>
+          <li>Offer ranges. Clients guess on record counts and downtime.</li>
+          <li>If the client corrects an input, change it in the report. The change is logged.</li>
+          <li>Mark “Client unsure” on any hedged answer. It gets confirmed before the application.</li>
+          <li>Never answer “would this be covered?”</li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<div class="fallback" id="fallback" hidden>
+  <div class="row" style="justify-content:space-between"><strong>Copy this text</strong><button class="btn" id="fallbackX" type="button" aria-label="Close">✕</button></div>
+  <span class="hint">This browser blocked the copy button, so the text is shown here instead. It's already selected: press ⌘C or Ctrl+C, then close this box.</span>
+  <textarea id="fallbackText" readonly aria-label="Call notes"></textarea>
+  <div class="row"><button class="btn primary" id="fallbackClose" type="button">Done</button></div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+const KEY='ukon-intake-quillfeather-v1';
+
+const SEC0=[
+ {id:'legal',label:'Business legal name',ask:'Is “Quillfeather Family Dentistry, PLLC” your exact legal name? Do you trade under any other names?',value:'Quillfeather Family Dentistry, PLLC',conf:'medium',review:true,source:'Colorado state filing. 100% entity match; a similarly named Idaho company was ruled out. Locked until you confirm.'},
+ {id:'domain',label:'Website / domain',ask:'Is quillfeatherdental.com your only website? Do you use any other domains for email?',value:'quillfeatherdental.com',conf:'high',source:'Agency contact email, website and mail records agree.'},
+ {id:'industry',label:'Industry',ask:'You run a general dental practice, is that right? Anything else under the same business, like a lab?',value:'Offices of Dentists (NAICS 621210)',conf:'high',source:'Agency SIC code, PPP filing and website agree.'},
+ {id:'revenue',label:'Annual revenue',ask:'We have annual revenue at about $1.95 million. Is that in the right range?',value:'$1,950,000 (range $1.75M–$2.2M)',conf:'medium',review:true,source:'No revenue on file. Estimated from 13 staff and 2 dentists using industry benchmarks.'},
+ {id:'address',label:'State / business address',ask:'Is 1450 Garrison St, Suite 200 in Lakewood still your only location?',value:'1450 Garrison St, Ste 200, Lakewood, CO 80215',conf:'high',source:'Agency, state filing, PPP record and website agree.'}
+];
+
+const Q={
+ q1:{text:'Which states or countries are your patients in?',type:'text',ph:'e.g. Colorado, a few in Wyoming',hint:'Privacy law follows where the patient lives, not the office address.',signal:'Office is in Colorado. Out-of-state patients are unknown.'},
+ q2:{text:'If your systems went down tomorrow, what share of the practice would stop completely, and what could keep running on paper?',type:'single',opts:['Under 25%','25–50%','50–75%','Over 75%'],top:true,hint:'The most important question. It sets how much of each day’s profit is lost.'},
+ q3:{text:'How long could you run in that slowed-down mode before losing patients?',type:'single',opts:['Under 1 day','1–3 days','4–7 days','Over a week']},
+ q4:{text:'Do you have offline backups? When did you last test restoring everything from them?',type:'single',opts:['Offline, tested this year','Backups, never tested','Cloud sync only','None or don’t know'],signal:'Unknown until the call.'},
+ q5:{text:'How many critical systems would need rebuilding? Think servers, practice-management software, imaging, payments.',type:'number',ph:'e.g. 4'},
+ q6:{text:'Which outside vendors would stop the practice if they went down? Roughly what share of revenue depends on each?',type:'text',ph:'e.g. cloud practice-management system, about 90%'},
+ q7:{text:'Roughly how many patient and employee records do you hold with personal info: SSNs, insurance, health or payment details?',type:'single',opts:['Under 10K','10K–100K','Over 100K'],top:true,hint:'Remind them to include former patients.',signal:'Enrichment estimate: more than 5,000 records.'},
+ q8:{text:'Do you hold health data covered by HIPAA, or data on California residents?',type:'multi',opts:['HIPAA health data','California residents','Neither'],excl:['Neither'],signal:'Handles patient health information.'},
+ q9:{text:'Is sensitive data encrypted where it’s stored?',type:'single',opts:['Yes','No','Don’t know']},
+ q10:{text:'Do you accept cards? Roughly how many card transactions a year?',type:'single',opts:['No cards','Under 20K a year','20K–1M a year','Over 1M a year'],signal:'Takes payments online.'},
+ q11:{text:'Do you store card numbers anywhere, or does a processor handle them entirely?',type:'single',opts:['Processor handles them','We store card numbers','Don’t know'],hint:'If a processor handles them, formula 10 mostly drops out.'},
+ q12:{text:'What’s the largest single payment or wire you routinely send?',type:'text',ph:'e.g. $38,000 a month to the dental supplier',top:true},
+ q13:{text:'When a vendor asks to change their bank details, do you call them back on a number you already have?',type:'single',opts:['Always','Sometimes','No']},
+ q14:{text:'Is multi-factor authentication turned on for email, remote access and admin accounts?',type:'multi',opts:['Email','Remote access','Admin accounts','None','Don’t know'],excl:['None','Don’t know'],signal:'Unknown until the call.'},
+ q15:{text:'Do you have endpoint detection software, and a written plan for responding to an incident?',type:'multi',opts:['Endpoint detection','Incident response plan','Neither','Don’t know'],excl:['Neither','Don’t know']},
+ q16:{text:'Have you had a cyber incident before, even a small one?',type:'single',opts:['No','Yes','Not sure'],hint:'If yes, note what happened and when.'},
+ q19:{text:'Does your team get any training on spotting fake emails, at least once a year?',type:'single',opts:['Yes, at least yearly','Informal only','No']},
+ q20:{text:'Who handles your computers and IT: someone on staff or an outside company?',type:'text',ph:'e.g. Peak Tech Solutions, outside company'},
+ q17:{text:'Current cyber limit, deductible, waiting period and sublimits.',type:'text',ph:'e.g. $250K limit, $2,500 deductible, 12-hour waiting period',hint:'Pull these from the policy instead of asking. Only ask if the policy is missing.'},
+ q18:{text:'Do any contracts require you to carry a minimum cyber limit?',type:'text',ph:'e.g. a dental service organization agreement requires $1M'}
+};
+
+const GROUPS=[
+ {id:'g-where',title:'Where patients are',feeds:'Formulas 8, 9',qs:['q1']},
+ {id:'g-downtime',title:'Downtime',feeds:'Formulas 1, 2, 5',qs:['q2','q3','q4','q5','q6']},
+ {id:'g-data',title:'Data held',feeds:'Formulas 6, 8, 9',qs:['q7','q8','q9']},
+ {id:'g-payments',title:'Payments',feeds:'Formula 10',qs:['q10','q11']},
+ {id:'g-money',title:'Money movement',feeds:'Formula 7',qs:['q12','q13']},
+ {id:'g-posture',title:'Security posture',feeds:'Moves results between low, expected and severe',qs:['q14','q15','q16','q19','q20']},
+ {id:'g-coverage',title:'Current coverage',feeds:'Needed for the gap',qs:['q17','q18']}
+];
+
+const STEPS=[
+ {id:'open',n:'Opening',title:'Set up the walkthrough',say:'Before we look at options, I’d like to show you how we got to a recommended limit. It’s built from what you told us plus insurance claims data, and every assumption is on the screen. If something looks wrong for your business, tell me and we’ll change it together.'},
+ {id:'f1',n:'1',title:'Downtime',sub:'Business interruption',built:'Daily gross profit × days down × share of the business actually stopped, minus the waiting period.',
+  say:'The biggest cost in most cyber claims isn’t the hack itself, it’s being shut down. You told us about [[a:q2]] of the practice stops if systems go down, and the typical ransomware outage runs around [[r:downtime_days|downtime days]]. After your [[r:waiting_period|waiting period]] waiting period, that’s roughly [[r:bi_loss|BI loss]].',
+  check:'Does that many days feel realistic, given your backups?',
+  note:'If the client says “we’d be back in a day,” ask when they last tested a full restore (Q4). If never, keep the default and note it.'},
+ {id:'f2',n:'2',title:'A key vendor going down',sub:'Dependent business interruption',built:'Daily gross profit × share of revenue relying on that vendor × days it’s out.',
+  say:'You mentioned you rely on [[a:q6]]. If they get hit, you lose revenue even though your own systems are fine. That scenario is about [[r:dbi_loss|vendor outage loss]].',
+  low:'Little public data supports this one. Tell the client it’s an estimate.'},
+ {id:'f3',n:'3',title:'Ransom payment',sub:'Extortion',built:'Published ransom-payment ranges for businesses this size. Not a percentage of revenue.',
+  say:'Fewer businesses pay ransoms these days, but when they do, payments for a business your size typically fall between [[r:ransom_low|low]] and [[r:ransom_high|high]]. We include it so the policy can cover it if paying is ever the right call.',
+  note:'Don’t advise whether to pay. That decision sits with the client, the carrier and the incident response team.'},
+ {id:'f4',n:'4',title:'Incident response',sub:'Forensics, legal, crisis services',built:'Average crisis-services cost from insurance claims data for this kind of incident.',
+  say:'If something happens, the policy pays for the experts: forensics, lawyers, and the people who restore your systems. For practices like yours that typically runs [[r:ir_cost|incident response cost]].'},
+ {id:'f5',n:'5',title:'Restoring systems and data',sub:'Data restoration',built:'Critical systems × rebuild hours × hourly rate, plus re-creating lost data.',
+  say:'You listed [[a:q5]] critical systems. Rebuilding those comes to about [[r:restore_cost|restore cost]].',
+  low:'This rests on assumptions. Show them on screen.'},
+ {id:'f6',n:'6',title:'Notifying patients',sub:'Breach notification and credit monitoring',built:'Records × (notification cost + credit monitoring × share who sign up).',
+  say:'If personal data gets out, the law requires you to notify everyone affected. With [[a:q7]] records, notification and credit monitoring come to roughly [[r:notification_cost|notification cost]].',
+  check:'Does that record count sound right? Include former patients you still hold records for.'},
+ {id:'f7',n:'7',title:'Fake payment requests',sub:'Social engineering, its own sublimit',built:'Largest routine outgoing payment plus a buffer.',
+  say:'One of the most common claims we see is a fake email asking to change where a payment goes. Your largest regular payment is about [[a:q12]], so we’d want at least [[r:social_eng_sublimit|social engineering sublimit]] for this.',
+  check:'Do you call to confirm before changing anyone’s bank details?',note:'Their answer to Q13 already covers this. Skip the check if it’s answered.'},
+ {id:'f8',n:'8',title:'Regulators',sub:'Regulatory fines and investigations',built:'Records under each law (HIPAA, state privacy laws) × penalty × likelihood of enforcement.',
+  say:'Because you hold [[a:q8]], a regulator could investigate after a breach. We estimate that exposure at [[r:regulatory_exposure|regulatory exposure]].'},
+ {id:'f9',n:'9',title:'Lawsuits from patients',sub:'Privacy litigation',built:'Records × per-person damages (for California residents, the CCPA’s statutory range) × likelihood of a suit. Modelled low to mid range, where settlements land.',
+  say:'Patients can sue after a breach, and in some states the law sets a dollar amount per person. For your records, that’s about [[r:litigation_exposure|litigation exposure]].'},
+ {id:'f10',n:'10',title:'Card payments',sub:'PCI assessments',built:'Card records × (reissue cost + fraud assessment) + non-compliance fines.',
+  say:'Because you [[a:q11]], a card breach could mean charges from the card brands for reissuing cards and covering fraud. That’s around [[r:pci_exposure|PCI exposure]].'},
+ {id:'roll',n:'Roll-up',title:'Put it together',built:'Don’t add all ten. A real incident is one of these scenarios; the larger one sets the limit.',scen:true,
+  say:'Put together, your realistic worst case is a [[r:worst_scenario|worst scenario]] event at about [[r:scenario_total|expected total]], with a severe case near [[r:scenario_severe|severe total]]. Your current limit is [[r:current_limit|current limit]]. So the question is whether you’re comfortable covering the gap of [[r:gap|gap]] yourself, or whether we should look at [[r:recommended_limit|recommended limit]].',
+  check:'Is there anything here that doesn’t fit how your practice really works?'},
+ {id:'close',n:'Closing',title:'Next steps',say:'I’ll update the report with any changes you gave me, and you’ll see the carrier options side by side. The application questions come from what we just covered, so you’ll be reviewing and signing answers you already gave.'}
+];
+
+const ANS_LABEL={q2:'Q2',q5:'Q5',q6:'Q6',q7:'Q7',q8:'Q8',q11:'Q11',q12:'Q12'};
+
+let S=blank();
+function blank(){return {s0:{},q:{},checks:{},esc:[],timer:{start:null,elapsed:0}};}
+try{const raw=localStorage.getItem(KEY);if(raw){const p=JSON.parse(raw);S=Object.assign(blank(),p);S.timer.start=null;}}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const qn=id=>id.replace('q','');
+
+function s0(id){return S.s0[id]||(S.s0[id]={value:null,confirmed:false,flag:false,note:''});}
+function qa(id){return S.q[id]||(S.q[id]={value:'',multi:[],flag:false,note:''});}
+function ck(id){return S.checks[id]||(S.checks[id]={text:'',flag:false});}
+
+function s0Answered(it){const a=S.s0[it.id];if(!a)return false;return a.confirmed||(a.value!=null&&a.value.trim()!==''&&a.value!==it.value);}
+function s0Corrected(it){const a=S.s0[it.id];return !!(a&&a.value!=null&&a.value!==it.value);}
+function qAnswered(id){const a=S.q[id];if(!a)return false;const t=Q[id].type;return t==='multi'?a.multi.length>0:String(a.value||'').trim()!=='';}
+
+/* ---------- render ---------- */
+function confPill(c,review){
+  const cls=c==='high'?'green':c==='medium'?'amber':'red';
+  return `<span class="pill ${cls}">${c} confidence</span>${review?'<span class="pill red">needs review</span>':''}`;
+}
+function renderS0Item(it,i){
+  const a=S.s0[it.id]||{};const val=a.value!=null?a.value:it.value;
+  const st=a.flag?'flag':s0Answered(it)?'ok':'';
+  return `<div class="q" id="s0-${it.id}" data-s0="${it.id}">
+    <div class="qnum"><span>0.${i+1}</span><span class="st ${st}" aria-hidden="true"></span></div>
+    <div class="qbody">
+      <div class="tags"><strong style="font-size:.9rem">${esc(it.label)}</strong><span class="pill teal">Pre-filled · confirm</span>${confPill(it.conf,it.review)}</div>
+      <p class="ask">${esc(it.ask)}</p>
+      <div class="prefill">
+        <input class="field" id="s0v-${it.id}" data-s0v="${it.id}" value="${esc(val)}" aria-label="${esc(it.label)}">
+        <span class="src">${esc(it.source)} <span data-corr="${it.id}">${corrPill(it)}</span></span>
+      </div>
+      <div class="row">
+        <button type="button" class="toggle ok" data-act="s0confirm" data-id="${it.id}" aria-pressed="${!!a.confirmed}">${a.confirmed?'Confirmed ✓':'Client confirms'}</button>
+        <button type="button" class="toggle fl" data-act="s0flag" data-id="${it.id}" aria-pressed="${!!a.flag}">Client unsure</button>
+        <input class="field note" id="s0n-${it.id}" data-s0n="${it.id}" value="${esc(a.note||'')}" placeholder="Note (optional)" aria-label="Note for ${esc(it.label)}">
+      </div>
+    </div></div>`;
+}
+function renderQ(id){
+  const q=Q[id],a=S.q[id]||{value:'',multi:[],flag:false,note:''};
+  const st=a.flag?'flag':qAnswered(id)?'ok':'';
+  let input='';
+  if(q.type==='single'||q.type==='multi'){
+    input=`<div class="chips" role="group" aria-label="Answer for Q${qn(id)}">${q.opts.map(o=>{
+      const on=q.type==='single'?a.value===o:(a.multi||[]).includes(o);
+      return `<button type="button" class="chip" data-act="chip" data-id="${id}" data-opt="${esc(o)}" aria-pressed="${on}">${esc(o)}</button>`;}).join('')}</div>`;
+  }else{
+    input=`<input class="field" id="v-${id}" data-qv="${id}" ${q.type==='number'?'inputmode="numeric"':''} value="${esc(a.value||'')}" placeholder="${esc(q.ph||'')}" aria-label="Answer for Q${qn(id)}">`;
+  }
+  return `<div class="q" id="${id}" data-q="${id}">
+    <div class="qnum"><span>Q${qn(id)}</span><span class="st ${st}" aria-hidden="true"></span></div>
+    <div class="qbody">
+      ${q.top?'<div class="tags"><span class="pill teal">Top 3 · drives the dollars</span></div>':''}
+      <p class="ask">${esc(q.text)}</p>
+      ${q.signal?`<p class="signal"><b>From enrichment:</b> ${esc(q.signal)} Confirm it.</p>`:''}
+      ${q.hint?`<p class="hint">${esc(q.hint)}</p>`:''}
+      ${input}
+      <div class="row">
+        <button type="button" class="toggle fl" data-act="qflag" data-id="${id}" aria-pressed="${!!a.flag}">Client unsure</button>
+        <input class="field note" id="n-${id}" data-qn="${id}" value="${esc(a.note||'')}" placeholder="Note (optional)" aria-label="Note for Q${qn(id)}">
+      </div>
+    </div></div>`;
+}
+function renderSay(s){
+  return esc(s)
+   .replace(/\[\[a:(q\d+)\]\]/g,(m,q)=>`<span class="tok-slot" data-ans="${q}"></span>`)
+   .replace(/\[\[r:([a-z_]+)\|([^\]]+)\]\]/g,(m,k,l)=>`<span class="tok tok-rep" title="Read this figure from the client report ({${k}}). Don't estimate it on the call."><span class="tok-l">${l}</span><span class="tok-src">report</span></span>`);
+}
+function renderStep(s){
+  const c=S.checks[s.id]||{text:'',flag:false};
+  const scen=s.scen?`<div class="scen">
+     <div><b>Ransomware</b><span>Formulas 1 + 3 + 4 + 5</span></div>
+     <div><b>Data breach</b><span>Formulas 4 + 6 + 8 + 9 + 10</span></div>
+     <div><b>Social engineering</b><span>Formula 7, its own sublimit</span></div></div>`:'';
+  return `<article class="step" id="${s.id}" data-step="${s.id}">
+    <div class="step-head"><span class="n">${/^\d+$/.test(s.n)?'FORMULA '+s.n:s.n.toUpperCase()}</span><h3>${esc(s.title)}</h3>${s.sub?`<span class="pill plain">${esc(s.sub)}</span>`:''}</div>
+    ${s.built?`<p class="built"><b>How it’s built:</b> ${esc(s.built)}</p>`:''}
+    ${scen}
+    <p class="skip" data-skip="${s.id}" hidden>Skip this one: the client said a processor handles card numbers.</p>
+    <div class="say"><span class="lbl">Say</span><p>${renderSay(s.say)}</p></div>
+    ${s.low?`<p class="lowconf">Low confidence. ${esc(s.low)}</p>`:''}
+    ${s.note?`<p class="note-box">${esc(s.note)}</p>`:''}
+    ${s.check?`<div class="check"><span class="lbl">Check with the client</span><p>${esc(s.check)}</p>
+      <div class="row"><input class="field" id="c-${s.id}" data-ck="${s.id}" value="${esc(c.text)}" placeholder="Client’s response, or the input they corrected" aria-label="Client response for ${esc(s.title)}">
+      <button type="button" class="toggle fl" data-act="ckflag" data-id="${s.id}" aria-pressed="${!!c.flag}">Changes an input</button></div></div>`:''}
+  </article>`;
+}
+
+function render(){
+  let h='';
+  h+=`<section class="part" id="identity"><div class="part-head"><span class="eyebrow">Section 0 · Ask first</span><h2>Business identity</h2>
+      <p>Stage 1 found these. Read each back and confirm. If the client corrects one, type the right value; the change goes into the report with your name.</p></div>
+      <div class="group">${SEC0.map(renderS0Item).join('')}</div></section>`;
+  h+=`<section class="part" id="exposure"><div class="part-head"><span class="eyebrow">Section 1</span><h2>Exposure questions</h2>
+      <p>Say each number aloud (“Question 7”) so the recording can be matched to this list. Offer the ranges instead of asking for exact numbers. If time is short, get Q2, Q7 and Q12 first.</p></div>
+      ${GROUPS.map(g=>`<div class="group" id="${g.id}"><div class="group-head"><h3>${esc(g.title)}</h3><span class="feeds">${esc(g.feeds)}</span></div>${g.qs.map(renderQ).join('')}</div>`).join('')}</section>`;
+  h+=`<section class="part" id="walkthrough"><div class="part-head"><span class="eyebrow">Section 2</span><h2>Walking through the numbers</h2>
+      <p>Show the client how each number is built from their own answers. Green text is what the client told you on this call. Teal figures come from the report.</p></div>
+      ${STEPS.map(renderStep).join('')}</section>`;
+  $('#main').innerHTML=h;
+  refresh();
+}
+
+function ansText(id){
+  const a=S.q[id];if(!a||!qAnswered(id))return null;
+  if(id==='q7')return ({'Under 10K':'under 10,000','10K–100K':'10,000 to 100,000','Over 100K':'over 100,000'})[a.value]||a.value;
+  if(id==='q8'){if(a.multi.includes('Neither'))return 'patient records';return a.multi.map(m=>m==='HIPAA health data'?'patient health data covered by HIPAA':'California residents’ data').join(' and ');}
+  if(id==='q11')return ({'Processor handles them':'take cards through a processor','We store card numbers':'store card numbers','Don’t know':'accept cards'})[a.value]||a.value;
+  if(id==='q2')return a.value;
+  return a.value;
+}
+function refresh(){
+  // answer tokens
+  document.querySelectorAll('[data-ans]').forEach(el=>{
+    const id=el.dataset.ans,t=ansText(id);
+    el.innerHTML=t?`<span class="tok tok-ans">${esc(t)}</span>`:`<button type="button" class="tok tok-miss" data-goto="${id}" title="Not answered yet. Jump to the question.">ask ${ANS_LABEL[id]||id.toUpperCase()}</button>`;
+  });
+  // PCI skip
+  const skip=S.q.q11&&S.q.q11.value==='Processor handles them';
+  const sk=document.querySelector('[data-skip="f10"]');if(sk){sk.hidden=!skip;sk.closest('.step').classList.toggle('skipped',!!skip);}
+  // progress
+  const total=SEC0.length+Object.keys(Q).length;
+  const done=SEC0.filter(s0Answered).length+Object.keys(Q).filter(qAnswered).length;
+  const flags=flagged();
+  $('#meterFill').style.width=(done/total*100)+'%';
+  $('#progText').textContent=`${done} of ${total} answered`;
+  const fp=$('#flagPill');fp.hidden=!flags.length;fp.textContent=`${flags.length} flagged`;
+  // index
+  const cnt=(d,t)=>`<span class="ct ${d===t?'done':''}">${d}/${t}</span>`;
+  let ix=`<h4>Section 0</h4><a href="#identity"><span>Business identity</span>${cnt(SEC0.filter(s0Answered).length,SEC0.length)}</a><h4>Section 1</h4>`;
+  ix+=GROUPS.map(g=>`<a href="#${g.id}"><span>${esc(g.title)}</span>${cnt(g.qs.filter(qAnswered).length,g.qs.length)}</a>`).join('');
+  ix+=`<h4>Section 2 · Script</h4>`+STEPS.map(s=>`<a href="#${s.id}"><span>${/^\d+$/.test(s.n)?s.n+'. ':''}${esc(s.title)}</span></a>`).join('');
+  $('#index').innerHTML=ix;
+  // top 3
+  $('#top3').innerHTML=['q2','q7','q12'].map(id=>`<a href="#${id}"><span>Q${qn(id)} · ${({q2:'Share of practice that stops',q7:'Records held',q12:'Largest routine payment'})[id]}</span>${qAnswered(id)?'<span class="pill green">Got it</span>':'<span class="pill plain">Open</span>'}</a>`).join('');
+  // flags
+  $('#flagList').innerHTML=flags.length?flags.map(f=>`<li><a href="#${f.anchor}">${esc(f.label)}</a></li>`).join(''):'<li class="empty" style="list-style:none;margin-left:-18px">Nothing flagged yet.</li>';
+  // escalations
+  $('#escList').innerHTML=S.esc.length?S.esc.map(e=>`<li><time>${esc(e.time)}</time>${esc(e.text)}</li>`).join(''):'';
+}
+function flagged(){
+  const out=[];
+  SEC0.forEach((it,i)=>{const a=S.s0[it.id];if(a&&a.flag)out.push({anchor:'s0-'+it.id,label:`0.${i+1} ${it.label}: client unsure`});});
+  Object.keys(Q).forEach(id=>{const a=S.q[id];if(a&&a.flag)out.push({anchor:id,label:`Q${qn(id)}: client unsure`});});
+  STEPS.forEach(s=>{const c=S.checks[s.id];if(c&&c.flag)out.push({anchor:s.id,label:`${/^\d+$/.test(s.n)?'Formula '+s.n:s.n}: update an input in the report`});});
+  return out;
+}
+function swap(el,html){if(el&&el.isConnected){try{el.outerHTML=html;}catch(e){}}}
+function rerenderQ(id){swap(document.getElementById(id),renderQ(id));refresh();}
+function rerenderS0(id){const i=SEC0.findIndex(x=>x.id===id);swap(document.getElementById('s0-'+id),renderS0Item(SEC0[i],i));refresh();}
+function rerenderStep(id){const s=STEPS.find(x=>x.id===id);swap(document.getElementById(id),renderStep(s));refresh();}
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+  const g=e.target.closest('[data-goto]');
+  if(g){const el=document.getElementById(g.dataset.goto);if(el){el.scrollIntoView({block:'center'});el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');const f=el.querySelector('.chip,.field');if(f)f.focus({preventScroll:true});}return;}
+  const b=e.target.closest('[data-act]');if(!b)return;
+  const id=b.dataset.id,act=b.dataset.act;
+  if(act==='chip'){
+    const q=Q[id],a=qa(id),o=b.dataset.opt;
+    if(q.type==='single'){a.value=a.value===o?'':o;}
+    else{
+      const ex=q.excl||[];
+      if(a.multi.includes(o))a.multi=a.multi.filter(x=>x!==o);
+      else if(ex.includes(o))a.multi=[o];
+      else a.multi=a.multi.filter(x=>!ex.includes(x)).concat(o);
+    }
+    save();rerenderQ(id);const nb=document.querySelector(`[data-act="chip"][data-id="${id}"][data-opt="${CSS.escape(o)}"]`);if(nb)nb.focus();
+  }else if(act==='qflag'){const a=qa(id);a.flag=!a.flag;save();rerenderQ(id);focusAct(act,id);}
+  else if(act==='s0confirm'){const a=s0(id);a.confirmed=!a.confirmed;save();rerenderS0(id);focusAct(act,id);}
+  else if(act==='s0flag'){const a=s0(id);a.flag=!a.flag;save();rerenderS0(id);focusAct(act,id);}
+  else if(act==='ckflag'){const c=ck(id);c.flag=!c.flag;save();rerenderStep(id);focusAct(act,id);}
+});
+function focusAct(act,id){const nb=document.querySelector(`[data-act="${act}"][data-id="${id}"]`);if(nb)nb.focus();}
+document.addEventListener('input',e=>{
+  const t=e.target,d=t.dataset;
+  if(d.qv){qa(d.qv).value=t.value;}
+  else if(d.qn){qa(d.qn).note=t.value;}
+  else if(d.s0v){s0(d.s0v).value=t.value;}
+  else if(d.s0n){s0(d.s0n).note=t.value;}
+  else if(d.ck){ck(d.ck).text=t.value;}
+  else return;
+  save();refreshLite(t);
+});
+function corrPill(it){return s0Corrected(it)?`<span class="pill amber">Corrected on call · was “${esc(it.value)}”</span>`:'';}
+function refreshLite(t){
+  refresh();
+  if(t.dataset.s0v){const it=SEC0.find(x=>x.id===t.dataset.s0v);const c=document.querySelector(`[data-corr="${it.id}"]`);if(c)c.innerHTML=corrPill(it);}
+  const row=t.closest('[data-q],[data-s0]');
+  if(row){const id=row.dataset.q||row.dataset.s0;const dot=row.querySelector('.st');
+    const ok=row.dataset.q?qAnswered(id):s0Answered(SEC0.find(x=>x.id===id));
+    const fl=row.dataset.q?(S.q[id]||{}).flag:(S.s0[id]||{}).flag;
+    dot.className='st '+(fl?'flag':ok?'ok':'');}
+}
+
+/* timer */
+let tick=null;
+function fmt(ms){const s=Math.floor(ms/1000);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+function elapsed(){return S.timer.elapsed+(S.timer.start?Date.now()-S.timer.start:0);}
+function paintTimer(){const b=$('#timerBtn');b.firstChild.nodeValue=S.timer.start?'Pause ':(S.timer.elapsed?'Resume ':'Start call ');$('#timerText').textContent=fmt(elapsed());}
+$('#timerBtn').addEventListener('click',()=>{
+  if(S.timer.start){S.timer.elapsed=elapsed();S.timer.start=null;clearInterval(tick);}
+  else{S.timer.start=Date.now();tick=setInterval(paintTimer,1000);}
+  save();paintTimer();
+});
+
+/* CPL */
+function addEsc(){const v=$('#cplInput').value.trim();if(!v)return;S.esc.push({time:fmt(elapsed()),text:v});$('#cplInput').value='';save();refresh();toast('Logged for a CPL');}
+$('#cplAdd').addEventListener('click',addEsc);
+$('#cplInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addEsc();}});
+$('#cplBtn').addEventListener('click',()=>{const p=$('#cplPanel');p.scrollIntoView({block:'nearest'});$('#cplInput').focus();});
+
+/* copy notes */
+function notes(){
+  const L=[];
+  L.push(`Quillfeather Family Dentistry, PLLC: cyber renewal intake call`);
+  L.push(`Date: ${new Date().toLocaleString()} · Call time: ${fmt(elapsed())}`);
+  L.push('');L.push('SECTION 0 · BUSINESS IDENTITY');
+  SEC0.forEach((it,i)=>{const a=S.s0[it.id]||{};const v=a.value!=null?a.value:it.value;
+    const st=s0Corrected(it)?`CORRECTED (was: ${it.value})`:a.confirmed?'confirmed':'not confirmed';
+    L.push(`0.${i+1} ${it.label}: ${v} [${st}]${a.flag?' [CLIENT UNSURE]':''}${a.note?' · Note: '+a.note:''}`);});
+  L.push('');L.push('SECTION 1 · EXPOSURE QUESTIONS');
+  Object.keys(Q).forEach(id=>{const a=S.q[id]||{};const q=Q[id];
+    const v=q.type==='multi'?(a.multi||[]).join(', '):(a.value||'');
+    L.push(`Q${qn(id)} ${q.text}\n   Answer: ${v||'(not answered)'}${a.flag?' [CLIENT UNSURE]':''}${a.note?' · Note: '+a.note:''}`);});
+  L.push('');L.push('SECTION 2 · WALKTHROUGH CHECKS');
+  STEPS.filter(s=>s.check).forEach(s=>{const c=S.checks[s.id]||{};L.push(`${/^\d+$/.test(s.n)?'Formula '+s.n:s.n} ${s.title}: ${c.text||'(no response noted)'}${c.flag?' [UPDATE INPUT IN REPORT]':''}`);});
+  L.push('');L.push('COVERAGE QUESTIONS FOR A CPL');
+  if(S.esc.length)S.esc.forEach(e=>L.push(`[${e.time}] ${e.text}`));else L.push('None');
+  return L.join('\n');
+}
+$('#copyBtn').addEventListener('click',()=>{
+  const txt=notes();
+  const fallback=()=>{$('#fallback').hidden=false;const ta=$('#fallbackText');ta.value=txt;ta.focus();ta.select();};
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(()=>toast('Call notes copied')).catch(fallback);}
+    else fallback();
+  }catch(e){fallback();}
+});
+const closeFallback=()=>{$('#fallback').hidden=true;};
+$('#fallbackClose').addEventListener('click',closeFallback);
+$('#fallbackX').addEventListener('click',closeFallback);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#fallback').hidden)closeFallback();});
+
+/* export taps for call ingest (keys match wiki/raw/intake/intake_questions.md) */
+function exportJSON(){
+  const s0out={};SEC0.forEach(it=>{const a=S.s0[it.id];if(a)s0out[it.id]={value:a.value,confirmed:!!a.confirmed,corrected:s0Corrected(it),flag:!!a.flag,note:a.note||''};});
+  return JSON.stringify({client:'quillfeather',exported_at:new Date().toISOString(),call_time:fmt(elapsed()),answers:{s0:s0out,q:S.q,checks:S.checks,escalations:S.esc}},null,2);
+}
+$('#exportBtn').addEventListener('click',()=>{
+  const txt=exportJSON();
+  const fallback=()=>{$('#fallback').hidden=false;const ta=$('#fallbackText');ta.value=txt;ta.focus();ta.select();};
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(()=>toast('Answers copied. Paste them into the call-ingest step.')).catch(fallback);}
+    else fallback();
+  }catch(e){fallback();}
+});
+
+/* clear */
+let armed=null;
+$('#resetBtn').addEventListener('click',()=>{
+  const b=$('#resetBtn');
+  if(!armed){b.textContent='Click again to clear';b.classList.add('warn');armed=setTimeout(()=>{armed=null;b.textContent='Clear';b.classList.remove('warn');},3000);return;}
+  clearTimeout(armed);armed=null;b.textContent='Clear';b.classList.remove('warn');
+  clearInterval(tick);S=blank();save();render();paintTimer();toast('Cleared. Ready for a new call.');
+});
+
+let tt=null;
+function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>{t.hidden=true;},1800);}
+
+render();paintTimer();
+})();
+</script>

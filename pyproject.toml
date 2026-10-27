@@ -1,0 +1,23 @@
+[project]
+name = "ukon-cyber-renewal"
+version = "0.1.0"
+description = "Prototype: cyber insurance in the renewal window (UKON final-round project)"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "psycopg[binary]>=3.2",
+    "fastapi>=0.115",
+    "uvicorn>=0.30",
+    "anthropic>=0.40",
+    "pgserver>=0.1.4",
+    "pypdf>=6.21.2",
+]
+
+[tool.uv]
+package = false
+
+[dependency-groups]
+dev = [
+    "nodejs-wheel>=24.19.0",
+    "reportlab>=5.1.0",
+]
