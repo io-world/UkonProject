@@ -43,6 +43,7 @@ reaches a client.
 | `pipeline/html_report.py` | Snapshot → standalone HTML file in `reports/<slug>/`. |
 | `pipeline/config.py` | Every review threshold in one place; loads `.env`. |
 | `api/main.py`, `api/ask.py` | REST for the app (no route writes a carrier figure); Ask uses read-only tools (live with an API key, rule-based offline). |
+| `api/chat.py` | Stage 4 "Ask the wiki" chat: searches and reads the wiki first, Anthropic web search only as a fallback; the wiki / web / both / unverified label is set from the tools that ran. Offline: keyword search over the wiki. `/api/wiki` serves a cited page read-only. |
 | `web/` | Workbench, one tab per stage with a derived status: 1 Confirm data · 2 Get indications · 3 Proposal pack · 4 Equip the agent · 5 Present, apply, bind (Live call · After the call · Application & bind) · Audit, plus Ask drawer. |
 | `.claude/skills/` | `client-ingest`, `indication-ingest` (carrier replies), `call-ingest` (Wispr Flow intake), `client-research` (web), `client-ask`. |
 | `reports/` | Generated HTML client packs: `current.html` + `v<N>.html` per submitted version. |
