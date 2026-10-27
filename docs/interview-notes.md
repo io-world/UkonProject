@@ -500,6 +500,7 @@ Full log (60 entries): `docs/decisions.md`. The ones most likely to come up:
 | Decision | Trade-off |
 |---|---|
 | Prototype the whole flow for **one client, deep**, not many shallow | Shows judgment end to end; scale shown on a slide (renewal queue) rather than built |
+| **Whole workflow over finished features**, except UI/UX the journey needs (stage status, compare-carriers chart, jump menus, questionnaire filter and folding, quote vs indication, 30-60-90 view) | Any feature can be poked until it stops (carrier integrations, e-sign, binder, renewal queue are simulated or absent); in exchange the whole user journey can be seen and judged |
 | **Wiki + database**, not one or the other | Two stores to keep in sync → solved by generating wiki pages from the DB |
 | **Six stages: UKON's Stages 1 and 4 each split in two** | Two more stages to explain; puts a person's approval between confirming data and sending it to carriers, and gives the questionnaire (several touches, where deals stall) its own stage |
 | **Application questions after the price** (Stage 5), never blocking; the owner's choice opens Stage 6 | The pack has fewer answers to quote; the owner isn't asked about security practices before seeing a price |
