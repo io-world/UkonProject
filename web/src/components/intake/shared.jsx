@@ -1,3 +1,4 @@
+import { useState } from 'react'
 export const STATUS = {
   prefilled: { label: 'Recorded · confirm', cls: 's-prefilled' },
   needs_followup: { label: 'Needs follow-up', cls: 's-needs_followup' },
@@ -41,4 +42,53 @@ export function answerText(item) {
 export function StatusPill({ row }) {
   const s = STATUS[row?.status || 'unanswered']
   return <span className={`pill ${s.cls}`}>{s.label}</span>
+}
+
+// --- Filtering and folding (Stage 5 is usually several calls and emails: show what's left) ---
+export const isAnswered = (status) => status === 'prefilled' || status === 'confirmed'
+
+export function FilterBar({ value, onChange, counts, onAll }) {
+  const opts = [['all', 'All'], ['open', 'Not answered'], ['answered', 'Answered']]
+  return (
+    <div className="filterbar">
+      <div className="seg small-seg" role="group" aria-label="Show questions">
+        {opts.map(([k, l]) => (
+          <button key={k} className={value === k ? 'on' : ''} onClick={() => onChange(k)}>
+            {l}{counts && <span className="fcount">{counts[k]}</span>}
+          </button>
+        ))}
+      </div>
+      {onAll && <span className="small">
+        <button className="link" onClick={() => onAll(true)}>Expand all</button> · <button className="link" onClick={() => onAll(false)}>Collapse all</button>
+      </span>}
+    </div>
+  )
+}
+
+export function Fold({ id, title, sub, open, onToggle, open_n, done_n, children, empty }) {
+  return (
+    <section id={id} className={`fold ${open ? 'is-open' : ''}`}>
+      <button className="fold-head" onClick={onToggle} aria-expanded={open}>
+        <span className="fold-caret" aria-hidden>{open ? '▾' : '▸'}</span>
+        <span className="fold-title">{title}</span>
+        {sub && <span className="muted small">{sub}</span>}
+        <span className="fold-counts small">
+          {open_n > 0 && <span className="pill warn">{open_n} open</span>}
+          {done_n > 0 && <span className="pill s-confirmed">{done_n} answered</span>}
+        </span>
+      </button>
+      {open && <div className="fold-body">{empty ? <p className="muted small">{empty}</p> : children}</div>}
+    </section>
+  )
+}
+
+/** Open/closed state per section, all open by default. */
+export function useFolds() {
+  const [closed, setClosed] = useState({})
+  return {
+    isOpen: (id) => !closed[id],
+    toggle: (id) => setClosed((c) => ({ ...c, [id]: !c[id] })),
+    open: (id) => setClosed((c) => ({ ...c, [id]: false })),
+    all: (ids, open) => setClosed(Object.fromEntries(ids.map((i) => [i, !open]))),
+  }
 }

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { api, money, when, SOURCE_LABEL } from '../api.js'
 
-// Stage 5 opens with the owner's answer to the proposal pack: which option, or "not now" and why.
+// Stage 6 opens with the owner's answer to the proposal pack: which option, or "not now" and why.
 // Append-only: changing it records a new decision; the reason list feeds the deal record (why deals are lost).
-export default function OwnerDecision({ actor, onChange, tick }) {
+export default function OwnerDecision({ actor, onChange, tick, locked }) {
   const [d, setD] = useState(null)
   const [edit, setEdit] = useState(false)
   const [pick, setPick] = useState('')
@@ -31,22 +31,25 @@ export default function OwnerDecision({ actor, onChange, tick }) {
   }
 
   return (
-    <section className={`card decision ${cur ? (cur.decision === 'chose' ? 'd-yes' : 'd-no') : ''}`}>
-      <div className="row" style={{ justifyContent: 'space-between' }}>
-        <h3>The owner's decision on the proposal</h3>
-        {cur && !edit && <button className="btn ghost sm" onClick={() => setEdit(true)}>Record a change</button>}
+    <section className={`card step decision ${cur ? (cur.decision === 'chose' ? 'd-yes step-done' : 'd-no') : ''}`}>
+      <div className="step-head">
+        <span className="step-n">{cur?.decision === 'chose' ? '✓' : 1}</span>
+        <div className="row" style={{ justifyContent: 'space-between' }}>
+          <h3>The owner's choice</h3>
+          {cur && !edit && !locked && <button className="btn ghost sm" onClick={() => setEdit(true)}>Record a change</button>}
+        </div>
       </div>
       {cur && !edit && (
         <p className="small">
           {cur.decision === 'chose'
-            ? <><b>Chose {cur.carrier}, {cur.option_label}.</b> The application below is for this option.</>
-            : <><b>Not now: {cur.reason_label}.</b>{cur.note && <> “{cur.note}”</>} Stage 6 records the deal as lost with this reason.</>}
+            ? <><b>Chose {cur.carrier}, {cur.option_label}.</b> The firm quote is requested for this option.</>
+            : <><b>Not now: {cur.reason_label}.</b>{cur.note && <> “{cur.note}”</>} The deal record keeps this reason.</>}
           <span className="muted"> · {cur.actor_name}, {when(cur.created_at)} · from {SOURCE_LABEL[cur.source_type].toLowerCase()}</span>
         </p>
       )}
       {(!cur || edit) && (
         <div className="stack-s">
-          <p className="small muted">After walking the owner through the pack, record what they decided. A "not now" needs the
+          <p className="small muted">Present the proposal pack, then record what the owner decided. A "not now" needs the
             reason they gave: those reasons are how UKON learns why deals are lost.</p>
           <div className="seg small-seg">
             <button className={mode === 'chose' ? 'on' : ''} onClick={() => setMode('chose')}>Chose an option</button>

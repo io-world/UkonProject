@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { api, when } from '../../api.js'
-import { StatusPill, liveText, money, show } from './shared.jsx'
+import { FilterBar, Fold, StatusPill, isAnswered, liveText, money, show, useFolds } from './shared.jsx'
 
 function ItemCard({ it, actor, onDone }) {
   const r = it.row || {}
@@ -73,11 +73,18 @@ export default function IntakeReview({ data, actor, onChange }) {
   const [result, setResult] = useState(null)
   const [err, setErr] = useState(null)
   const order = { needs_followup: 0, unanswered: 1, prefilled: 2, confirmed: 3 }
+  const [filter, setFilter] = useState('all')
+  const folds = useFolds()
+  const groupsInOrder = [...new Set(data.items.filter((i) => i.section === 'exposure').map((i) => i.group))]
   const sections = [
-    ['identity', 'Section 0 · Business identity'],
-    ['exposure', 'Section 1 · Exposure questions'],
-    ['walkthrough', 'Section 2 · Walkthrough reactions'],
+    { id: 'rv-identity', title: 'Business identity', sub: 'Section 0', match: (i) => i.section === 'identity' },
+    ...groupsInOrder.map((g) => ({ id: `rv-${g}`, title: g, sub: 'Exposure', match: (i) => i.section === 'exposure' && i.group === g })),
+    { id: 'rv-walk', title: 'Walkthrough reactions', sub: 'Section 2', match: (i) => i.section === 'walkthrough' },
   ]
+  const st = (i) => i.row?.status || 'unanswered'
+  const keep = (i) => filter === 'all' || (filter === 'answered') === isAnswered(st(i))
+  const all = data.items
+  const fcounts = { all: all.length, open: all.filter((i) => !isAnswered(st(i))).length, answered: all.filter((i) => isAnswered(st(i))).length }
   const ingest = async (file) => {
     setBusy(file); setErr(null)
     try { setResult(await api.intakeIngest(file, actor)); onChange() } catch (e) { setErr(e.message) } finally { setBusy(null) }
@@ -89,16 +96,16 @@ export default function IntakeReview({ data, actor, onChange }) {
     <div className="stack">
       <div className="review-top">
         <section className="card">
-          <h3>Calls</h3>
+          <h3>Calls and emails</h3>
           <ol className="calls">
             {data.calls.map((c) => (
               <li key={c.call_ref}><code>{c.call_ref}</code> · {c.answered} items updated
                 {c.flagged > 0 && <> · <span className="pill warn">{c.flagged} flagged</span></>}
                 <span className="muted small"> · {when(c.ingested_at)}</span></li>
             ))}
-            {data.calls.length === 0 && <li className="muted">No calls ingested yet.</li>}
+            {data.calls.length === 0 && <li className="muted">Nothing ingested yet.</li>}
           </ol>
-          <h4 className="mt">Transcripts in the wiki</h4>
+          <h4 className="mt">Transcripts and emails in the wiki</h4>
           <ul className="transcripts">
             {data.transcripts.map((t) => (
               <li key={t.file}><code>{t.file}</code>
@@ -130,16 +137,20 @@ export default function IntakeReview({ data, actor, onChange }) {
         </section>
       </div>
 
-      {sections.map(([sec, title]) => (
-        <section key={sec}>
-          <h3 className="section-h">{title}</h3>
-          <div className="answers">
-            {data.items.filter((i) => i.section === sec)
-              .sort((a, b) => order[a.row?.status || 'unanswered'] - order[b.row?.status || 'unanswered'])
-              .map((it) => <ItemCard key={it.key} it={it} actor={actor} onDone={onChange} />)}
-          </div>
-        </section>
-      ))}
+      <FilterBar value={filter} onChange={setFilter} counts={fcounts} onAll={(o) => folds.all(sections.map((x) => x.id), o)} />
+      {sections.map((sec) => {
+        const items = data.items.filter(sec.match)
+        const shown = items.filter(keep).sort((a, b) => order[st(a)] - order[st(b)])
+        const done = items.filter((i) => isAnswered(st(i))).length
+        if (filter !== 'all' && shown.length === 0) return null
+        return (
+          <Fold key={sec.id} id={sec.id} title={sec.title} sub={sec.sub} open={folds.isOpen(sec.id)} onToggle={() => folds.toggle(sec.id)}
+                open_n={items.length - done} done_n={done}
+                empty={shown.length === 0 ? (filter === 'open' ? 'Everything here is answered.' : 'Nothing answered here yet.') : null}>
+            <div className="answers">{shown.map((it) => <ItemCard key={it.key} it={it} actor={actor} onDone={onChange} />)}</div>
+          </Fold>
+        )
+      })}
     </div>
   )
 }

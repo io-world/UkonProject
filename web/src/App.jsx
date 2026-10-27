@@ -73,7 +73,7 @@ export default function App() {
       </nav>
       <div className="stage-map small muted">
         UKON's brief has four stages. This splits its Stage 1 into <b>1 · Confirm data</b> and <b>2 · Get indications</b>, and its
-        Stage 4 into <b>5 · Present and apply</b> and <b>6 · Final terms, bind, report</b>. Stages 3 and 4 here are UKON's 2 and 3.
+        Stage 4 into <b>5 · Questionnaire</b> and <b>6 · Decision, bind, report</b>. Stages 3 and 4 here are UKON's 2 and 3.
       </div>
 
       <main className="main">

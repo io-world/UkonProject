@@ -4,7 +4,8 @@
 
 Writes wiki/raw/sloanslake/quotes/*.pdf. Run once; the PDF is a raw source and is committed.
 The carrier, people and reference numbers are invented. The story it tells: the signed application
-showed phishing training isn't in place and MFA on email is only partly rolled out, so the firm premium is
+showed higher revenue than the indication was priced on, no phishing training, and backups never restore-tested
+(consistent with calls 1-2 and the office manager's email in the wiki), so the firm premium is
 higher than the indication and the carrier adds conditions (two before binding, one within 60 days after).
 reportlab is a dev dependency only: the pipeline reads PDFs with pypdf."""
 from pathlib import Path
@@ -37,8 +38,8 @@ QUOTE = {
         "Policy form: NWS-CY-100 (06/25)",
         "Quote valid through January 14, 2027",
     ],
-    "why": "Premium reflects the signed application dated December 1, 2026: phishing awareness training is not "
-           "currently in place, and multi-factor authentication on email is partially deployed.",
+    "why": "Premium reflects the signed application dated December 1, 2026: gross revenue of $2,520,000, phishing "
+           "awareness training not currently in place, and backups not yet restore-tested.",
     "before": [
         "Before binding: written confirmation that MFA is enforced on all email accounts",
         "Before binding: written confirmation that backups are offline or immutable and were restore-tested in the last 12 months",

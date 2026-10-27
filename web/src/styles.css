@@ -476,3 +476,16 @@ details > summary { cursor: pointer; }
 .year li.tp-renewal { border-left: 3px solid var(--ink-2); }
 @media (max-width: 860px) { .ninety { grid-template-columns: 1fr; } .year li { grid-template-columns: 1fr; gap: 2px; } }
 @media print { .top, .tabs, .stage-map, .intro, .step:not(:last-child), .seg { display: none !important; } }
+
+/* Stage 5: filter + collapsible sections */
+.filterbar { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin: 4px 0 10px; }
+.fcount { margin-left: 6px; font-weight: 500; opacity: .75; }
+.fold { border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); margin-bottom: 10px; }
+.fold-head { width: 100%; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; text-align: left; background: transparent; border: 0; padding: 11px 14px; cursor: pointer; font: inherit; color: var(--ink); }
+.fold-head:hover { background: var(--wash); border-radius: var(--radius); }
+.fold-caret { width: 14px; color: var(--muted); }
+.fold-title { font-weight: 600; font-size: 14.5px; }
+.fold-counts { margin-left: auto; display: flex; gap: 6px; }
+.fold-body { padding: 0 14px 14px; }
+.fold .answers { margin-top: 4px; }
+.live-main .fold { scroll-margin-top: 12px; }

@@ -3,7 +3,6 @@ import { api } from '../api.js'
 import LiveCall from './intake/LiveCall.jsx'
 import IntakeReview from './intake/IntakeReview.jsx'
 import Application from './Application.jsx'
-import OwnerDecision from './OwnerDecision.jsx'
 
 const VIEWS = [
   { id: 'live', label: 'Live call', sub: 'Tap answers while you talk' },
@@ -22,8 +21,8 @@ export default function Intake({ actor, onChange, tick }) {
   return (
     <div className="stack">
       <section className="intro">
-        <h2>Stage 5 · Present and apply</h2>
-        <p>The agent presents the pack and records the owner's choice (or why not), then walks them through the application questions on a call, tapping answers live; Wispr Flow records it. Each recording is
+        <h2>Stage 5 · Questionnaire</h2>
+        <p>The application questions, answered over as many calls and emails as it takes. On a call the agent walks the owner through the questions, tapping answers live; Wispr Flow records it. Each recording is
           ingested into the wiki and checked against the taps: the AI quotes the line each answer came from, hedges stay flagged, and
           a recording that disagrees with a tap is a conflict, not an overwrite. It can take several calls. Confirmed answers flow back: a corrected revenue updates Stage 1 and, if it moved enough, flags the indications for re-request.</p>
         <div className="seg" role="tablist" aria-label="Intake view">
@@ -32,7 +31,6 @@ export default function Intake({ actor, onChange, tick }) {
           ))}
         </div>
       </section>
-      <OwnerDecision actor={actor} onChange={refresh} tick={tick + local} />
       {view === 'live' && <LiveCall data={data} actor={actor} onSaved={() => setLocal((x) => x + 1)} />}
       {view === 'review' && <IntakeReview data={data} actor={actor} onChange={refresh} />}
       {view === 'app' && <Application actor={actor} onChange={refresh} tick={tick + local} embedded />}

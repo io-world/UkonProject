@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { api } from '../../api.js'
-import { StatusPill, answerText, money, show } from './shared.jsx'
+import { FilterBar, Fold, StatusPill, answerText, isAnswered, money, show, useFolds } from './shared.jsx'
 
 const fmt = (ms) => {
   const s = Math.floor(ms / 1000)
@@ -86,6 +86,13 @@ export default function LiveCall({ data, actor, onSaved }) {
     return i.type === 'multi' ? (lv.multi || []).length > 0 : String(lv.value ?? '').trim() !== ''
   }
   const asked = [...identity, ...exposure]
+  const [filter, setFilter] = useState('all')
+  const folds = useFolds()
+  const isDone = (i) => answeredLive(i) || isAnswered(i.row?.status)
+  const keep = (i) => filter === 'all' || (filter === 'answered') === !!isDone(i)
+  const fcounts = { all: asked.length, open: asked.filter((i) => !isDone(i)).length, answered: asked.filter(isDone).length }
+  const stepDone = (s) => { const ck = s.check_key && items[s.check_key]; return !ck || isAnswered(ck.row?.status) || !!(live[s.check_key]?.text) }
+  const keepStep = (s) => filter === 'all' || (filter === 'answered') === stepDone(s)
   const done = asked.filter((i) => answeredLive(i) || ['prefilled', 'confirmed'].includes(i.row?.status)).length
   const flags = asked.filter((i) => live[i.key]?.flag)
   const groups = data.groups.length ? data.groups : [...new Set(exposure.map((i) => i.group))].map((t) => ({ title: t }))
@@ -127,16 +134,19 @@ export default function LiveCall({ data, actor, onSaved }) {
 
       <div className="live-grid">
         <nav className="live-index">
-          <a href="#sec-identity">Business identity</a>
-          {groups.map((g) => <a key={g.title} href={`#g-${g.title}`}>{g.title}</a>)}
-          <a href="#sec-walk">Walking through the numbers</a>
+          <a href="#sec-identity" onClick={() => folds.open('sec-identity')}>Business identity</a>
+          {groups.map((g) => <a key={g.title} href={`#g-${g.title}`} onClick={() => folds.open(`g-${g.title}`)}>{g.title}</a>)}
+          <a href="#sec-walk" onClick={() => folds.open('sec-walk')}>Walking through the numbers</a>
         </nav>
 
         <main className="live-main">
-          <section id="sec-identity">
-            <h3>Section 0 · Business identity</h3>
+          <FilterBar value={filter} onChange={setFilter} counts={fcounts}
+                     onAll={(o) => folds.all(['sec-identity', ...groups.map((g) => `g-${g.title}`), 'sec-walk'], o)} />
+          {(filter === 'all' || identity.some(keep)) && <Fold id="sec-identity" title="Business identity" sub="Section 0" open={folds.isOpen('sec-identity')}
+                onToggle={() => folds.toggle('sec-identity')} open_n={identity.filter((i) => !isDone(i)).length}
+                done_n={identity.filter(isDone).length} empty={identity.filter(keep).length ? null : 'Nothing to show with this filter.'}>
             <p className="muted small">Stage 1 already has these. Confirm them, or type the correction (it updates Stage 1, logged).</p>
-            {identity.map((it) => {
+            {identity.filter(keep).map((it) => {
               const lv = live[it.key] || {}
               const pre = it.prefill || {}
               const shown = it.key === 'revenue' ? money(pre.value) : show(pre.value)
@@ -160,14 +170,15 @@ export default function LiveCall({ data, actor, onSaved }) {
                 </div>
               )
             })}
-          </section>
+          </Fold>}
 
-          <section>
-            <h3>Section 1 · Exposure questions</h3>
-            {groups.map((g) => (
-              <div key={g.title} id={`g-${g.title}`} className="lgroup">
-                <h4>{g.title} {g.feeds && <span className="muted small">· feeds {g.feeds}</span>}</h4>
-                {exposure.filter((i) => i.group === g.title).map((it) => {
+          <h3 className="section-h">Section 1 · Exposure questions</h3>
+            {groups.map((g) => { const gi = exposure.filter((i) => i.group === g.title); if (filter !== 'all' && !gi.some(keep)) return null; return (
+              <Fold key={g.title} id={`g-${g.title}`} title={g.title} sub={g.feeds ? `feeds ${g.feeds}` : null}
+                    open={folds.isOpen(`g-${g.title}`)} onToggle={() => folds.toggle(`g-${g.title}`)}
+                    open_n={gi.filter((i) => !isDone(i)).length} done_n={gi.filter(isDone).length}
+                    empty={gi.filter(keep).length ? null : 'Nothing to show with this filter.'}>
+                {gi.filter(keep).map((it) => {
                   const lv = live[it.key] || {}
                   const multi = lv.multi || []
                   const setMulti = (o) => {
@@ -211,15 +222,16 @@ export default function LiveCall({ data, actor, onSaved }) {
                     </div>
                   )
                 })}
-              </div>
-            ))}
-          </section>
+              </Fold>
+            ) })}
 
-          <section id="sec-walk">
-            <h3>Section 2 · Walking through the numbers</h3>
+          {(filter === 'all' || data.steps.some(keepStep)) && <Fold id="sec-walk" title="Walking through the numbers" sub="Section 2" open={folds.isOpen('sec-walk')}
+                onToggle={() => folds.toggle('sec-walk')} open_n={data.steps.filter((x) => !stepDone(x)).length}
+                done_n={data.steps.filter((x) => x.check_key && stepDone(x)).length}
+                empty={data.steps.filter(keepStep).length ? null : 'Nothing to show with this filter.'}>
             <p className="muted small">Read figures from the report; never estimate one on the call. Highlighted text is the client's
               own answer or a figure from the database; grey labels are figures the prototype doesn't model yet.</p>
-            {data.steps.map((s) => {
+            {data.steps.filter(keepStep).map((s) => {
               const ck = s.check_key && items[s.check_key]
               const lv = (ck && live[s.check_key]) || {}
               return (
@@ -248,7 +260,8 @@ export default function LiveCall({ data, actor, onSaved }) {
                 </div>
               )
             })}
-          </section>
+          </Fold>}
+          {filter !== 'all' && fcounts[filter] === 0 && <p className="muted small">{filter === 'open' ? 'Every question has an answer.' : 'Nothing answered yet.'}</p>}
         </main>
 
         <aside className="live-rail">

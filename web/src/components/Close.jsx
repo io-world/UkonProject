@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api, money, when } from '../api.js'
+import OwnerDecision from './OwnerDecision.jsx'
 
 const fmt = (v) => (typeof v === 'number' ? money(v) : v == null ? '—' : String(v))
 const day = (s) => (s ? new Date(s + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—')
@@ -20,9 +21,9 @@ function QuoteStep({ d, actor, run }) {
   const [note, setNote] = useState('')
   if (!q) {
     return (
-      <Step n={1} title="Firm quote in" sub="After the signed application goes to the carrier, its firm quote comes back. It's taken in like an indication: kept as received, every figure checked against the document, compared with the indication.">
+      <Step n={2} title="Firm quote in" sub="After the signed application goes to the carrier, its firm quote comes back. It's taken in like an indication: kept as received, every figure checked against the document, compared with the indication.">
         {!d.present || d.present.decision !== 'chose'
-          ? <p className="small muted">Waiting on Stage 5: record which option the owner chose.</p>
+          ? <p className="small muted">Waiting on step 1: record which option the owner chose.</p>
           : d.inbox.length === 0
             ? <p className="small muted">Waiting on {d.present.carrier}'s firm quote for {d.present.option_label}.</p>
             : <ul className="received">{d.inbox.map((p) => (
@@ -33,7 +34,7 @@ function QuoteStep({ d, actor, run }) {
   }
   const ind = q.indication
   return (
-    <Step n={1} title="Firm quote in" done={['verified', 'confirmed'].includes(q.review)}>
+    <Step n={2} title="Firm quote in" done={['verified', 'confirmed'].includes(q.review)}>
       <div className="row small">
         <b>{q.carrier}</b><span>{q.option_label}</span><span className="muted">quote {q.reference} · {day(q.doc_date)} · valid to {day(q.expires_on)}</span>
         {q.review === 'verified' && <span className="chip ok">Every figure found in the PDF</span>}
@@ -81,7 +82,7 @@ function FinalStep({ d, actor, run }) {
   const f = d.final
   const ready = q && ['verified', 'confirmed'].includes(q.review)
   return (
-    <Step n={2} title="Present final terms" done={f?.decision === 'accepted'}
+    <Step n={3} title="Present final terms" done={f?.decision === 'accepted'}
           sub="What changed since the proposal pack, and what the owner must do to bind. The owner accepts, or declines with a reason.">
       {!ready ? <p className="small muted">Waiting on a checked firm quote.</p> : (
         <>
@@ -137,7 +138,7 @@ function Condition({ c, actor, run, locked }) {
 function BindStep({ d, actor, run }) {
   const b = d.binder
   return (
-    <Step n={3} title="Bind" done={!!b} sub="Every before-binding condition marked met with evidence, the application complete and signed, the owner's yes. Then the carrier binds: coverage is in force.">
+    <Step n={4} title="Bind" done={!!b} sub="Every before-binding condition marked met with evidence, the application complete and signed, the owner's yes. Then the carrier binds: coverage is in force.">
       {!d.quote ? <p className="small muted">Waiting on the firm quote.</p> : (
         <>
           <ul className="bconds">{d.conditions.map((c) => <Condition key={c.id} c={c} actor={actor} run={run} locked={!!b && c.timing === 'before'} />)}</ul>
@@ -252,7 +253,7 @@ function AfterBind({ p }) {
 function Reports({ d }) {
   const [view, setView] = useState('client')
   return (
-    <Step n={4} title="Report" done={!!d.binder} sub="One for the client, one for the agency and UKON, and the plan after bind.">
+    <Step n={5} title="Report" done={!!d.binder} sub="One for the client, one for the agency and UKON, and the plan after bind.">
       <div className="seg small-seg">
         {[['client', 'Client summary'], ['deal', 'Deal record (agency + UKON)'], ['plan', 'After bind: 30-60-90 + the year']].map(([k, l]) => (
           <button key={k} className={view === k ? 'on' : ''} onClick={() => setView(k)}>{l}</button>))}
@@ -279,13 +280,14 @@ export default function Close({ actor, onChange, tick }) {
   return (
     <div className="stack">
       <section className="intro">
-        <h2>Stage 6 · Final terms, bind, report</h2>
-        <p>The signed application goes to the carrier and a firm quote comes back. It can differ from the indication, so it's
+        <h2>Stage 6 · Decision, bind, report</h2>
+        <p>The agent presents the proposal pack and records the owner's choice, or "not now" with the reason. The signed
+          application goes to the carrier for that option and a firm quote comes back. It can differ from the indication, so it's
           compared line by line and presented again. The owner accepts, the carrier's before-binding conditions are met with
           evidence, and the policy is bound. Then the reports: a plain summary for the client, a deal record for the agency
           and UKON, and the plan for the year after bind.</p>
       </section>
-      {lost && <div className="card"><b>Closed at presentation: {d.present.reason_label}.</b> {d.present.note && `“${d.present.note}”`} The deal record below keeps the reason.</div>}
+      <OwnerDecision actor={actor} onChange={() => { setLocal((x) => x + 1); onChange() }} tick={tick + local} locked={!!d.quote} />
       {!lost && <>
         <QuoteStep d={d} actor={actor} run={run} />
         <FinalStep d={d} actor={actor} run={run} />

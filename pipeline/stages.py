@@ -2,15 +2,16 @@
 
 UKON's brief lists four stages. Its Stage 1 ("get indications") hides two jobs with different owners and
 failure modes, so the prototype splits it; its Stage 4 ("present, apply, bind") is split the same way, so
-the questionnaire and the close each get their own screen:
+the questionnaire and the close each get their own screen. The owner's choice of option sits at the start of
+Stage 6: the questionnaire usually takes several calls and emails, and asking it doesn't depend on which carrier wins:
 
   #  key          name                      UKON stage   done when
   1  confirm      Confirm data              1 (part 1)   entity confirmed and the five fields reviewed
   2  indications  Get indications           1 (part 2)   at least one written, checked indication is in
   3  proposal     Client proposal pack      2            a pack version has been submitted (locked)
   4  agent_kit    Equip the agent           3            the pack has been sent to the client
-  5  apply_bind   Present and apply         4 (part 1)   owner chose an option and every application answer is confirmed
-  6  close        Final terms, bind, report 4 (part 2)   bound (binder recorded; the carrier side is simulated), or lost
+  5  apply_bind   Questionnaire             4 (part 1)   every application answer is confirmed (calls and emails)
+  6  close        Decision, bind, report    4 (part 2)   owner's choice → firm quote → bound (simulated), or lost with a reason
 
 Status per stage: 'done', 'attention' (something needs a person), 'active' (in progress) or 'todo'.
 """
@@ -21,8 +22,8 @@ STAGES = [
     {"n": 2, "key": "indications", "label": "Get indications", "sub": "Send to carriers · replies in", "ukon": "1b"},
     {"n": 3, "key": "proposal", "label": "Proposal pack", "sub": "Plain-language pack for the owner", "ukon": "2"},
     {"n": 4, "key": "agent_kit", "label": "Equip the agent", "sub": "Pitch · objections · specimens", "ukon": "3"},
-    {"n": 5, "key": "apply_bind", "label": "Present and apply", "sub": "Option chosen · application", "ukon": "4a"},
-    {"n": 6, "key": "close", "label": "Final terms, bind, report", "sub": "Firm quote · bind · 30-60-90", "ukon": "4b"},
+    {"n": 5, "key": "apply_bind", "label": "Questionnaire", "sub": "Calls · emails · application", "ukon": "4a"},
+    {"n": 6, "key": "close", "label": "Decision, bind, report", "sub": "Choice · firm quote · bind · 30-60-90", "ukon": "4b"},
 ]
 
 
@@ -43,6 +44,7 @@ def derive(conn, cid: int) -> dict:
     calls = _one(conn, "SELECT count(*) FROM intake_calls WHERE client_id=%s", (cid,))
     app_total = _one(conn, "SELECT count(*) FROM application_answers WHERE client_id=%s", (cid,))
     app_open = _one(conn, "SELECT count(*) FROM application_answers WHERE client_id=%s AND status<>'confirmed'", (cid,))
+    app_unans = _one(conn, "SELECT count(*) FROM application_answers WHERE client_id=%s AND status IN ('needs_followup','unanswered')", (cid,))
 
     s = {}
     s["confirm"] = ("done", "Five fields reviewed") if to_review == 0 else ("attention", f"{to_review} to review")
@@ -73,21 +75,19 @@ def derive(conn, cid: int) -> dict:
     binder = conn.execute("SELECT policy_number FROM binders WHERE client_id=%s", (cid,)).fetchone()
     quote = conn.execute("SELECT review FROM firm_quotes WHERE client_id=%s ORDER BY id DESC LIMIT 1", (cid,)).fetchone()
     from .bind import REASONS
-    if present and present["decision"] == "not_now":
-        s["apply_bind"] = ("done", f"Not now: {REASONS[present['reason']].lower()}")
-    elif app_total and not app_open and present:
+    if app_total and not app_open:
         s["apply_bind"] = ("done", "Application ready to sign")
-    elif app_total and not app_open:
-        s["apply_bind"] = ("attention", "Record the owner's choice")
+    elif present and present["decision"] == "not_now":
+        s["apply_bind"] = ("done", "Stopped: owner said not now")
     elif calls:
-        s["apply_bind"] = ("active", f"{calls} call{'s' if calls != 1 else ''} · {app_open} answers to confirm")
+        s["apply_bind"] = ("active", f"{calls} calls/emails · {app_unans} open · {app_open - app_unans} to confirm")
     else:
         s["apply_bind"] = ("todo", "No call yet")
 
     if binder:
         s["close"] = ("done", f"Bound · {binder['policy_number']}")
     elif present and present["decision"] == "not_now":
-        s["close"] = ("done", "Closed: not now")
+        s["close"] = ("done", f"Not now: {REASONS[present['reason']].lower()}")
     elif final and final["decision"] == "declined":
         s["close"] = ("done", f"Declined: {REASONS[final['reason']].lower()}")
     elif quote:
@@ -95,7 +95,7 @@ def derive(conn, cid: int) -> dict:
     elif present:
         s["close"] = ("active", "Waiting on the firm quote")
     else:
-        s["close"] = ("todo", "After the application")
+        s["close"] = ("active" if app_total and not app_open else "todo", "Owner's choice first")
 
     out = [st | {"status": s[st["key"]][0], "note": s[st["key"]][1]} for st in STAGES]
     current = next((st["key"] for st in out if st["status"] != "done"), "close")

@@ -4,9 +4,9 @@ Randy Hesse's prototype for UKON's final interview round (product role; panel: C
 Hightower, David, execs, engineers). One real client (Sloan's Lake Dental / Sage Dentistry, PLLC, Denver: public data only; agency, calls, carriers simulated),
 taken end to end through **six stages** (UKON's four, with its Stages 1 and 4 each split in two; `pipeline/stages.py`):
 1 confirm data (five fields) → 2 get indications (send to carriers, gated on 1; replies in, versioned) → 3 client proposal
-pack (HTML, cited research) → 4 equip the agent (brief) → 5 present and apply (owner's decision, calls with human in
-the loop, application) → 6 final terms, bind, report (firm quote checked vs indication, conditions, bind simulated,
-client summary, deal record, 30-60-90 after bind). Read `docs/00-brief.md` for the assignment and
+pack (HTML, cited research) → 4 equip the agent (brief) → 5 questionnaire (several calls and emails, human in the loop,
+application) → 6 decision, bind, report (owner's choice or "not now" + reason, firm quote checked vs indication,
+conditions, bind simulated, client summary, deal record, 30-60-90 after bind). Read `docs/00-brief.md` for the assignment and
 `docs/decisions.md` for why things are the way they are.
 
 ## Non-negotiable rules
@@ -36,9 +36,9 @@ client summary, deal record, 30-60-90 after bind). Read `docs/00-brief.md` for t
 uv sync                                          # Python env + bundled Postgres (pgserver) in .venv
 scripts/db.sh init                               # first time: Postgres cluster in db/pgdata, port 5433
 scripts/db.sh start | stop | status | psql
-uv run python -m pipeline.run_all                # reset DB: Stage 1 fields, Stage 2 indications (3 carriers), Stage 5 call 1 (early), Stage 3 pack v1
+uv run python -m pipeline.run_all                # reset DB: Stage 1 fields, Stage 2 indications (3 carriers), Stage 5 call 1 (early), Stage 3 pack v1, Stage 5 call 2 + email 1
 uv run python -m pipeline.indications <reply.pdf|.md>     # ingest a carrier reply (versions, diff, actions)
-uv run python -m pipeline.intake_ingest <transcript.md>   # add another intake call (merges)
+uv run python -m pipeline.intake_ingest <call_N|email_N.md>   # add another call or email to the questionnaire (merges)
 uv run python -m pipeline.bind <quote.pdf>               # take in a firm quote (Stage 6; owner must have chosen an option)
 uv run python -m pipeline.refresh_pack           # rebuild reports/sloanslake/current.html
 uv run uvicorn api.main:app --port 8000 --reload # terminal 1: backend (also serves web/dist)
@@ -54,10 +54,10 @@ cd web && uv run npm run build                   # refresh web/dist
 - `pipeline/` — `stages.py` (the six stages + derived status), estimators (no LLM), entity resolution (Stage 1),
   carrier exchange (`indications.py`, `indication_extract.py`; Stage 2), narrative + report versions (`stage3_proposal.py`,
   `report.py`; Stage 3), Stage 5 calls (`intake.py` rules, `intake_ingest.py` per call),
-  Stage 5 decision + Stage 6 (`bind.py`: firm quote, conditions, bind, reports, after-bind plan).
+  Stage 6 (`bind.py`: owner's choice, firm quote, conditions, bind, reports, after-bind plan).
 - `api/` — FastAPI + "Ask about this client" (read-only) + Stage 4's "Ask the wiki" chat (`api/chat.py`: wiki first,
   web search only if the wiki doesn't cover it; the answer's source label comes from the tools that ran).
-- `web/` — React + Vite workbench: one tab per stage (`Enrichment`, `Indications`, `ReportTab`, `Brief`, `Intake` + `OwnerDecision`, `Close`) + audit.
+- `web/` — React + Vite workbench: one tab per stage (`Enrichment`, `Indications`, `ReportTab`, `Brief`, `Intake`, `Close` + `OwnerDecision`) + audit.
 - `reports/` — generated HTML client packs: `current.html` (working draft), `v<N>.html` (submitted, immutable).
 - `.claude/skills/` — `client-ingest`, `indication-ingest` (carrier replies), `call-ingest` (Wispr Flow intake), `client-research` (web), `client-ask`.
 - `docs/` — brief, decisions, workflow, client intake script, proposal pack, MVP scope,

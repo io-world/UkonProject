@@ -29,6 +29,7 @@ Activity history: [[log]].
 - [[raw/sloanslake/ams_export|AMS export]] — SIMULATED agency record: no revenue, no headcount
 - [[raw/sloanslake/call_1_intake|Intake call 1]] — SIMULATED; owner (role); revenue left to the accountant; one coverage question for a CPL
 - [[raw/sloanslake/call_2_followup|Intake call 2]] — SIMULATED; office manager (role); closes MFA and EDR, backups still open
+- [[raw/sloanslake/email_1_office_manager|Email 1 from the office manager]] — SIMULATED; revenue $2.52M per the accountant, encryption, no California patients, BOP breach endorsement (~$50K, hedged), callback on bank changes
 
 ## Carrier replies — Sloan's Lake (SIMULATED: fictional carriers, real insured)
 - [[raw/sloanslake/indications/2026-10-27_northwind_indication.pdf|Northwind letter, Oct 27]] — $1M $2,980 · $2M $4,720
@@ -36,7 +37,7 @@ Activity history: [[log]].
 - [[raw/sloanslake/indications/2026-10-28_ridgeline_underwriter_call|Ridgeline underwriter call, Oct 28]] — verbal "around twenty-six hundred"; $2M declined
 - [[raw/sloanslake/indications/2026-10-30_ridgeline_indication.pdf|Ridgeline letter, Oct 30]] — $1M $2,590 in writing; $2M declined
 - [[raw/sloanslake/indications/2026-11-06_northwind_indication_revised.pdf|Northwind revised letter, Nov 6]] — +10%, adds EDR (demo: ingest live)
-- [[raw/sloanslake/quotes/2026-12-03_northwind_firm_quote.pdf|Northwind firm quote, Dec 3]] — Stage 6: $1M $3,410 after the signed application; 2 before-binding conditions, phishing training within 60 days (FICTIONAL)
+- [[raw/sloanslake/quotes/2026-12-03_northwind_firm_quote.pdf|Northwind firm quote, Dec 3]] — Stage 6: $1M $3,410 after the signed application (revenue $2.52M, no phishing training, backups untested); 2 before-binding conditions, phishing training within 60 days (FICTIONAL)
 
 ## Intake
 - [[raw/intake/intake_questions|Intake question bank]] — drives the call screen, extraction and the intake page
@@ -60,4 +61,6 @@ Activity history: [[log]].
 - [[raw/_cache/narrative_sloanslake|Report narrative]]
 - [[raw/_cache/call_extraction_sloanslake_call_1_intake|Extraction — intake call 1]]
 - [[raw/_cache/call_extraction_sloanslake_call_2_followup|Extraction — intake call 2]]
+- [[raw/_cache/call_extraction_sloanslake_email_1_office_manager|Extraction — email 1]]
+- [[raw/_cache/quote_extraction_sloanslake_2026-12-03_northwind_firm_quote|Extraction — Northwind firm quote]]
 - Carrier reply extractions: `raw/_cache/indication_extraction_sloanslake_*` (one per reply)

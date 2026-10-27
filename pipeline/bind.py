@@ -1,7 +1,7 @@
-"""Stage 5's decision and Stage 6 — final terms, bind, report.
+"""Stage 6 — decision, bind, report.
 
-Stage 5 opens with the owner's decision on the proposal pack: which option, or "not now" and why.
-Stage 6 closes the deal:
+Stage 6 opens with the owner's decision on the proposal pack: which option, or "not now" and why (the
+questionnaire in Stage 5 doesn't depend on it). Then it closes the deal:
   1. Firm quote in   the carrier's firm quote is a raw source (wiki/raw/<slug>/quotes/), extracted by the model
                      (or its cached output), every figure and date checked against the text, and compared with
                      the written indication it follows. Carrier values are locked (DB trigger).
@@ -39,7 +39,7 @@ def _iso(d):
     return d.isoformat() if isinstance(d, date) else d
 
 
-# --- decisions (Stage 5 present, Stage 6 final) ---------------------------------------------
+# --- decisions (Stage 6: on the proposal, then on the firm quote) ---------------------------------------------
 
 def decide(conn, cid: int, actor_id: int, stage: str, decision: str, carrier: str | None = None,
            tier: str | None = None, reason: str | None = None, note: str | None = None,
@@ -137,7 +137,7 @@ def ingest_quote(conn, cid: int, path: str | Path, actor_id: int) -> dict:
     c = conn.execute("SELECT * FROM clients WHERE id=%s", (cid,)).fetchone()
     chosen = latest_decision(conn, cid, "present")
     if not chosen or chosen["decision"] != "chose":
-        raise ValueError("Record which option the owner chose (Stage 5) before taking in a firm quote")
+        raise ValueError("Record which option the owner chose (Stage 6, step 1) before taking in a firm quote")
     legal = conn.execute("SELECT current_value FROM fields WHERE client_id=%s AND key='legal_name'", (cid,)).fetchone()
     names = [n for n in [legal and legal["current_value"], c["display_name"]] if n]
 
@@ -452,7 +452,7 @@ def render_wiki(conn, cid: int) -> str:
     s = state(conn, cid)
     out = ["---", "type: client-bind", "generated: true", f"client_id: {cid}", "---", "",
            f"# {c['display_name']} — decision, final terms, bind", "",
-           "> [!warning] Generated page — do not edit in Obsidian", "> Rendered from the database after every Stage 5/6 change.", ""]
+           "> [!warning] Generated page — do not edit in Obsidian", "> Rendered from the database after every Stage 6 change.", ""]
     for label, d in (("Presentation", s["present"]), ("Final terms", s["final"])):
         if d:
             out.append(f"- **{label}:** {d['decision']}" + (f" — {d['carrier']} {d['option_label']}" if d["carrier"] else "")

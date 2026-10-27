@@ -597,7 +597,7 @@ def intake_view(slug: str):
             "value": f["current_value"], "confidence": f["confidence"], "method": f["method"],
             "needs_review": f["needs_review"]}})
     ingested = {c["call_ref"] for c in calls}
-    transcripts = sorted(p.name for p in (RAW / slug).glob("call_*.md"))
+    transcripts = sorted(p.name for pat in ("call_*.md", "email_*.md") for p in (RAW / slug).glob(pat))
     return {"items": items, "groups": read_source(RAW / "intake" / "intake_questions.md").get("groups", []),
             "steps": read_source(RAW / "intake" / "walkthrough_script.md")["steps"],
             "escalations": esc, "calls": calls, "figures": figures,
@@ -669,7 +669,7 @@ def intake_ingest_call(slug: str, body: IngestCall):
     from Wispr Flow). Runs the same pipeline as the command line."""
     name = Path(body.transcript).name
     path = RAW / slug / name
-    if not path.exists() or not name.startswith("call_"):
+    if not path.exists() or not name.startswith(("call_", "email_")):
         raise HTTPException(404, f"no transcript {name} in wiki/raw/{slug}/")
     try:
         return intake_ingest.run(slug, str(path))

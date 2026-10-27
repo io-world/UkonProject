@@ -218,7 +218,8 @@ def run(slug: str = CLIENT_SLUG, transcript_path: str | None = None) -> dict:
     if not path.is_absolute() and not path.exists():
         path = RAW / slug / path.name
     transcript = path.read_text()
-    call_ref = path.stem if path.stem.startswith("call_") else f"call_{path.stem}"
+    # Calls (Wispr Flow transcripts) and emails both feed the same questions; the file name says which it was.
+    call_ref = path.stem if path.stem.startswith(("call_", "email_")) else f"call_{path.stem}"
     dest = RAW / slug / f"{call_ref}.md"
     if not dest.exists():                       # transcripts become immutable wiki sources
         dest.write_text(transcript)
