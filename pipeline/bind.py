@@ -244,8 +244,7 @@ def review_quote(conn, cid: int, actor_id: int, decision: str, note: str | None)
 # --- bind ------------------------------------------------------------------------------------
 
 def set_condition(conn, cid: int, cond_id: int, actor_id: int, met: bool, evidence: str | None) -> dict:
-    if met and not (evidence or "").strip():
-        raise ValueError("Say what shows it's met (e.g. 'MSP screenshot of MFA policy, emailed 12/8')")
+    # Proof is optional: who and when are always logged; a note on what showed it is met is encouraged.
     if conn.execute("SELECT 1 FROM binders WHERE client_id=%s", (cid,)).fetchone():
         b = conn.execute("SELECT timing FROM bind_conditions WHERE id=%s", (cond_id,)).fetchone()
         if b and b["timing"] == "before":

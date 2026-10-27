@@ -115,22 +115,23 @@ function FinalStep({ d, actor, run }) {
 }
 
 function Condition({ c, actor, run, locked }) {
-  const [ev, setEv] = useState('')
+  const [ev, setEv] = useState(c.evidence || '')
+  const met = c.status === 'met'
   const [lbl, tone] = COND[c.intake_status] || ['—', 'mid']
   return (
     <li className={`bcond ${c.status}`}>
       <div className="row">
-        <span className={`chip ${c.status === 'met' ? 'ok' : 'mid'}`}>{c.status === 'met' ? 'Met' : c.timing === 'before' ? 'Before binding' : `Due day ${c.due_days}`}</span>
         <span className="grow">{c.text}</span>
+        <div className="seg small-seg" role="group" aria-label="Condition met?">
+          <button className={met ? 'on' : ''} disabled={locked} onClick={() => !met && run(() => api.setCondition(c.id, true, ev || null, actor))}>Met</button>
+          <button className={!met ? 'on' : ''} disabled={locked} onClick={() => met && run(() => api.setCondition(c.id, false, null, actor))}>Not yet</button>
+        </div>
       </div>
-      <div className="small muted">When the quote arrived, the application said: <span className={`chip ${tone}`}>{lbl}</span></div>
-      {c.status === 'met'
-        ? <div className="small">Evidence: {c.evidence} <span className="muted">· {c.met_by_name}, {when(c.met_at)}</span>
-            {!locked && <button className="link" style={{ marginLeft: 8 }} onClick={() => run(() => api.setCondition(c.id, false, null, actor))}>Reopen</button>}</div>
-        : <div className="row">
-            <input className="grow" placeholder="What shows it's met? (e.g. IT provider's MFA report, emailed 12/8)" value={ev} onChange={(e) => setEv(e.target.value)} />
-            <button className="btn sm" disabled={!ev.trim()} onClick={() => run(() => api.setCondition(c.id, true, ev, actor))}>Mark met</button>
-          </div>}
+      <div className="small muted">{c.timing === 'before' ? 'Before binding' : `Within ${c.due_days} days after binding`} · the application said: <span className={`chip ${tone}`}>{lbl}</span>
+        {met && <> · marked met by {c.met_by_name}, {when(c.met_at)}</>}</div>
+      {met
+        ? (c.evidence && <div className="small">Proof: {c.evidence}</div>)
+        : <input className="grow" placeholder="Proof (optional), e.g. IT provider's MFA report, emailed 12/8" value={ev} onChange={(e) => setEv(e.target.value)} />}
     </li>
   )
 }
@@ -138,7 +139,7 @@ function Condition({ c, actor, run, locked }) {
 function BindStep({ d, actor, run }) {
   const b = d.binder
   return (
-    <Step n={4} title="Bind" done={!!b} sub="Every before-binding condition marked met with evidence, the application complete and signed, the owner's yes. Then the carrier binds: coverage is in force.">
+    <Step n={4} title="Bind" done={!!b} sub="Binding is when coverage starts. The carrier binds once its conditions are met and the owner has said yes; simulated here.">
       {!d.quote ? <p className="small muted">Waiting on the firm quote.</p> : (
         <>
           <ul className="bconds">{d.conditions.map((c) => <Condition key={c.id} c={c} actor={actor} run={run} locked={!!b && c.timing === 'before'} />)}</ul>
