@@ -147,15 +147,15 @@ footer.foot .wrap{display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space
     <p>I prototyped <strong>UKON's Stage 1, getting a client indication-ready</strong>, because it's the gate: nothing downstream happens if the five fields have to be hand-collected. I then carried one real client, Sloan's Lake Dental, through the later stages using only its public data to show where that output goes. In the app I split that stage into <strong>confirm data</strong> and <strong>get indications</strong>, so a person approves before client data goes to carriers, and I moved the detailed security questions after the owner has seen a price, into a questionnaire stage of their own, with the owner's decision, firm quote, bind and after-bind plan as the last stage: six stages for UKON's four. The one rule underneath it all: <strong>the database owns the numbers; the wiki owns the evidence.</strong> AI reads, extracts and explains; it never writes a figure a client sees.</p>
 
     <h2>Key assumptions</h2>
-    <ul>
-      <li>Agencies can export renewals and client records from their agency system (name, address, email domain, workers' comp headcount or payroll).</li>
-      <li>Carriers will price an indication from the five fields, and some may accept a revenue band.</li>
-      <li>Indications come back through a mix of APIs, portals and email.</li>
-      <li>A licensed producer presents and advises. AI drafts and explains but never advises on coverage.</li>
-      <li>Owners will do a 10-minute call or answer a short link, but won't read a long form.</li>
-      <li>Headcount stands in for full-time staff and email accounts until confirmed on the call.</li>
-      <li>In the prototype: the client is a real Denver dental practice and everything public about it is real (state registry, NPI, website, DNS); the agency, the calls and the carriers are simulated; the benchmarks and news items are real and cited.</li>
-    </ul>
+    <ol>
+      <li>The renewal window is missed mainly because of manual work. Being tested first, not taken as given.</li>
+      <li>Owners will buy if it's presented well; price and "already covered" don't block most of them.</li>
+      <li>Agents will offer it if the manual work disappears or is minimized, even though the commission is small.</li>
+      <li>Carriers want more small-business cyber and price it from five fields; their process is assumed, simulated with fictional carriers.</li>
+      <li>Agencies will share their client data with UKON.</li>
+      <li>AI is right often enough that checking it beats doing the work by hand.</li>
+      <li>Today the stages mostly run by hand, with little data collected; email and documents are the trail.</li>
+    </ol>
 
     <h2>How I'd measure success</h2>
     <div class="north"><span class="big">Agent minutes per bound policy</span><span class="pill plain">North star</span></div>
