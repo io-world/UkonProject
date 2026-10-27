@@ -136,202 +136,108 @@ footer.foot .wrap{display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space
 .changes{margin-top:12px;font-size:.86rem;background:var(--wash);border-radius:8px;padding:10px 12px}
 .changes b{font-weight:600}
 </style>
+<style>
+.themes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:860px){.themes{grid-template-columns:1fr}}
+.th{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;border-radius:6px;font-size:.7rem;font-weight:700;margin-right:6px;vertical-align:1px}
+.th.a{background:var(--ai-bg);color:var(--ai)} .th.b{background:var(--hu-bg);color:var(--amber)} .th.c{background:var(--red-bg);color:var(--red)}
+.qs li{list-style:none;margin:9px 0 9px -22px;display:grid;grid-template-columns:auto 1fr;gap:4px 0;align-items:start}
+.qs .learn{grid-column:2;font-size:.82rem;color:var(--muted)}
+.ask{columns:2;column-gap:28px} .ask li{break-inside:avoid;margin:6px 0}
+@media (max-width:760px){.ask{columns:1}}
+.top15 td{vertical-align:top}.top15 .num{font-weight:700;color:var(--muted);width:28px}.top15 .who{white-space:nowrap;font-weight:600;font-size:.85rem}
+@media (max-width:640px){.top15 .who{white-space:normal}}
+.top15 .src{margin:8px 0 0;padding-left:18px;font-size:.8rem;color:var(--muted)}.top15 .src li{margin:4px 0}.top15 .src .caveat{list-style:none;margin-left:-18px;font-style:italic}
+.rule{font-family:var(--serif);font-size:1.15rem;line-height:1.5}
+</style>
 <main class="wrap">
   <div class="hero">
     <span class="eyebrow">Deliverable 01</span>
     <h1>Interview plan</h1>
-    <p class="lede">Who I'd talk to before building, why, and the questions I'd most want answered. Each group ends with what its answers would change in the design, because an interview that can't change the build isn't worth scheduling yet.</p>
+    <p class="lede">Who I'd talk to at UKON before building, and what I'd ask. The rule for every question: <b>only ask what only UKON can answer.</b> Anything I can learn from the web, a carrier's public application or an AI isn't worth an interview slot. What's left is how the work actually moves today, UKON's own numbers, and the stories behind them.</p>
   </div>
 
   <section class="block">
+    <h2>Three things I don't know yet</h2>
+    <p class="sub">Every question below is tagged with the gap it closes.</p>
+    <div class="themes mt">
+      <div class="card"><span class="th a">A</span><b>How the work actually moves today</b><p class="small" style="margin-top:6px">Who does what, in which system, in what order, between the agency, UKON and each carrier. The prototype assumes a lot here: how indications are requested and come back, what agents send, where time goes.</p></div>
+      <div class="card"><span class="th b">B</span><b>What happens after a policy is bound</b><p class="small" style="margin-top:6px">Who owns the client for the policy year, whether anyone checks security mid-term, what happens at an incident, and how the cyber policy's own renewal runs.</p></div>
+      <div class="card"><span class="th c">C</span><b>Why the renewal window is missed</b><p class="small" style="margin-top:6px">Matt's brief says it's manual work and agents not raising cyber. Outside research points to other causes too: price, owners who think another policy covers them, carriers declining over missing controls. Which is true <i>for UKON</i> decides what to build first.</p></div>
+    </div>
+  </section>
+
+  <section class="block">
     <h2>The order I'd run them</h2>
-    <p class="sub">Problem first, then feasibility, then the guardrails before anything touches a real client.</p>
     <div class="order mt">
-      <div class="card"><span class="n">Week 1 · Frame the problem</span><h3>Execs, CPLs, agency producers</h3><p>Where deals die, what an agent's time is worth, and why cyber doesn't get raised today.</p></div>
-      <div class="card"><span class="n">Week 2 · Test feasibility</span><h3>Ops / wholesale, carriers, agency-system vendors</h3><p>What data exists, how indications come back, and which controls carriers treat as gates.</p></div>
-      <div class="card"><span class="n">Before a pilot · Guardrails and the end customer</span><h3>Compliance / legal, business owners</h3><p>Consent and licensing lines, plus whether owners would actually take the call or answer the link.</p></div>
+      <div class="card"><span class="n">First · the problem</span><h3>Matt, then two CPLs</h3><p>Test the brief's explanation against UKON's own numbers and recent deals before anything else. Gap C first, because it decides whether this is a sales problem or a retention problem.</p></div>
+      <div class="card"><span class="n">Second · the real workflow</span><h3>CPL, Ops / submissions, agency success</h3><p>Watch a real submission go from agency to carrier and back. Replace every assumption in the prototype with what actually happens.</p></div>
+      <div class="card"><span class="n">Third · after bind</span><h3>Service / claims</h3><p>Follow a bound policy through a year, an incident and a renewal.</p></div>
     </div>
   </section>
 
   <section class="block">
-    <h2>What each group covers</h2>
-    <p class="sub">Topic coverage across the questions below. A filled dot means a group is the main source on that topic; a ring means it adds a second view.</p>
+    <h2>The questions</h2>
+    <p class="sub">In the order I'd ask them. Most are "walk me through the last one" or "show me": a real recent case beats an opinion about the average case.</p>
     <div class="card mt tablewrap">
-      <table class="matrix">
-        <thead><tr><th>Group</th><th>Economics</th><th>Data available</th><th>Workflow &amp; time</th><th>Coverage &amp; compliance</th><th>Adoption</th></tr></thead>
+      <table class="top15">
+        <thead><tr><th>#</th><th>Question</th><th>Ask</th></tr></thead>
         <tbody>
-          <tr><td><a href="#execs">UKON execs</a></td><td><i class="dot" data-tip="Main source: economics" tabindex="0"></i></td><td></td><td><i class="dot half" data-tip="Second view: workflow" tabindex="0"></i></td><td></td><td><i class="dot half" data-tip="Second view: adoption" tabindex="0"></i></td></tr>
-          <tr><td><a href="#cpl">Cyber Practice Leaders</a></td><td></td><td></td><td><i class="dot" data-tip="Main source: workflow" tabindex="0"></i></td><td><i class="dot" data-tip="Main source: coverage" tabindex="0"></i></td><td><i class="dot half" data-tip="Second view: adoption" tabindex="0"></i></td></tr>
-          <tr><td><a href="#ops">Ops / wholesale</a></td><td></td><td><i class="dot half" data-tip="Second view: data" tabindex="0"></i></td><td><i class="dot" data-tip="Main source: workflow" tabindex="0"></i></td><td></td><td></td></tr>
-          <tr><td><a href="#producers">Agency producers &amp; AMs</a></td><td><i class="dot half" data-tip="Second view: economics" tabindex="0"></i></td><td><i class="dot" data-tip="Main source: data" tabindex="0"></i></td><td><i class="dot" data-tip="Main source: workflow" tabindex="0"></i></td><td></td><td><i class="dot" data-tip="Main source: adoption" tabindex="0"></i></td></tr>
-          <tr><td><a href="#owners">Business owners</a></td><td></td><td></td><td></td><td><i class="dot half" data-tip="Second view: coverage" tabindex="0"></i></td><td><i class="dot" data-tip="Main source: adoption" tabindex="0"></i></td></tr>
-          <tr><td><a href="#carriers">Carriers / underwriters</a></td><td></td><td><i class="dot" data-tip="Main source: data" tabindex="0"></i></td><td></td><td><i class="dot" data-tip="Main source: coverage" tabindex="0"></i></td><td></td></tr>
-          <tr><td><a href="#legal">Compliance / legal</a></td><td></td><td><i class="dot half" data-tip="Second view: data" tabindex="0"></i></td><td></td><td><i class="dot" data-tip="Main source: compliance" tabindex="0"></i></td><td></td></tr>
-          <tr><td><a href="#ams">Agency-system vendors</a></td><td></td><td><i class="dot" data-tip="Main source: data" tabindex="0"></i></td><td></td><td></td><td></td></tr>
+          <tr><td class="num">1</td><td><span class="th c">C</span>You wrote that the renewal moment gets missed because it's too much manual work. What is that based on: numbers, what agents tell you, or a specific deal?</td><td class="who">Matt (CEO)</td></tr>
+          <tr><td class="num">2</td><td><span class="th c">C</span>Public research points to a few causes besides manual work: price, owners believing another policy already covers them, and carriers requiring controls like MFA before they'll quote. Which of those do you actually see at UKON?<ul class="src">
+            <li><b>Price.</b> Only 16.8% of SMEs worldwide have standalone cyber; GlobalData's lead analyst says "many smaller businesses have been priced out." <a href="https://www.insurancejournal.com/news/international/2026/06/30/875833.htm" target="_blank" rel="noreferrer">GlobalData 2025 SME Survey, 2,054 SMEs in 14 countries incl. US, via Insurance Journal, Jun 30, 2026</a>. A US broker: "it's just not something that they can afford right now." <a href="https://amp.insurancejournal.com/magazines/mag-features/2024/03/04/762505.htm" target="_blank" rel="noreferrer">Insurance Journal, Mar 4, 2024</a></li>
+            <li><b>"Already covered."</b> 35% of firms that decided against standalone cyber believe their wider commercial policy covers them; separately, 35% of firms that once had standalone cover no longer do. <a href="https://www.insuranceage.co.uk/node/7957668" target="_blank" rel="noreferrer">Coalition survey of 600 UK mid-market decision-makers, via Insurance Age, Nov 26, 2025</a></li>
+            <li><b>Carrier requirements.</b> "Most insurers have begun requiring potential policyholders to have some level of MFA to provide a cyber insurance quote." <a href="https://www.insurancetimes.co.uk/expert-views/helping-clients-adopt-mfa-as-a-critical-layer-of-cyber-security-travelers/1441515.article" target="_blank" rel="noreferrer">Travelers, in Insurance Times (c. 2022)</a></li>
+            <li class="caveat">None of this is US small-practice data; the best US evidence is a broker quote. UKON's own numbers would beat all of it.</li>
+          </ul></td><td class="who">Matt (CEO)</td></tr>
+          <tr><td class="num">3</td><td><span class="th c">C</span>When a cyber policy doesn't renew, or a quote doesn't bind, is a postmortem done that tells you exactly why? Can I see the list or the reasons?</td><td class="who">Matt, then Ops for the data</td></tr>
+          <tr><td class="num">4</td><td><span class="th a">A</span>As a wholesaler, what does UKON actually own? Who holds the client relationship, who has authority to quote and bind, and who prices the risk? Is anyone at UKON pricing or underwriting, or does every number come from the carrier? And how do UKON and the agent get paid?</td><td class="who">Matt (CEO)</td></tr>
+          <tr><td class="num">5</td><td><span class="th a">A</span>Here's the workflow I built in five stages: confirm the client's data, get indications from carriers, build the proposal pack, equip the agent, then present, apply and bind. Where is it wrong? At each stage, who hands what to whom: agent, UKON, carrier, client?</td><td class="who">CPL, with Ops in the room</td></tr>
+          <tr><td class="num">6</td><td><span class="th a">A</span>Walk me through three recent deals: one that bound, one that stalled and one that died. Who did what, when, and in which tool? Can I see what the agent sent you at the start, redacted?</td><td class="who">CPL</td></tr>
+          <tr><td class="num">7</td><td><span class="th c">C</span>Tell me about the last client who said no. What reason did they give, and what do you think the real reason was?</td><td class="who">CPL</td></tr>
+          <tr><td class="num">8</td><td><span class="th a">A</span>For each carrier you use for small-business cyber, how do you request an indication, how does it come back (portal, email, PDF, API or phone), and how long does it take? Can you show me one on screen, including what gets typed twice?</td><td class="who">Ops / submissions</td></tr>
+          <tr><td class="num">9</td><td><span class="th a">A</span>Walk me through how one of your agencies runs a renewal at 120, 90, 60 and 30 days out. Who does what, and what can UKON see from the agency's system?</td><td class="who">Agency success</td></tr>
+          <tr><td class="num">10</td><td><span class="th b">B</span>Once a policy is bound, what are the touchpoints during the year that make the renewal easier, and who owns each one: the agent, UKON or the carrier? Do any carriers monitor the client's security mid-term, and does UKON or the agent ever see those alerts?</td><td class="who">Service / account management</td></tr>
+          <tr><td class="num">11</td><td><span class="th b">B</span>Walk me through the last incident a UKON client reported, and any claim that was disputed. Was it because the application didn't match what was really in place?<ul class="src"><li>Real example: Travelers sued to rescind a policy after a ransomware attack because the application overstated MFA. <i>Travelers v. International Control Services</i>, No. 22-cv-2145 (C.D. Ill., filed Jul 6, 2022). <a href="https://www.fbm.com/jennifer-bentley/publications/using-multi-factor-authentication-as-a-prerequisite-to-cyber-liability-coverage/" target="_blank" rel="noreferrer">Farella Braun + Martel</a></li></ul></td><td class="who">Service / claims</td></tr>
         </tbody>
       </table>
     </div>
   </section>
 
   <section class="block">
-    <h2>Groups and questions</h2>
-    <div class="grid2 mt">
-
-      <article class="card grp" id="execs">
-        <div class="grp-head"><h3>UKON executives</h3><span class="pill plain">Week 1</span></div>
-        <p class="why"><strong>Why:</strong> they set the economics and define what "worked" means. Without that, I'd be optimizing the wrong metric.</p>
-        <ol class="qs">
-          <li>Which agencies and client segments matter most this year?</li>
-          <li>What does a bound cyber policy earn UKON, and what does it earn the agent?</li>
-          <li>Where do deals die today: before the quote, at the proposal, or at the application?</li>
-          <li>What does success look like in 12 months, and which number would you check first?</li>
-        </ol>
-        <p class="changes"><b>Changes:</b> which clients the renewal queue ranks first, and the target for agent minutes per bound policy.</p>
-      </article>
-
-      <article class="card grp" id="cpl">
-        <div class="grp-head"><h3>Cyber Practice Leaders (CPLs)</h3><span class="pill plain">Week 1</span></div>
-        <p class="why"><strong>Why:</strong> they support agents day to day and own coverage accuracy. They know where agents get stuck and where a wrong answer becomes a liability.</p>
-        <ol class="qs">
-          <li>Where does your time go for each policy that binds?</li>
-          <li>Which objections come up most, and which answers actually work?</li>
-          <li>Which questions should an agent never answer on their own?</li>
-          <li>What makes a submission "clean," and what makes one bounce?</li>
-          <li>Would you review flagged estimates if it saved you time later in the process?</li>
-        </ol>
-        <p class="changes"><b>Changes:</b> the approved objection library, the escalation rules, and whether UKON's team (rather than the agent) absorbs the review work.</p>
-      </article>
-
-      <article class="card grp" id="ops">
-        <div class="grp-head"><h3>UKON ops / wholesale</h3><span class="pill plain">Week 2</span></div>
-        <p class="why"><strong>Why:</strong> they handle submissions to carriers, so they know what data carriers really require and where it breaks.</p>
-        <ol class="qs">
-          <li>How do indications come back today: API, portal, or email?</li>
-          <li>Do carriers accept a revenue band for an indication, or do they need a number?</li>
-          <li>What causes declines and re-quotes most often?</li>
-          <li>How long does it take from submission to indication?</li>
-        </ol>
-        <p class="changes"><b>Changes:</b> which carrier integrations come first, and how precise the revenue estimate has to be.</p>
-      </article>
-
-      <article class="card grp" id="producers">
-        <div class="grp-head"><h3>Agency producers &amp; account managers</h3><span class="pill plain">Week 1</span></div>
-        <p class="why"><strong>Why:</strong> they're the primary users. If this adds work for them, it won't get used, whatever else it does.</p>
-        <ol class="qs">
-          <li>What's in your agency system for a renewing client: revenue, payroll, headcount, email domain? Would you share an export?</li>
-          <li>Why don't you bring up cyber today?</li>
-          <li>How long does a cyber quote take you now, start to finish?</li>
-          <li>How many clients renew each month, and how many get offered cyber?</li>
-          <li>Would you run a recorded intake call, or rather send the client a link?</li>
-        </ol>
-        <p class="changes"><b>Changes:</b> the order of the revenue sources, whether the call or the link is the default, and the baseline for the success metric.</p>
-      </article>
-
-      <article class="card grp" id="owners">
-        <div class="grp-head"><h3>Business owners</h3><span class="pill plain">Before a pilot</span></div>
-        <p class="why"><strong>Why:</strong> they decide whether to buy, and they aren't technical. The proposal pack only works if it answers their questions in their order.</p>
-        <ol class="qs">
-          <li>What would make you take a cyber conversation seriously?</li>
-          <li>What do you need to see before you'd buy: the price, examples, what's covered?</li>
-          <li>Would you rather answer questions on a call or through a link on your phone?</li>
-          <li>Who handles your IT, and would you want them involved?</li>
-        </ol>
-        <p class="changes"><b>Changes:</b> the order of sections in the pack, and the intake channel.</p>
-      </article>
-
-      <article class="card grp" id="carriers">
-        <div class="grp-head"><h3>Carriers / underwriters</h3><span class="pill plain">Week 2</span></div>
-        <p class="why"><strong>Why:</strong> they price and write the policy. Their minimum data and their hard gates decide what intake has to collect.</p>
-        <ol class="qs">
-          <li>What's the minimum data you need for an indication?</li>
-          <li>Which security controls are hard gates: MFA, backups, endpoint detection?</li>
-          <li>How do you treat answers from a recorded call compared with a signed application?</li>
-          <li>Can indications be requested and returned by API?</li>
-        </ol>
-        <p class="changes"><b>Changes:</b> the intake question bank and how the application gets pre-filled.</p>
-      </article>
-
-      <article class="card grp" id="legal">
-        <div class="grp-head"><h3>Compliance / legal</h3><span class="pill plain">Before a pilot</span></div>
-        <p class="why"><strong>Why:</strong> recorded calls, AI-written client material and insurance data each carry legal lines that have to be drawn before a real client sees anything.</p>
-        <ol class="qs">
-          <li>What are the recording consent rules, state by state, for intake calls?</li>
-          <li>Where is the licensing line for AI-written material a client reads?</li>
-          <li>How long can we keep call transcripts, and where must they live?</li>
-        </ol>
-        <p class="changes"><b>Changes:</b> the consent script, the approved-language library, and data retention.</p>
-      </article>
-
-      <article class="card grp" id="ams">
-        <div class="grp-head"><h3>Agency-system vendors</h3><span class="pill plain">Week 2</span></div>
-        <p class="why"><strong>Why:</strong> the renewal queue depends on reading the agency's own records. Whether that's an API, an export or nothing at all decides how Stage 0 works.</p>
-        <ol class="qs">
-          <li>What renewal and client data can a partner read, and how: API or export?</li>
-          <li>How are agency permissions handled, so an agent only sees their own agency's clients?</li>
-          <li>Does the system show existing cyber coverage, including endorsements on other policies?</li>
-        </ol>
-        <p class="changes"><b>Changes:</b> whether the renewal queue can be automatic, and how existing coverage gets filtered out.</p>
-      </article>
-
+    <h2>What I'd ask to see</h2>
+    <p class="sub">Artifacts answer workflow questions faster and more honestly than descriptions.</p>
+    <div class="card mt">
+      <ul class="ask small">
+        <li>A redacted submission, start to finish, for one recent client</li>
+        <li>A real indication from each main carrier (PDF, email or portal screen)</li>
+        <li>Last quarter's cyber submissions with outcome: indicated, declined, quoted, bound</li>
+        <li>Non-renewal and "quoted but didn't bind" lists, with any reason codes</li>
+        <li>One agency's renewal report from its management system</li>
+        <li>The carrier application(s) UKON uses most</li>
+        <li>How UKON and the agent are paid on cyber, new and renewal (if shareable)</li>
+        <li>The claims or incident procedure for a UKON-placed policy</li>
+      </ul>
     </div>
-  </section>
-
-  <section class="block" id="after-bind">
-    <h2>Open question 1: what happens after a policy is bound?</h2>
-    <p class="sub">The brief stops at "bound". But the business only works if the policy is still in force a year later, and the client's security can drift during the year. What I know going in, and what I'd ask.</p>
-    <div class="grid2 mt">
-      <div class="card">
-        <h3 style="font-size:1rem">What's publicly known</h3>
-        <ul class="tight small">
-          <li><b>Some carriers monitor during the policy year.</b> Coalition, for example, says it scans the internet continuously and sends policyholders personalized alerts with recommended fixes (<a href="https://coalitioninc.com/active-monitoring" target="_blank" rel="noreferrer">Coalition</a>). This varies by carrier; many don't.</li>
-          <li><b>Renewal is re-underwriting, not a rubber stamp.</b> A new application and fresh evidence of controls (MFA, endpoint detection, tested backups, an incident response plan). Missing proof leads to a price jump or a decline (<a href="https://www.cyberduo.com/blog/cyber-insurance-renewal-denied-2026-checklist/" target="_blank" rel="noreferrer">CyberDuo, Dec 2025</a>, citing Aon and carrier applications).</li>
-          <li><b>The application is a legal representation.</b> If a control the client said was in place wasn't, a claim can be disputed. That's why the prototype never turns a hedged answer into "yes".</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3 style="font-size:1rem">What I don't know yet</h3>
-        <ul class="tight small">
-          <li>Which of UKON's carriers scan after bind, how often, and who gets the alert: the client, the agent, or UKON?</li>
-          <li>Does anyone check mid-term that the controls from the application are still in place?</li>
-          <li>Who owns the client between bind and renewal: the producer, the account manager, or UKON's CPL?</li>
-          <li>How many cyber policies UKON writes are still in force at year two, and why the others aren't.</li>
-        </ul>
-      </div>
-    </div>
-    <div class="card mt tablewrap">
-      <table>
-        <thead><tr><th>Ask</th><th>Question</th><th>What the answer changes</th></tr></thead>
-        <tbody>
-          <tr><td><a href="#carriers">Carriers</a></td><td>Do you scan or monitor insureds after bind? How often, and who receives the findings? What happens if a control on the application lapses mid-term?</td><td>Whether the workbench needs a "post-bind alerts" queue, and whether alerts go to the agent too.</td></tr>
-          <tr><td><a href="#carriers">Carriers</a></td><td>At renewal, what do you re-check: a new application, a rescan, attestations, evidence?</td><td>How much of the intake can carry forward a year; what to collect again.</td></tr>
-          <tr><td><a href="#cpl">CPLs</a></td><td>When a claim is disputed, how often is it because the application didn't match reality?</td><td>How hard to push the "confirm, don't assume" guardrails, and which answers need evidence.</td></tr>
-          <tr><td><a href="#ops">Ops / wholesale</a></td><td>What share of cyber policies renew at year two? Of the ones that don't, who ended it: the client or the carrier?</td><td>Whether retention is a bigger lever than new sales.</td></tr>
-          <tr><td><a href="#producers">Producers / AMs</a></td><td>What do you do for a cyber client between bind and renewal? Do you hear about carrier alerts?</td><td>Who the post-bind features are for.</td></tr>
-          <tr><td><a href="#owners">Business owners</a></td><td>If your insurer told you mid-year that something on your network was exposed, what would you do with that?</td><td>Whether a security check-in is a reason to stay, or just noise.</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="callout mt">Design idea to test: a <b>mid-term check-in</b> six months after bind. Re-run the public checks (email security, exposed services), confirm the application's controls are still true, and give the agent a reason to call that isn't a bill. It turns renewal from re-underwriting into a formality.</div>
   </section>
 
   <section class="block" id="why-not">
-    <h2>Open question 2: why don't small businesses buy cyber, or keep it?</h2>
-    <p class="sub">The brief's explanation is distribution: agents don't bring it up because getting a client from "no cyber" to "protected" is too much manual work. I think that's real but incomplete, and I'd test it against the other explanations before betting the roadmap on it.</p>
-    <div class="callout warn mt">Two different problems hide in one question. The brief's "renewal window" is the renewal of the client's <i>other</i> policies, the moment to sell cyber for the first time. A client <i>dropping</i> a cyber policy at its own renewal is a retention problem, with different causes.</div>
+    <h2>Background: what the research already says (so we don't spend interview time on it)</h2>
+    <p class="sub">Public sources answer the general questions. These are the competing explanations for gap C that the interviews above test against UKON's own data.</p>
+    <div class="callout warn mt">Two problems hide in one question. The brief's "renewal window" is the renewal of the client's <i>other</i> policies, the moment to sell cyber for the first time. A client <i>dropping</i> a cyber policy at its own renewal is a retention problem, with different causes.</div>
     <div class="card mt tablewrap">
       <table>
-        <thead><tr><th>Explanation</th><th>Evidence so far</th><th>How I'd test it</th><th>If it's true, the design changes to…</th></tr></thead>
+        <thead><tr><th>Explanation</th><th>Public evidence</th><th>Settled by</th></tr></thead>
         <tbody>
-          <tr><td><b>Agents don't raise it</b> (the brief's view): too much manual work, low confidence explaining cyber</td><td>The brief; matches what brokers say about effort. No numbers yet.</td><td>Producers: how many renewing clients were offered cyber last quarter, and why not the rest? Compare offer rate to acceptance rate.</td><td>What the prototype already does: pre-filled indications and a ready pack, so offering costs the agent minutes.</td></tr>
-          <tr><td><b>Price</b>, especially next to rising property, liability and auto premiums</td><td>Brokers report owners holding off on cost (<a href="https://amp.insurancejournal.com/magazines/mag-features/2024/03/04/762505.htm" target="_blank" rel="noreferrer">Insurance Journal, 2024</a>); GlobalData says many smaller firms are "priced out" (<a href="https://www.insurancejournal.com/news/international/2026/06/30/875833.htm" target="_blank" rel="noreferrer">2026</a>).</td><td>Owners who declined: what monthly price would have been a yes? Ops: acceptance rate by premium band.</td><td>Lead with a lower-limit option and monthly pricing; show cost next to one closed day.</td></tr>
-          <tr><td><b>"We're already covered"</b> by a business-owner's policy or another endorsement</td><td>Among UK mid-market firms that had dropped standalone cyber, 35% believed their wider policy covered them (<a href="https://www.insuranceage.co.uk/node/7957668" target="_blank" rel="noreferrer">Coalition survey, Nov 2025</a>). UK and a carrier's own research, so treat as directional.</td><td>Agency systems: how many clients have a cyber endorsement, and with what limit? Owners: what do you think your current policy covers?</td><td>An endorsement-vs-standalone comparison step in the pack (CPL-approved, never interpreted by AI).</td></tr>
-          <tr><td><b>Don't see the value</b>: "too small to be a target", "my IT company handles it", nothing happened last year</td><td>GlobalData: often seen as "an unnecessary product" (<a href="https://www.insurancejournal.com/news/international/2026/06/30/875833.htm" target="_blank" rel="noreferrer">2026</a>). Older Argo survey: 32% cited no interest from management (<a href="https://www.businessinsurance.com/small-and-medium-enterprises-forgoing-cyber-coverage-argo-survey/" target="_blank" rel="noreferrer">2017</a>).</td><td>Owners: what would make you take it seriously? Retention data: do claim-free clients drop more often at year two?</td><td>Real local incidents in the pack (already built), and the mid-term check-in as visible value.</td></tr>
-          <tr><td><b>Carriers say no</b>: the client can't show MFA, endpoint detection or tested backups, so it's declined or re-priced at renewal</td><td>Missing controls are standard refusal criteria; missing proof means price shock or decline (<a href="https://www.cyberduo.com/blog/cyber-insurance-renewal-denied-2026-checklist/" target="_blank" rel="noreferrer">CyberDuo, Dec 2025</a>). Argo: 42% of SMEs doubted their own security (2017).</td><td>Ops: of non-renewals, how many were the carrier's decision, and which control was missing?</td><td>A remediation path before renewal: what to fix, with the IT provider, 60 days out.</td></tr>
-          <tr><td><b>The application is the wall</b>: too many technical questions the owner can't answer</td><td>Unknown. The prototype's intake assumes owners need help translating questions.</td><td>CPLs and ops: where do applications stall, and on which questions?</td><td>More of the application pre-filled; the IT provider answers the technical part directly.</td></tr>
+          <tr><td><b>Agents don't raise it</b>: too much manual work (the brief)</td><td>The brief; consistent with broker commentary. No numbers.</td><td>Producer's last ten renewals; offer-rate funnel from engineering</td></tr>
+          <tr><td><b>Price</b>, next to rising property, liability and auto premiums</td><td>Brokers report owners holding off on cost (<a href="https://amp.insurancejournal.com/magazines/mag-features/2024/03/04/762505.htm" target="_blank" rel="noreferrer">Insurance Journal, 2024</a>); smaller firms "priced out" (<a href="https://www.insurancejournal.com/news/international/2026/06/30/875833.htm" target="_blank" rel="noreferrer">GlobalData, 2026</a>)</td><td>CPLs' last "no"; quoted-not-bound reasons</td></tr>
+          <tr><td><b>"Already covered"</b> by a package policy or endorsement</td><td>35% of UK mid-market firms that decided against standalone cyber think their wider policy covers them (<a href="https://www.insuranceage.co.uk/node/7957668" target="_blank" rel="noreferrer">Coalition survey, 2025</a>; carrier's own research)</td><td>Agency systems: endorsements on file</td></tr>
+          <tr><td><b>Low perceived value</b>: "too small", "IT handles it", nothing happened last year</td><td>Seen as "an unnecessary product" (<a href="https://www.insurancejournal.com/news/international/2026/06/30/875833.htm" target="_blank" rel="noreferrer">GlobalData, 2026</a>)</td><td>Year-two retention, claim-free vs not</td></tr>
+          <tr><td><b>Carrier requirements</b>: MFA and other controls required to quote or renew</td><td>Most insurers require some MFA before they'll quote (<a href="https://www.insurancetimes.co.uk/expert-views/helping-clients-adopt-mfa-as-a-critical-layer-of-cyber-security-travelers/1441515.article" target="_blank" rel="noreferrer">Travelers</a>); a carrier sued to rescind a policy over overstated MFA (<a href="https://www.fbm.com/jennifer-bentley/publications/using-multi-factor-authentication-as-a-prerequisite-to-cyber-liability-coverage/" target="_blank" rel="noreferrer">Travelers v. ICS, 2022</a>)</td><td>Ops: non-renewals split client vs carrier</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="small mt">My current read, with low confidence until we see UKON's own data: first-time adoption is mostly the brief's distribution problem plus price; dropping a policy is mostly price at renewal and carriers re-underwriting controls. The one number that would settle it fastest is ops' split of non-renewals into "client walked" and "carrier declined", with reasons.</p>
+    <p class="small mt">Also known publicly, so not asked: some carriers monitor policyholders during the policy year and send alerts (for example <a href="https://coalitioninc.com/active-monitoring" target="_blank" rel="noreferrer">Coalition</a>), and renewal usually means a new application and fresh proof of controls. What only UKON knows is which of <i>its</i> carriers do this, and who sees the result.</p>
   </section>
 </main>
 

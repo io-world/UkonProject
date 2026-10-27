@@ -7,7 +7,7 @@ SET search_path TO ukon;
 
 -- Which version of this file built the database (checked by the API; see config.SCHEMA_VERSION).
 CREATE TABLE schema_info (version TEXT NOT NULL);
-INSERT INTO schema_info VALUES ('2026-10-27b');
+INSERT INTO schema_info VALUES ('2026-10-27c');
 
 CREATE TABLE users (
   id          SERIAL PRIMARY KEY,
@@ -292,6 +292,98 @@ CREATE TABLE application_answers (
   UNIQUE (client_id, question_key)
 );
 
+-- Stage 5 + 6: the owner's decisions. Append-only; the latest row per stage counts (a change of mind is a new row).
+-- stage 'present': after the proposal pack (which option, or not now). stage 'final': on the firm quote.
+CREATE TABLE client_decisions (
+  id          SERIAL PRIMARY KEY,
+  client_id   INT NOT NULL REFERENCES clients(id),
+  stage       TEXT NOT NULL CHECK (stage IN ('present','final')),
+  decision    TEXT NOT NULL CHECK (decision IN ('chose','not_now','accepted','declined')),
+  carrier     TEXT,
+  tier        TEXT,
+  reason      TEXT CHECK (reason IN ('price','already_covered','no_need','carrier_requirements','timing','other')),
+  note        TEXT,
+  source_type TEXT NOT NULL DEFAULT 'conversation' CHECK (source_type IN ('conversation','clipboard','api','manual')),
+  actor_id    INT NOT NULL REFERENCES users(id),
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Stage 6: the carrier's firm quote, as received (raw file in the wiki), checked figure by figure and compared
+-- with the written indication it follows. Carrier values are locked like indications.
+CREATE TABLE firm_quotes (
+  id               SERIAL PRIMARY KEY,
+  client_id        INT NOT NULL REFERENCES clients(id),
+  carrier          TEXT NOT NULL,
+  tier             TEXT NOT NULL,
+  path             TEXT NOT NULL,
+  doc_date         DATE NOT NULL,
+  reference        TEXT,
+  extractor        TEXT NOT NULL CHECK (extractor IN ('live','cached')),
+  extraction       JSONB NOT NULL,
+  checks           JSONB NOT NULL DEFAULT '[]',
+  review           TEXT NOT NULL CHECK (review IN ('verified','pending_review','confirmed','rejected')),
+  limit_amount     INT NOT NULL,
+  deductible       INT NOT NULL,
+  premium          INT,
+  sublimits        JSONB NOT NULL DEFAULT '{}',
+  bi_waiting_hours INT,
+  specimen_form    TEXT,
+  expires_on       DATE,
+  effective_date   DATE,
+  expiration_date  DATE,
+  premium_reason   TEXT,
+  compared_to      INT REFERENCES indication_versions(id),
+  changes          JSONB NOT NULL DEFAULT '[]',
+  ingested_by      INT NOT NULL REFERENCES users(id),
+  ingested_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  reviewed_by      INT REFERENCES users(id),
+  reviewed_at      TIMESTAMPTZ,
+  review_note      TEXT,
+  UNIQUE (client_id, path)
+);
+CREATE FUNCTION lock_quote_values() RETURNS trigger AS $$
+BEGIN
+  IF (NEW.limit_amount, NEW.deductible, NEW.premium, NEW.sublimits, NEW.expires_on, NEW.effective_date,
+      NEW.carrier, NEW.tier) IS DISTINCT FROM
+     (OLD.limit_amount, OLD.deductible, OLD.premium, OLD.sublimits, OLD.expires_on, OLD.effective_date,
+      OLD.carrier, OLD.tier) THEN
+    RAISE EXCEPTION 'firm quote values are locked (quote %)', OLD.id;
+  END IF;
+  RETURN NEW;
+END $$ LANGUAGE plpgsql;
+CREATE TRIGGER quote_values_locked BEFORE UPDATE ON firm_quotes FOR EACH ROW EXECUTE FUNCTION lock_quote_values();
+
+-- The quote's subjectivities. 'before' must be met to bind; 'after' has a deadline counted from the bind date.
+-- intake_status is the application's view when the quote arrived; a person marks each one met, with evidence.
+CREATE TABLE bind_conditions (
+  id             SERIAL PRIMARY KEY,
+  client_id      INT NOT NULL REFERENCES clients(id),
+  quote_id       INT NOT NULL REFERENCES firm_quotes(id),
+  text           TEXT NOT NULL,
+  timing         TEXT NOT NULL CHECK (timing IN ('before','after')),
+  due_days       INT,                   -- for 'after': days from binding
+  intake_status  TEXT,                  -- met / to_confirm / unknown / gap, from the application
+  is_new         BOOLEAN NOT NULL DEFAULT FALSE,  -- requires something the indication's conditions didn't
+  status         TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open','met')),
+  evidence       TEXT,
+  met_by         INT REFERENCES users(id),
+  met_at         TIMESTAMPTZ
+);
+
+-- Bound. The carrier issues the binder; in this prototype that step is simulated (and labelled so).
+CREATE TABLE binders (
+  id               SERIAL PRIMARY KEY,
+  client_id        INT NOT NULL REFERENCES clients(id) UNIQUE,
+  quote_id         INT NOT NULL REFERENCES firm_quotes(id),
+  policy_number    TEXT NOT NULL,
+  effective_date   DATE NOT NULL,
+  expiration_date  DATE NOT NULL,
+  premium          INT NOT NULL,
+  simulated        BOOLEAN NOT NULL DEFAULT TRUE,
+  bound_by         INT NOT NULL REFERENCES users(id),
+  bound_at         TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- Any stage: every question an agent asks the "Ask about this client" skill
 CREATE TABLE ask_log (
   id          SERIAL PRIMARY KEY,
@@ -359,4 +451,23 @@ CREATE VIEW audit_trail AS
   UNION ALL
   SELECT a.closed_at, u.name, u.role, 'indication_action_done', a.client_id, a.text,
          jsonb_build_object('reason', a.close_note)
-    FROM indication_actions a JOIN users u ON u.id = a.closed_by WHERE a.closed_at IS NOT NULL;
+    FROM indication_actions a JOIN users u ON u.id = a.closed_by WHERE a.closed_at IS NOT NULL
+  UNION ALL
+  SELECT d.created_at, u.name, u.role, 'decision_' || d.stage || '_' || d.decision, d.client_id,
+         COALESCE(d.carrier || ' ' || d.tier, 'No option'), jsonb_build_object('reason', d.reason, 'note', d.note, 'source', d.source_type)
+    FROM client_decisions d JOIN users u ON u.id = d.actor_id
+  UNION ALL
+  SELECT q.ingested_at, u.name, u.role, 'firm_quote_received', q.client_id, q.carrier || ' ' || q.tier,
+         jsonb_build_object('path', q.path, 'review', q.review)
+    FROM firm_quotes q JOIN users u ON u.id = q.ingested_by
+  UNION ALL
+  SELECT q.reviewed_at, u.name, u.role, 'firm_quote_' || q.review, q.client_id, q.carrier || ' ' || q.tier,
+         jsonb_build_object('reason', q.review_note)
+    FROM firm_quotes q JOIN users u ON u.id = q.reviewed_by WHERE q.reviewed_at IS NOT NULL
+  UNION ALL
+  SELECT bc.met_at, u.name, u.role, 'bind_condition_met', bc.client_id, bc.text, jsonb_build_object('evidence', bc.evidence)
+    FROM bind_conditions bc JOIN users u ON u.id = bc.met_by WHERE bc.met_at IS NOT NULL
+  UNION ALL
+  SELECT b.bound_at, u.name, u.role, 'bound', b.client_id, b.policy_number,
+         jsonb_build_object('effective', b.effective_date, 'premium', b.premium, 'simulated', b.simulated)
+    FROM binders b JOIN users u ON u.id = b.bound_by;

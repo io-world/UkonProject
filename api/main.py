@@ -10,6 +10,7 @@ from pydantic import BaseModel
 
 from pathlib import Path
 
+from pipeline import bind as bind_mod
 from pipeline import html_report, indications, intake, intake_ingest, report, stages, wiki_render
 from pipeline.config import RAW, WIKI
 from pipeline.sources import read_source
@@ -735,6 +736,95 @@ def wiki_page(path: str):
     if p.suffix == ".pdf":
         return FileResponse(p, media_type="application/pdf")
     return PlainTextResponse(p.read_text())
+
+
+# ---------------------------------------------------------------------------------------------
+# Stage 5's decision + Stage 6: final terms, bind, report (pipeline/bind.py). No route writes a carrier figure.
+# ---------------------------------------------------------------------------------------------
+class Decision(Actor):
+    stage: str
+    decision: str
+    carrier: str | None = None
+    tier: str | None = None
+    reason: str | None = None
+    note: str | None = None
+    source_type: str = "conversation"
+
+
+class QuoteIngest(Actor):
+    path: str
+
+
+class QuoteReview(Actor):
+    decision: str
+    note: str | None = None
+
+
+class ConditionSet(Actor):
+    met: bool
+    evidence: str | None = None
+
+
+def _bind_call(slug, actor, fn, log=None):
+    with connect() as conn:
+        c = client_by_slug(conn, slug)
+        uid = user_id(conn, actor)
+        try:
+            res = fn(conn, c["id"], uid)
+        except LookupError as e:
+            raise HTTPException(404, str(e))
+        except ValueError as e:
+            if str(e).startswith("unknown client"):
+                raise
+            raise HTTPException(409, str(e))
+        bind_mod.render_wiki(conn, c["id"])
+    if log:
+        wiki_render.log(f"{log} | {slug} — {actor}")
+    return res
+
+
+@app.get("/api/clients/{slug}/close")
+def close_view(slug: str):
+    with connect() as conn:
+        c = client_by_slug(conn, slug)
+        return bind_mod.state(conn, c["id"])
+
+
+@app.post("/api/clients/{slug}/decision")
+def decision(slug: str, body: Decision):
+    if body.source_type not in SOURCE_TYPES:
+        raise HTTPException(400, f"source_type must be one of {', '.join(SOURCE_TYPES)}")
+    return _bind_call(slug, body.actor, lambda conn, cid, uid: bind_mod.decide(
+        conn, cid, uid, body.stage, body.decision, body.carrier, body.tier, body.reason, body.note, body.source_type),
+        f"decision {body.stage}: {body.decision}")
+
+
+@app.post("/api/clients/{slug}/quote/ingest")
+def quote_ingest(slug: str, body: QuoteIngest):
+    def fn(conn, cid, uid):
+        c = conn.execute("SELECT slug FROM clients WHERE id=%s", (cid,)).fetchone()
+        if body.path not in bind_mod.quote_inbox(conn, cid, c["slug"]):
+            raise LookupError(f"{body.path} isn't waiting in the quote inbox")
+        return bind_mod.ingest_quote(conn, cid, body.path, uid)
+    return _bind_call(slug, body.actor, fn, f"firm quote ingested: {body.path}")
+
+
+@app.post("/api/clients/{slug}/quote/review")
+def quote_review(slug: str, body: QuoteReview):
+    return _bind_call(slug, body.actor, lambda conn, cid, uid: bind_mod.review_quote(conn, cid, uid, body.decision, body.note),
+                      f"firm quote {body.decision}")
+
+
+@app.post("/api/clients/{slug}/conditions/{cond_id}")
+def condition_set(slug: str, cond_id: int, body: ConditionSet):
+    return _bind_call(slug, body.actor, lambda conn, cid, uid: bind_mod.set_condition(conn, cid, cond_id, uid, body.met, body.evidence),
+                      f"bind condition {cond_id} {'met' if body.met else 'reopened'}")
+
+
+@app.post("/api/clients/{slug}/bind")
+def bind_now(slug: str, body: Actor):
+    res = _bind_call(slug, body.actor, lambda conn, cid, uid: bind_mod.bind(conn, cid, uid), "bound (simulated)")
+    return {"policy_number": res["policy_number"]}
 
 
 # ---------------------------------------------------------------------------------------------

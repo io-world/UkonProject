@@ -47,6 +47,13 @@ export const api = {
   htmlUrl: (version) => `${base}/report.html${version ? `?version=${version}` : ''}`,
   confirmAnswer: (key, actor, answer, normalized) =>
     req(`${base}/application/${key}/confirm`, { method: 'POST', body: { actor, answer, normalized } }),
+  // Stage 5 decision + Stage 6 close
+  close: () => req(`${base}/close`),
+  decide: (body, actor) => req(`${base}/decision`, { method: 'POST', body: { actor, ...body } }),
+  ingestQuote: (path, actor) => req(`${base}/quote/ingest`, { method: 'POST', body: { actor, path } }),
+  reviewQuote: (decision, note, actor) => req(`${base}/quote/review`, { method: 'POST', body: { actor, decision, note } }),
+  setCondition: (id, met, evidence, actor) => req(`${base}/conditions/${id}`, { method: 'POST', body: { actor, met, evidence } }),
+  bind: (actor) => req(`${base}/bind`, { method: 'POST', body: { actor } }),
   audit: () => req(`${base}/audit`),
   ask: (question, actor) => req(`${base}/ask`, { method: 'POST', body: { actor, question } }),
 }

@@ -5,11 +5,12 @@ import Indications from './components/Indications.jsx'
 import ReportTab from './components/ReportTab.jsx'
 import Brief from './components/Brief.jsx'
 import Intake from './components/Intake.jsx'
+import Close from './components/Close.jsx'
 import Audit from './components/Audit.jsx'
 import AskPanel from './components/AskPanel.jsx'
 
-// The five stages come from the API (pipeline/stages.py), each with a status derived from the data.
-// UKON's brief has four; its Stage 1 is split into "confirm data" and "get indications".
+// The six stages come from the API (pipeline/stages.py), each with a status derived from the data.
+// UKON's brief has four; its Stage 1 is split (confirm data, get indications) and so is its Stage 4 (present and apply; final terms, bind, report).
 
 export default function App() {
   const [tab, setTab] = useState('confirm')
@@ -71,8 +72,8 @@ export default function App() {
         <button className="ask-btn" onClick={() => setAskOpen(true)}>Ask about this client</button>
       </nav>
       <div className="stage-map small muted">
-        UKON's brief has four stages; this splits its Stage 1 into <b>1 · Confirm data</b> and <b>2 · Get indications</b>, so
-        stages 3–5 here are UKON's 2–4.
+        UKON's brief has four stages. This splits its Stage 1 into <b>1 · Confirm data</b> and <b>2 · Get indications</b>, and its
+        Stage 4 into <b>5 · Present and apply</b> and <b>6 · Final terms, bind, report</b>. Stages 3 and 4 here are UKON's 2 and 3.
       </div>
 
       <main className="main">
@@ -81,6 +82,7 @@ export default function App() {
         {tab === 'proposal' && <ReportTab data={data} actor={actor} onChange={refresh} tick={tick} />}
         {tab === 'agent_kit' && <Brief tick={tick} actor={actor} />}
         {tab === 'apply_bind' && <Intake actor={actor} onChange={refresh} tick={tick} />}
+        {tab === 'close' && <Close actor={actor} onChange={refresh} tick={tick} />}
         {tab === 'audit' && <Audit tick={tick} />}
       </main>
 

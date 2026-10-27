@@ -1,11 +1,12 @@
-"""Reset the database and seed the demo client (Sloan's Lake Dental, config.CLIENT_SLUG) through the five stages.
+"""Reset the database and seed the demo client (Sloan's Lake Dental, config.CLIENT_SLUG) through the stages (six; Stage 6 is left for the live demo).
 
 UKON's brief has four stages; this prototype splits its Stage 1 in two:
   1. Confirm data   the five fields from the agency file + public records       (stage1_enrich)
   2. Indications    requests to the carrier panel, replies in, versioned        (indications)
   3. Proposal pack  report v1: plain-language why / options / cost               (stage3_proposal)
   4. Agent kit      pitch, objections, specimens: read from the pack, no seed step
-  5. Apply & bind   presentation call 1 (Wispr Flow transcript), partial        (intake_ingest)
+  5. Present/apply  presentation call 1 (Wispr Flow transcript), partial        (intake_ingest)
+  6. Close          nothing seeded: the firm quote waits in wiki/raw/<slug>/quotes/ (bind)
 
 The seed takes two honest shortcuts, both labelled in the app: requests go out before the Stage 1 review
 (so the live demo can still confirm the entity), and call 1 is ingested before the pack is drafted (so the pack

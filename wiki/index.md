@@ -36,6 +36,7 @@ Activity history: [[log]].
 - [[raw/sloanslake/indications/2026-10-28_ridgeline_underwriter_call|Ridgeline underwriter call, Oct 28]] — verbal "around twenty-six hundred"; $2M declined
 - [[raw/sloanslake/indications/2026-10-30_ridgeline_indication.pdf|Ridgeline letter, Oct 30]] — $1M $2,590 in writing; $2M declined
 - [[raw/sloanslake/indications/2026-11-06_northwind_indication_revised.pdf|Northwind revised letter, Nov 6]] — +10%, adds EDR (demo: ingest live)
+- [[raw/sloanslake/quotes/2026-12-03_northwind_firm_quote.pdf|Northwind firm quote, Dec 3]] — Stage 6: $1M $3,410 after the signed application; 2 before-binding conditions, phishing training within 60 days (FICTIONAL)
 
 ## Intake
 - [[raw/intake/intake_questions|Intake question bank]] — drives the call screen, extraction and the intake page

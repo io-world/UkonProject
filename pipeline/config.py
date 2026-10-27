@@ -11,7 +11,7 @@ RAW = WIKI / "raw"
 CLIENT_SLUG = "sloanslake"
 
 # Bump when db/schema.sql changes; the API refuses to run against an older database (run pipeline.run_all).
-SCHEMA_VERSION = "2026-10-27b"
+SCHEMA_VERSION = "2026-10-27c"
 
 
 def _load_dotenv(path: Path) -> None:

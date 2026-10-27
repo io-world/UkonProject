@@ -2,10 +2,11 @@
 
 Randy Hesse's prototype for UKON's final interview round (product role; panel: CEO Matt
 Hightower, David, execs, engineers). One real client (Sloan's Lake Dental / Sage Dentistry, PLLC, Denver: public data only; agency, calls, carriers simulated),
-taken end to end through **five stages** (UKON's four, with its Stage 1 split in two; `pipeline/stages.py`):
+taken end to end through **six stages** (UKON's four, with its Stages 1 and 4 each split in two; `pipeline/stages.py`):
 1 confirm data (five fields) → 2 get indications (send to carriers, gated on 1; replies in, versioned) → 3 client proposal
-pack (HTML, cited research) → 4 equip the agent (brief) → 5 present, apply, bind (calls with human in the loop, application,
-e-sign; binding simulated). Read `docs/00-brief.md` for the assignment and
+pack (HTML, cited research) → 4 equip the agent (brief) → 5 present and apply (owner's decision, calls with human in
+the loop, application) → 6 final terms, bind, report (firm quote checked vs indication, conditions, bind simulated,
+client summary, deal record, 30-60-90 after bind). Read `docs/00-brief.md` for the assignment and
 `docs/decisions.md` for why things are the way they are.
 
 ## Non-negotiable rules
@@ -38,6 +39,7 @@ scripts/db.sh start | stop | status | psql
 uv run python -m pipeline.run_all                # reset DB: Stage 1 fields, Stage 2 indications (3 carriers), Stage 5 call 1 (early), Stage 3 pack v1
 uv run python -m pipeline.indications <reply.pdf|.md>     # ingest a carrier reply (versions, diff, actions)
 uv run python -m pipeline.intake_ingest <transcript.md>   # add another intake call (merges)
+uv run python -m pipeline.bind <quote.pdf>               # take in a firm quote (Stage 6; owner must have chosen an option)
 uv run python -m pipeline.refresh_pack           # rebuild reports/sloanslake/current.html
 uv run uvicorn api.main:app --port 8000 --reload # terminal 1: backend (also serves web/dist)
 cd web && uv run npm run dev                     # terminal 2: frontend, http://localhost:5173
@@ -49,12 +51,13 @@ cd web && uv run npm run build                   # refresh web/dist
 - `wiki/` — Obsidian vault (schema: `wiki/CLAUDE.md`). Raw sources are `.md`; structured ones
   keep data in one ```json block read by `pipeline/sources.py`. Citations are wikilinks.
 - `db/schema.sql` — system of record. `db/pgdata/` is the live data (git-ignored).
-- `pipeline/` — `stages.py` (the five stages + derived status), estimators (no LLM), entity resolution (Stage 1),
+- `pipeline/` — `stages.py` (the six stages + derived status), estimators (no LLM), entity resolution (Stage 1),
   carrier exchange (`indications.py`, `indication_extract.py`; Stage 2), narrative + report versions (`stage3_proposal.py`,
-  `report.py`; Stage 3), Stage 5 calls (`intake.py` rules, `intake_ingest.py` per call).
+  `report.py`; Stage 3), Stage 5 calls (`intake.py` rules, `intake_ingest.py` per call),
+  Stage 5 decision + Stage 6 (`bind.py`: firm quote, conditions, bind, reports, after-bind plan).
 - `api/` — FastAPI + "Ask about this client" (read-only) + Stage 4's "Ask the wiki" chat (`api/chat.py`: wiki first,
   web search only if the wiki doesn't cover it; the answer's source label comes from the tools that ran).
-- `web/` — React + Vite workbench: one tab per stage (`Enrichment`, `Indications`, `ReportTab`, `Brief`, `Intake`) + audit.
+- `web/` — React + Vite workbench: one tab per stage (`Enrichment`, `Indications`, `ReportTab`, `Brief`, `Intake` + `OwnerDecision`, `Close`) + audit.
 - `reports/` — generated HTML client packs: `current.html` (working draft), `v<N>.html` (submitted, immutable).
 - `.claude/skills/` — `client-ingest`, `indication-ingest` (carrier replies), `call-ingest` (Wispr Flow intake), `client-research` (web), `client-ask`.
 - `docs/` — brief, decisions, workflow, client intake script, proposal pack, MVP scope,

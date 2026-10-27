@@ -73,14 +73,10 @@ export default function Application({ actor, onChange, tick, embedded }) {
       <div className="answers">{sorted.map((a) => <Row key={a.id} a={a} actor={actor} onDone={onChange} />)}</div>
 
       <section className={`card ${done ? '' : 'muted-card'}`}>
-        <h3>Apply and bind</h3>
-        <p className="small">Once the owner picks an option, these same answers pre-fill the carrier application. The application is
-          the client's legal representation: they review and e-sign it; the transcript is never the final word.</p>
-        <ol className="small bind-steps">
-          <li>Client reviews and e-signs the application.</li>
-          <li>The carrier confirms final terms (the quote can differ from the indication).</li>
-          <li>Bind: coverage is in force. <span className="muted">Carrier submission and binding are simulated in this prototype.</span></li>
-        </ol>
+        <h3>Sign and submit</h3>
+        <p className="small">These answers pre-fill the application for the option the owner chose. The application is
+          the client's legal representation: they review and e-sign it; the transcript is never the final word.
+          The carrier's firm quote, final terms and binding are Stage 6.</p>
         <button className="btn primary" disabled={!done} title={done ? '' : 'Confirm every answer first'}>Send application for e-signature</button>
       </section>
     </div>
