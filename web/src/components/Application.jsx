@@ -59,7 +59,7 @@ export default function Application({ actor, onChange, tick, embedded }) {
     <div className="stack">
       <section className="card">
         <h3>Carrier application questions</h3>
-        <p className="small">Filled by the same call extraction as the intake. Confirming an intake answer confirms the application
+        <p className="small">The detailed questions about the business and its security practices. Filled by the same call extraction as the live call. Confirming an intake answer confirms the application
           questions it fills; you can also confirm or correct them here. Hedged answers stay flagged.</p>
         <div className="kpis">
           <div><b>{rows.length}</b><span>questions</span></div>
@@ -73,9 +73,14 @@ export default function Application({ actor, onChange, tick, embedded }) {
       <div className="answers">{sorted.map((a) => <Row key={a.id} a={a} actor={actor} onDone={onChange} />)}</div>
 
       <section className={`card ${done ? '' : 'muted-card'}`}>
-        <h3>Application & e-signature (Stage 4)</h3>
+        <h3>Apply and bind</h3>
         <p className="small">Once the owner picks an option, these same answers pre-fill the carrier application. The application is
           the client's legal representation: they review and e-sign it; the transcript is never the final word.</p>
+        <ol className="small bind-steps">
+          <li>Client reviews and e-signs the application.</li>
+          <li>The carrier confirms final terms (the quote can differ from the indication).</li>
+          <li>Bind: coverage is in force. <span className="muted">Carrier submission and binding are simulated in this prototype.</span></li>
+        </ol>
         <button className="btn primary" disabled={!done} title={done ? '' : 'Confirm every answer first'}>Send application for e-signature</button>
       </section>
     </div>

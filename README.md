@@ -1,7 +1,7 @@
 # Cyber in the Renewal Window — prototype
 
 One real client (Sloan's Lake Dental, legal name Sage Dentistry, PLLC: a three-dentist practice in Denver, CO)
-taken from "renewal coming up" through intake calls to a client pack and agent brief. Everything public
+taken through five stages, from "renewal coming up" to an application ready to sign. Everything public
 about the practice is real and saved in `wiki/raw/sloanslake/` with links (start at `00_overview.md`); the agency's records, the
 calls and the carriers are simulated and labeled.
 
@@ -66,31 +66,33 @@ is regenerated from the database; annotate the industry page or raw sources inst
 
 ## Demo script (≈8 minutes of the 30)
 
-The flow: **enrich → carrier indications → intake (human in the loop, can be partial) → client pack → agent brief.**
+Five stages: UKON's four, with its Stage 1 split into **confirm data** and **get indications** (decision #55).
+**1 Confirm data → 2 Get indications → 3 Proposal pack → 4 Equip the agent → 5 Present, apply, bind.**
+The app's tabs are the stages; each shows a status derived from the data (done, to do, in progress).
 
-1. **Get indications (the five fields).** Five real registry/NPI candidates. "Sloans Lake Dental PLLC" matches the trade name and
+1. **Stage 1 · Confirm data.** Five real registry/NPI candidates. "Sloans Lake Dental PLLC" matches the trade name and
    address exactly but is delinquent since 2022; the one in good standing is Sage Dentistry, PLLC. Confirm it.
    Open "method & sources" on revenue: nothing public, nothing at the agency; two benchmark methods
-   disagree by ~$1.1M, so it's low confidence and flagged. Same for headcount. **Edit** any field: pick where
-   the value came from (conversation, clipboard, API, typed) and a reference; the card shows it from then on.
-   Carrier indications are loaded in the background (fictional carriers) so the client pack has prices.
-2. **Intake → Live call.** The screen the agent runs the call from: numbered questions, tap answers,
-   "Client unsure," coverage questions logged for a CPL, and the limit walkthrough. Tap Q2 as
-   "50–75%" (the recording says "Over 75%"). Call 1 (sample) is already ingested.
-   **Intake → After the call:** recording vs taps per question, quotes, flags. Re-ingest call 1 →
-   Q2 becomes a CONFLICT. Revenue stays open (the owner deferred to the accountant): type the confirmed
-   figure → the report updates (logged).
-3. **Client pack.** Built anyway from what's known. Click "Open HTML report ↗", or open
-   `reports/sloanslake/current.html`. See "What you've told us so far" and "Practices like yours,
-   in the news" (real, cited events, including a Longmont CO breach). Exposure 63, Moderate; the
-   no-DMARC finding is the practice's real public DNS.
-4. **The follow-up call.** Record a short call in Wispr Flow and run the `call-ingest` skill, or click
-   **Ingest** next to `call_2_followup.md` under Intake → After the call.
-   MFA and IT software close; backups stay open. Exposure drops to 45, Moderate; the HTML file updates.
-5. **Adjust & lock.** Drag revenue to ~$2.8M → "indication needs refresh"; premiums don't move.
-   Reset. Submit & lock → `reports/sloanslake/v1.html` appears. Send. Client view shows only that version.
-6. **Agent brief.** Pitch, CPL-approved objections, news talking points, specimen map.
-7. **Audit trail + Ask.** "Who changed what?" and "Would a ransomware payment be covered?" (escalates).
+   disagree by ~$1.1M, so it's low confidence and flagged. Approve or **Edit** it (pick where the value came
+   from: conversation, clipboard, API, typed). Only the five fields live here.
+2. **Stage 2 · Get indications.** What goes to carriers, with its review state; pick carriers and **Re-request**
+   (gated: try it before Stage 1 is reviewed and it refuses). The demo seed's first requests went out before review,
+   and the screen says so. In the **carrier inbox**, click **Read it in** on Northwind's revised letter: both
+   premiums rise 10% and a new EDR condition appears, checked against the client's answers, as follow-ups.
+   Open Cobalt's reply history: $5,290 was written "5.29k", so it waits for a person: **Matches the source**.
+3. **Stage 3 · Proposal pack.** Click "Open HTML report ↗", or open `reports/sloanslake/current.html`. See "What
+   you've told us so far" and "Practices like yours, in the news" (real, cited events, including a Longmont CO
+   breach). Drag revenue to ~$2.8M → "indication needs refresh"; premiums don't move. Reset. Submit & lock →
+   `reports/sloanslake/v1.html` appears. Send. Client view shows only that version.
+4. **Stage 4 · Equip the agent.** Pitch, CPL-approved objections, news talking points, specimen map.
+5. **Stage 5 · Present, apply, bind → Live call.** Numbered questions, tap answers, "Client unsure," coverage
+   questions logged for a CPL, the limit walkthrough. Tap Q2 as "50–75%" (the recording says "Over 75%").
+   Call 1 (sample) is already ingested (seeded early so the pack has answers to show).
+   **After the call:** recording vs taps, quotes, flags. Re-ingest call 1 → Q2 becomes a CONFLICT. Revenue stays
+   open (the owner deferred to the accountant): type the confirmed figure → Stage 1 and the pack update (logged).
+   Click **Ingest** next to `call_2_followup.md` (or record one in Wispr Flow and run `call-ingest`): MFA and IT
+   software close; backups stay open. **Application & bind:** e-sign stays off until every answer is confirmed.
+6. **Audit trail + Ask.** "Who changed what?" and "Would a ransomware payment be covered?" (escalates).
 
 ## Docs
 

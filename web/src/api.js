@@ -24,6 +24,13 @@ export const api = {
   versions: () => req(`${base}/versions`),
   submit: (actor) => req(`${base}/report/submit`, { method: 'POST', body: { actor } }),
   send: (actor) => req(`${base}/report/send`, { method: 'POST', body: { actor } }),
+  // Stage 2: indications (carrier figures are read-only; no call writes one)
+  indications: () => req(`${base}/indications`),
+  sendToCarriers: (carriers, actor) => req(`${base}/indications/send`, { method: 'POST', body: { actor, carriers } }),
+  ingestReply: (path, actor) => req(`${base}/indications/ingest`, { method: 'POST', body: { actor, path } }),
+  reviewIndication: (vid, decision, note, actor) =>
+    req(`${base}/indications/versions/${vid}/review`, { method: 'POST', body: { actor, decision, note } }),
+  actionDone: (id, note, actor) => req(`${base}/indications/actions/${id}/done`, { method: 'POST', body: { actor, note } }),
   brief: () => req(`${base}/brief`),
   application: () => req(`${base}/application`),
   intakeCalls: () => req(`${base}/intake/calls`),

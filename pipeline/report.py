@@ -1,4 +1,4 @@
-"""Stage 2 — the digital report. One snapshot builder feeds both the agent view (editable)
+"""Stage 3 — the client proposal pack (digital report). One snapshot builder feeds both the agent view (editable)
 and the client view (a frozen, submitted version). Versions are immutable once submitted."""
 import json
 
@@ -185,7 +185,7 @@ def send(conn, cid: int) -> dict:
                         ORDER BY version_no DESC LIMIT 1""", (cid,)).fetchone()
     if not v:
         raise ValueError("nothing submitted to send")
-    conn.execute("UPDATE clients SET stage='presented' WHERE id=%s", (cid,))
+    conn.execute("UPDATE clients SET stage='agent_kit' WHERE id=%s AND stage IN ('confirm','indications','proposal')", (cid,))
     v = conn.execute("UPDATE report_versions SET state='sent', sent_at=now() WHERE id=%s RETURNING *",
                      (v["id"],)).fetchone()
     export_html(conn, cid, v)

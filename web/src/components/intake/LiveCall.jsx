@@ -135,7 +135,7 @@ export default function LiveCall({ data, actor, onSaved }) {
         <main className="live-main">
           <section id="sec-identity">
             <h3>Section 0 · Business identity</h3>
-            <p className="muted small">Stage 1 already has these. Confirm them, or type the correction.</p>
+            <p className="muted small">Stage 1 already has these. Confirm them, or type the correction (it updates Stage 1, logged).</p>
             {identity.map((it) => {
               const lv = live[it.key] || {}
               const pre = it.prefill || {}

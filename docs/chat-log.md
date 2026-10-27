@@ -237,12 +237,26 @@ prep for execs and engineers, a first-draft interview plan, and a file map.
 
 ---
 
-## Open items at the end of the session
+## Five stages (Oct 26, evening)
 
-- Run the stack on the Mac (`README.md`) and click through all five tabs
-- Delete the duplicate `claude-skills/` folder
-- Record a mock intake call in Wispr Flow and run `call-ingest`; verify Wispr Flow can capture phone calls
+**Randy:** Re-read Stage 1: confirm the five fields (mostly already in the agency's file at renewal), then
+send them to carriers and get indications back. "Let's say there are five stages." → **Claude:** keep
+UKON's numbering visible by mapping it (1 and 2 are UKON's Stage 1), and move the detailed security
+questions after the price, into Stage 5. **Randy:** "Redesign the frontend and the backend with the
+proper five stages."
+
+**Claude built it:** `pipeline/stages.py` (the five stages, status derived from the data); one app tab
+per stage with a status; Stage 1 trimmed to the five fields; a new Stage 2 screen (send to chosen
+carriers, gated on Stage 1; carrier inbox; read-only versions; check a flagged figure; close follow-ups
+with a note); the old Intake tab became Stage 5 (Present, apply, bind); `stage2_draft.py` renamed
+`stage3_proposal.py`. Decision 55. Docs, README, interview pages and screenshots updated to match.
+
+---
+
+## Open items
+
+- Record a mock Stage 5 call in Wispr Flow and run `call-ingest`; verify Wispr Flow can capture phone calls
 - Skim the research items before showing the pack; re-run `client-research` near the presentation
-- Review the draft interview plan (`interview-notes.md` §16); write the 1–2 page write-up
+- Review the draft interview plan (`interview-notes.md` §16) and the write-up in your own voice
 - Build the limit-sizing model so the walkthrough's placeholder figures become real
 - Schedule the final round with Matt

@@ -6,7 +6,7 @@ format: json-in-markdown
 
 # Client intake question bank
 
-> The questions an agent reads on the intake call, in order. One list drives the app's Intake →
+> The questions an agent reads on the intake call, in order. One list drives the app's Stage 5 →
 > Live call screen, call extraction (`pipeline/intake.py`) and the completed intake page.
 > Keys are stable: never rename one, add a new key instead.
 

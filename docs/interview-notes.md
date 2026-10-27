@@ -1,6 +1,6 @@
 # Interview notes — Cyber in the Renewal Window
 
-Randy Hesse · UKON final round (Matt Hightower, David, executive team, engineering) · prepared Oct 26, 2026
+Randy Hesse · UKON final round (Matt Hightower, David, executive team, engineering) · prepared Oct 26, 2026 · updated for the five-stage redesign
 
 These notes cover the whole project: what was built, why, the use cases, the conversations it
 supports, the workflows behind it, a demo talk track, and prep for the Q&A. Deeper detail lives in
@@ -40,18 +40,24 @@ raise it. The best moment is the renewal window, but getting a client from "no c
 "protected" is too much manual work, so the moment gets missed.
 
 The prototype takes one real client, **Sloan's Lake Dental** (Sage Dentistry, PLLC; three dentists,
-Denver CO; public data only, with a simulated renewal on Jan 15, 2027), all the way through:
+Denver CO; public data only, with a simulated renewal on Jan 15, 2027) through five stages. UKON's
+brief has four; I split its Stage 1 in two, because confirming the data and the round trip with
+carriers have different owners and a person's approval belongs between them.
 
-1. **Enrich:** AI gathers the five fields carriers need, with confidence and sources; a person
-   reviews only what's uncertain.
-2. **Intake:** the agent has a real conversation, tapping answers on a call screen while Wispr Flow
-   records. The recording is checked against the taps. It can take more than one call, and
-   **missing answers never block the next step.**
-3. **Client pack:** an HTML report for a non-technical owner: price first, their own answers, real
-   recent incidents in their industry, plain-language coverage. Agents can adjust estimates;
-   carrier prices are locked. Every version is saved.
-4. **Agent brief:** pitch, objection answers from an approved library, talking points, policy
+1. **Confirm data:** the five fields carriers need, mostly from the agency's own file at renewal,
+   filled from public records with confidence and sources; a person reviews only what's uncertain
+   and always confirms the company.
+2. **Get indications:** a person approves "Send to carriers" (blocked until Stage 1 is reviewed).
+   Replies come back as PDFs, emails or underwriter calls; AI reads them, every figure is checked
+   against the source, and each reply adds a version. Fixed rules turn changes into follow-ups.
+3. **Client proposal pack:** an HTML report for a non-technical owner: price first, their own
+   answers so far, real recent incidents in their industry, plain-language coverage. Agents adjust
+   estimates; carrier prices are locked. Every version is saved.
+4. **Equip the agent:** pitch, objection answers from an approved library, talking points, policy
    form map, and an "Ask about this client" assistant that never interprets coverage.
+5. **Present, apply, bind:** the agent presents on a call, tapping answers while Wispr Flow records;
+   the recording is checked against the taps. Answers fill the application; the client e-signs
+   once every answer is confirmed. **Missing answers never block the pack.**
 
 The rule underneath all of it: **the database owns the numbers; the wiki owns the evidence.** AI
 reads, extracts, explains and writes prose. It never writes a price, limit, or any figure a client
@@ -82,12 +88,14 @@ metric is **agent minutes per bound policy** (section 11).
 1. **The database owns the numbers; the wiki owns the evidence.** Postgres holds every value,
    version and change; the wiki (Obsidian) holds sources, reasoning and industry knowledge.
 2. **Humans decide; AI does the paperwork.** People confirm the entity match, flagged estimates,
-   intake answers and the send. The client signs the application.
+   sending to carriers, any carrier figure that failed the source check, call answers, and sending
+   the pack. The client signs the application.
 3. **Review by exception.** High-confidence fields pass; only uncertain ones need a person.
-4. **Incomplete never blocks.** Open intake items show as "to confirm"; the pack still goes out.
+4. **Incomplete never blocks.** Open answers show as "to confirm"; the pack still goes out.
 5. **Never silently resolve a disagreement.** Conflicting sources, recording-vs-tap conflicts and
    changed answers are flagged for a person.
-6. **Lock what isn't ours to change.** Carrier premiums, limits and deductibles can't be edited.
+6. **Lock what isn't ours to change.** Carrier premiums, limits and deductibles can't be edited, and
+   every carrier reply adds a version instead of overwriting the last.
 7. **Escalate coverage questions.** Neither the AI nor the agent answers "would this be covered?"
 8. **Everything is auditable.** Who changed what, when, why; versions are immutable once submitted.
 9. **Knowledge compounds.** Renewals repeat yearly, and industry pages are shared across every
@@ -99,52 +107,58 @@ metric is **agent minutes per bound policy** (section 11).
 
 ```mermaid
 flowchart LR
-  Q[Renewal queue<br/>60–120 days out] --> E
+  Q[Renewal queue<br/>60–120 days out] --> S1
 
-  subgraph E[1 · Enrich]
-    E1[Ingest sources → wiki] --> E2{{Confirm entity}}
-    E2 --> E3[Estimate 5 fields + exposure]
+  subgraph S1[1 · Confirm data]
+    E1[Agency file + public sources → wiki] --> E2{{Confirm entity}}
+    E2 --> E3[Five fields<br/>range · confidence · source]
     E3 --> E4{{Review by exception}}
   end
 
-  E4 --> C[Carrier indications<br/>locked in DB]
-  C --> I
-
-  subgraph I[2 · Intake · human in the loop]
-    I1{{Live call: agent taps answers}} --> I2[Wispr Flow recording → wiki]
-    I2 --> I3[AI extracts + quotes<br/>hedges + conflicts flagged]
-    I3 --> I4{{Agent confirms}}
-    I4 -.another call if needed.-> I1
+  E4 --> S2
+  subgraph S2[2 · Get indications]
+    C1{{Approve: send to carriers}} --> C2[Replies in: PDF · email · call<br/>checked against source · versioned]
+    C2 --> C3{{Check flagged figures<br/>close follow-ups}}
   end
 
-  I -->|incomplete is OK| P
+  S2 --> P
   R[Cited industry research] --> P
 
-  subgraph P[3 · Client pack]
+  subgraph P[3 · Client proposal pack]
     P1[HTML report from DB + wiki] --> P2{{Agent adjusts estimates}}
     P2 --> P3{{Submit → locked vN.html → send}}
   end
 
   P3 --> B
-  subgraph B[4 · Agent brief → present → apply → bind]
-    B1[Pitch · objections · news · Ask] --> B2{{Present}}
-    B2 --> B3{{Close open items · client e-signs}}
-    B3 --> B4[Carrier terms → bind]
+  subgraph B[4 · Equip the agent]
+    B1[Pitch · objections · specimens · news · Ask]
   end
-  B4 -.debrief.-> W[(Wiki: smarter next renewal)]
+
+  B --> I
+  subgraph I[5 · Present, apply, bind]
+    I1{{Call: present, tap answers}} --> I2[Wispr Flow recording → wiki<br/>quotes · hedges · conflicts flagged]
+    I2 --> I3{{Agent confirms}}
+    I3 -.another call if needed.-> I1
+    I3 --> I4{{Client e-signs}} --> I5[Carrier terms → bind]
+  end
+  I3 -.corrected revenue.-> S1
+  I5 -.debrief.-> W[(Wiki: smarter next renewal)]
 ```
 
-How this maps to UKON's four stages:
+How the five stages map to UKON's four (decision #55):
 
-| UKON stage | In the prototype |
-|---|---|
-| 1 · Get indications | **Enrich** (+ entity resolution, review by exception) → indications |
-| 2 · Client proposal pack | **Intake** feeds it, then the **Client pack** (HTML) |
-| 3 · Equip the agent | **Agent brief** + **Ask about this client** |
-| 4 · Present, apply, bind | Intake answers pre-fill the **Application**; client e-signs (designed) |
+| # | Stage | UKON stage | In the prototype |
+|---|---|---|---|
+| 1 | Confirm data | 1 (part 1) | **Enrich** (+ entity resolution, review by exception): the five fields only |
+| 2 | Get indications | 1 (part 2) | **Send to carriers** (gated on Stage 1) → replies in, versioned, checked → follow-ups |
+| 3 | Client proposal pack | 2 | **Client pack** (HTML), estimates and benchmarks behind it |
+| 4 | Equip the agent | 3 | **Agent brief** + **Ask about this client** |
+| 5 | Present, apply, bind | 4 | **Call** (live taps + Wispr Flow recording) → **Application** → e-sign → bind (simulated) |
 
-Intake is the one addition to UKON's sequence. It comes before the pack, so the pack speaks to
-what the owner actually said, and the same answers later fill the carrier application.
+Why split Stage 1: confirming five facts and the carrier round trip have different owners and failure
+modes, and a person's approval belongs between them, before client data leaves the agency. The detailed
+security questions moved to Stage 5: asking them before the owner has seen a price adds friction. The demo
+seed runs one Stage 5 call early so the pack shows what the owner has said so far.
 
 ---
 
@@ -156,20 +170,20 @@ no Docker and nothing installed system-wide.
 | Layer | What it is | Where |
 |---|---|---|
 | **Knowledge (wiki)** | Obsidian vault in the LLM-wiki pattern: raw sources, generated client and intake pages, shared industry page, research, schema | `wiki/` |
-| **System of record** | Postgres: fields with AI value vs current value, field-change log, locked indications, immutable report versions, intake answers, application answers, CPL questions, calls, ask log, audit view | `db/schema.sql` |
-| **Pipeline** | Deterministic estimators (no LLM), entity resolution, narrative with a no-digits guard, intake extraction and merge, HTML report export | `pipeline/` |
+| **System of record** | Postgres: fields with AI value vs current value, field-change log, indication requests / replies / versions (values locked by trigger) / follow-ups, immutable report versions, call answers, application answers, CPL questions, calls, ask log, audit view | `db/schema.sql` |
+| **Pipeline** | The five stages and their derived status (`stages.py`), deterministic estimators (no LLM), entity resolution, carrier exchange (requests, reply extraction with a source check, versions, rule-based follow-ups), narrative with a no-digits guard, call extraction and merge, HTML report export | `pipeline/` |
 | **API** | FastAPI; read-only "Ask" with tool use; serves the built front end | `api/` |
-| **Workbench** | React app: Enrich · Intake (Live call / After the call / Application) · Client pack · Agent brief · Audit · Ask | `web/` |
+| **Workbench** | React app, one tab per stage with a status: 1 Confirm data · 2 Get indications · 3 Proposal pack · 4 Equip the agent · 5 Present, apply, bind (Live call / After the call / Application & bind) · Audit · Ask | `web/` |
 | **Client pack** | Standalone HTML file per version | `reports/sloanslake/` |
-| **Claude skills** | `client-ingest`, `call-ingest` (Wispr Flow), `client-research` (web), `client-ask` | `.claude/skills/` |
-| **Docs** | Brief, decisions (36), workflow, intake script, pack outline, scope, risks, architecture, chat log, these notes | `docs/` |
+| **Claude skills** | `client-ingest`, `indication-ingest` (carrier replies), `call-ingest` (Wispr Flow), `client-research` (web), `client-ask` | `.claude/skills/` |
+| **Docs** | Brief, decisions (55), workflow, call script, pack outline, scope, risks, architecture, chat log, these notes | `docs/` |
 
 **The demo client in numbers (all from the database):**
 - Legal name **Sage Dentistry, PLLC** (Colorado registry, good standing since 2015; the NPI record ties it to the "Sloan's Lake Dental" trade name). A delinquent "Sloans Lake Dental PLLC" sits at the same address: 37% vs 100%.
 - Employees **12** estimated (range 9–15, low confidence): nothing public; 3 dentists on the team page × ~4 support staff (an assumption, flagged)
 - Revenue **$2,350,000** estimated (range $1.65M–$3.2M, low confidence): 12 staff × $152,600 = $1,831,200 and 3 dentists × $965,660 = $2,896,980. They disagree by ~$1.1M. On the (simulated) call the owner says it's higher and defers to the accountant, so it stays open.
 - Exposure **68/100 → 63 after call 1 → 45 after call 2**; the starting score uses the practice's real DNS (Paubox email, SPF -all, no DMARC) and real online bill pay (Adit)
-- Indications: three fictional carriers calibrated to real 2026 benchmarks, two options each ($1M/$10K, $2M/$25K). Default: Northwind **$2,980 a year ($248 a month)** for $1M, social-engineering sublimit $100K, ransomware to the full limit.
+- Indications: three fictional carriers calibrated to real 2026 benchmarks, two options each ($1M/$10K, $2M/$25K). Default by rule: Northwind **$2,980 a year ($248 a month)** for $1M, social-engineering sublimit $100K, ransomware to the full limit (Ridgeline is cheaper at $2,590 but caps ransomware at $500K and declines $2M). Northwind's revised letter, read in live, moves both premiums up 10% ($3,280 / $5,190) and adds an EDR condition. Cobalt's $2M figure ($5,290, written "5.29k") waits for a person.
 
 ---
 
@@ -183,69 +197,79 @@ Each use case: who, trigger, what happens, outcome, guardrail. ✅ = built, ◻ 
 - **Outcome:** a prioritized queue (the "how this scales" slide)
 - **Guardrail:** existing-coverage check before any work starts
 
-### UC2 · Enrich a client and resolve the entity ✅
-- **Actor:** pipeline + reviewer (CPL/ops) · **Trigger:** client enters the queue
+### UC2 · Stage 1 · Resolve the entity ✅
+- **Actor:** pipeline + reviewer (agent, CPL or ops) · **Trigger:** client enters the queue
 - **Flow:** ingest agency record, state registry, NPI registry, website, directory listings, DNS → score entity
   candidates on name, state, address, domain and registry status → **person confirms** the match
 - **Demo moment:** the real registry has "Sloans Lake Dental PLLC" at the same address, delinquent since 2022: 37% vs the right entity at 100%
 - **Guardrail:** name similarity alone is never enough; confirmation is always human
 
-### UC3 · Review estimates by exception ✅
-- **Flow:** five fields + exposure, each with value, range, confidence, method, sources; only
-  low-confidence or estimated items are flagged ("3 to review")
-- **Outcome:** reviewer approves or edits; every edit needs a reason and is logged
+### UC3 · Stage 1 · Confirm the five fields by exception ✅
+- **Flow:** legal name, domain, industry, revenue, address, each with value, range, confidence,
+  method, sources; only low-confidence or estimated items are flagged. Gaps go back to the client
+  (usually domain or this year's revenue), not the whole list.
+- **Outcome:** reviewer approves or edits; every edit records where the value came from
+  (conversation, clipboard, API, typed) and who made it
 - **Guardrail:** estimates show method and range, never a bare number
 
-### UC4 · Get carrier indications ✅ (fixture)
-- **Flow:** submit the five fields → indications stored as locked rows → default carrier chosen by
-  rule (cheapest "recommended" option that keeps ransomware at the full limit)
-- **Guardrail:** no route or screen can edit a premium, limit or deductible
+### UC4 · Stage 2 · Send to carriers ✅ (carriers simulated)
+- **Flow:** the screen shows exactly what will go out and each field's review state → agent picks
+  carriers → **Send**. Refused until the entity is confirmed and the five fields are reviewed.
+  The basis is stored per request, so you can always see what a carrier priced on.
+- **Demo:** the seed's first requests went out before review (labelled "demo seed"); the re-request is gated
+- **Guardrail:** a person approves before client data leaves the agency
 
-### UC5 · Run the live intake call ✅
-- **Actor:** agent, on the phone with the owner · **Screen:** Intake → Live call
-- **Flow:** open with recording consent → confirm identity items (prefilled from enrichment, with
-  confidence) → exposure questions read by number, answers tapped → "Client unsure" on hedges →
+### UC5 · Stage 2 · Read in a carrier reply ✅
+- **Flow:** reply lands in the carrier inbox (PDF letter, email, underwriter call via Wispr Flow) →
+  "Read it in" → AI extracts → every figure checked against the source text → new version per
+  carrier + option, with a diff → follow-ups by fixed rules (price changed, new condition checked
+  against the client's answers, declined, get it in writing)
+- **Demo:** Northwind's revised letter: both premiums +10%, a new EDR condition; the pack updates itself
+- **Guardrails:** values locked by a database trigger; a figure not found word for word waits for a
+  person ("Matches the source" / "Doesn't match"); verbal figures are stored but never client-facing;
+  revenue drift beyond ±15% from the carrier's basis raises "re-request"
+
+### UC6 · Stage 5 · Run the live call ✅
+- **Actor:** agent, on the phone with the owner · **Screen:** Stage 5 → Live call
+- **Flow:** open with recording consent → confirm identity items (prefilled from Stage 1, with
+  confidence) → application questions read by number, answers tapped → "Client unsure" on hedges →
   log coverage questions for a CPL → limit walkthrough with the client's own answers filled in
 - **Outcome:** taps saved to the database as the agent goes
 - **Guardrails:** figures in the walkthrough come from the database or show "not modelled yet";
   the agent never estimates a number on the call
 
-### UC6 · Ingest the recording and reconcile ✅
+### UC7 · Stage 5 · Ingest the recording and reconcile; follow-up calls ✅
 - **Actor:** agent or Claude (`call-ingest` skill) · **Trigger:** call ends
-- **Flow:** Wispr Flow transcript → saved to the wiki → AI extracts intake + application answers,
-  each with a quote and timestamp → hedge check → compare with live taps → merge
+- **Flow:** Wispr Flow transcript → saved to the wiki → AI extracts call + application answers,
+  each with a quote and timestamp → hedge check → compare with live taps → merge across calls
 - **Outcome:** each item is "Recorded · confirm," "Needs follow-up," or a **CONFLICT** (recording ≠ tap)
-- **Guardrails:** hedged "yes" is never a yes; conflicts are never auto-resolved
-
-### UC7 · Follow-up call ✅
-- **Flow:** a shorter second call (here with the office manager) closes gaps; merged in call order
-- **Demo:** call 2 confirms MFA for everyone and attack-monitoring software; backups stay untested;
-  exposure 66 → 48; the HTML pack updates itself
-- **Guardrails:** an older call re-ingested never overwrites a newer one; a different answer to
-  something already confirmed reopens it instead of overwriting
+- **Demo:** call 2 (office manager) confirms MFA for everyone and EDR on all nine computers;
+  backups stay untested; exposure 63 → 45; the HTML pack updates itself
+- **Guardrails:** hedged "yes" is never a yes; conflicts are never auto-resolved; an older call
+  re-ingested never overwrites a newer one; a contradiction of a confirmed answer reopens it
 
 ### UC8 · Coverage question during a call ✅
 - **Flow:** the owner asks "Would a breach that starts at our IT company be covered?" → the agent
   says the scripted line → the question is logged (live) or detected in the recording → CPL list
 - **Guardrail:** never answered by the agent or the AI
 
-### UC9 · Build the client pack with incomplete intake ✅
-- **Flow:** HTML report built from DB + intake + research + approved coverage text; open items show
-  as "to confirm"
+### UC9 · Stage 3 · Build the client pack with incomplete answers ✅
+- **Flow:** HTML report built from DB + indications + answers so far + research + approved coverage
+  text; open items show as "to confirm"
 - **Outcome:** `reports/sloanslake/current.html`, rewritten on every change
 - **Guardrail:** AI prose with any digit is rejected; figures come only from the database
 
-### UC10 · Adjust estimates; catch stale prices ✅
+### UC10 · Stage 3 · Adjust estimates; catch stale prices ✅
 - **Flow:** agent moves revenue / employees / exposure / records sliders with a reason
-- **Demo:** revenue → $2.4M (+23%) → "indication needs refresh" banner; premiums do **not** move
+- **Demo:** revenue → $2.8M (+19% vs the $2.35M carriers priced on) → "indication needs refresh" banner; premiums do **not** move
 - **Guardrail:** tolerance ±15% from what the carrier priced on
 
-### UC11 · Submit, lock, send; versioning ✅
+### UC11 · Stage 3 · Submit, lock, send; versioning ✅
 - **Flow:** submit → `v1.html` written and frozen → send → client view shows only that → any later
   change creates v2; v1 stays as sent
 - **Guardrail:** immutable versions; the client never sees a draft
 
-### UC12 · Prepare for the meeting (agent brief) ✅
+### UC12 · Stage 4 · Prepare for the meeting (agent brief) ✅
 - 60-second pitch, objections with tailored answers from a CPL-approved library, escalation
   triggers, specimen "where to find it" map, application preview, real-event talking points
 
@@ -258,8 +282,8 @@ Each use case: who, trigger, what happens, outcome, guardrail. ✅ = built, ◻ 
   incidents, regulation) → cited items in the wiki → pack and brief update
 - **Guardrails:** no URL, no item; figures quoted from the source; a person skims before sending
 
-### UC15 · Application and e-signature ◻ (partly built)
-- **Built:** application answers filled by the same calls; confirming an intake item confirms the
+### UC15 · Stage 5 · Application and e-signature ◻ (partly built)
+- **Built:** application answers filled by the same calls; confirming a call answer confirms the
   application questions it fills; e-sign button disabled until everything is confirmed
 - **Designed:** pre-filled application sent for e-signature → carrier final terms → bind
 
@@ -268,7 +292,7 @@ Each use case: who, trigger, what happens, outcome, guardrail. ✅ = built, ◻ 
   training signal ("where people keep overriding the AI is where the estimators need work")
 
 ### UC17 · Browse the knowledge (Obsidian) ✅
-- Open `wiki/` as a vault: client page and intake page (generated), industry page, every raw
+- Open `wiki/` as a vault: client, indications and call-answer pages (generated), industry page, every raw
   source, clickable citations, graph view. **Next year's renewal starts here.**
 
 ### UC18 · Next renewal, next client in the same industry ◻ (by design)
@@ -278,22 +302,23 @@ Each use case: who, trigger, what happens, outcome, guardrail. ✅ = built, ◻ 
 
 ## 7. Conversation flows
 
-### 7.1 Intake call (agent ↔ owner), call 1
+### 7.1 Stage 5 call (agent ↔ owner), call 1
 Source: `wiki/raw/sloanslake/call_1_intake.md` · script: `docs/client-intake.md`
 
 ```
 Opening       Agent: recording disclosure → Owner: "Sure, that's fine."      ← consent captured
 Identity      Agent reads each prefilled item → Owner confirms or corrects
-              "It was a little higher, closer to two point one."             ← revenue corrected
+              "It's higher than that, I'm pretty sure … I'd want our
+               accountant to give you the real number."                      ← revenue stays open
 Exposure      Agent: "Question 2 …"  (says the number aloud so the recording lines up)
               Owner: "I'd say eighty, eighty-five percent stops."            → Over 75%
               Owner: "Mostly. I do, and the front desk does. Not sure about
                       the hygienists."                                        → MFA flagged (hedge)
               Owner: "I believe Peak Tech installed something last year."   → EDR flagged (hedge)
-              Owner: "Rosa always calls."                                     → payment check in place
+              Owner: "Our office manager always calls."                       → payment check in place
 Walkthrough   Agent reads how each limit figure is built, with the owner's
               own answers filled in; checks: "Does that record count sound right?"
-              Owner: "Yes, nine thousand is about right."
+              Owner: "Yes, twelve thousand is about right."
 Coverage Q    Owner: "Would a breach that starts at Peak Tech be covered?"
               Agent: "Good question. I'll get a coverage specialist to confirm that in writing."
               → logged for a CPL
@@ -311,10 +336,10 @@ Agent: hygienists' email codes?  → "Peak Tech turned them on Monday, so it's e
 Agent: what security software?   → "Endpoint detection and response, on all nine computers." → EDR ✓
 Agent: backups tested?           → "Not yet. Scheduled for next month."                     → stays open
 ```
-Result: two gaps closed, one remains, the pack goes out anyway, exposure drops.
+Result: two gaps closed, one remains, the pack goes out anyway, exposure drops 63 → 45.
 
 ### 7.3 Presenting the pack (agent ↔ owner)
-- **Lead with price:** "The middle option, $1M of protection, is about $232 a month."
+- **Lead with price:** "The $1M option is about $248 a month" ($2,980 a year; $273 after Northwind's revision).
 - **Make it real:** their own answers ("you already call to confirm payment changes, which insurers
   look for") plus one real incident from a practice like theirs.
 - **Objections** (approved library, tailored by AI):
@@ -351,7 +376,7 @@ Result: two gaps closed, one remains, the pack goes out anyway, exposure drops.
 ```
 raw sources (wiki) ──extract──▶ signals ──estimators (no LLM)──▶ fields (DB) ──▶ client page (wiki, generated)
                                                                      │
-carrier indications ──────────────────────────────▶ indications (DB, locked)
+carrier replies (wiki) ──extract──▶ source check ──▶ indication_versions (DB, locked) ──▶ indications view
                                                                      │
 live taps (UI) ─▶ intake_answers (DB) ◀── merge ◀── extraction ◀── call transcript (wiki)
                         │                                   └──▶ application_answers (DB)
@@ -360,8 +385,16 @@ live taps (UI) ─▶ intake_answers (DB) ◀── merge ◀── extraction �
               narrative (LLM, no digits) + research (wiki, cited) ──▶ report snapshot (DB) ──▶ reports/*.html
 ```
 
-### 8.2 Client stage
-`enrichment → indications → intake → report → presented → application → bound`
+### 8.2 Stage status
+Five stages, each with a status derived from the data on every request (`pipeline/stages.py`), not set by hand:
+
+| Stage | Done when | Needs attention when |
+|---|---|---|
+| 1 Confirm data | entity confirmed, five fields reviewed | anything flagged |
+| 2 Get indications | a written, checked indication is in and no follow-ups are open | open follow-ups or a figure to check |
+| 3 Proposal pack | a version is submitted (locked) | — |
+| 4 Equip the agent | the pack has been sent | — |
+| 5 Present, apply, bind | every application answer is confirmed | — |
 
 ### 8.3 Intake answer status
 ```
@@ -412,19 +445,20 @@ earns nothing. An agent's manual override is kept; only the AI's recommendation 
 
 ## 10. Key decisions and trade-offs
 
-Full log (36 entries): `docs/decisions.md`. The ones most likely to come up:
+Full log (55 entries): `docs/decisions.md`. The ones most likely to come up:
 
 | Decision | Trade-off |
 |---|---|
 | Prototype the whole flow for **one client, deep**, not many shallow | Shows judgment end to end; scale shown on a slide (renewal queue) rather than built |
 | **Wiki + database**, not one or the other | Two stores to keep in sync → solved by generating wiki pages from the DB |
-| **Intake before the pack**, can be incomplete | The pack can show open items; the gain is that it speaks to what the owner actually said |
+| **Five stages: UKON's Stage 1 split in two** | One more stage to explain; puts a person's approval between confirming data and sending it to carriers |
+| **Application questions after the price** (Stage 5), never blocking | The pack has fewer answers to quote; the owner isn't asked about security practices before seeing a price |
 | **Live taps + recording** | More moving parts; gives a built-in second opinion and catches mishearing both ways |
 | **Lock carrier numbers**, flag drift instead of recalculating | Agents can't "fix" a price; prevents misrepresenting the carrier |
 | **No digits in AI prose** | Narrative is a bit more general; hallucinated figures become impossible |
 | **Human confirms the entity every time** | One click per client; eliminates the worst error |
 | **Exposure score instead of a security scan** | Rough and labelled as such; free, explainable, adjustable |
-| **Fictional client, real benchmarks** | Not a real company; nobody's security weaknesses shown to execs |
+| **Real client, public data only; agency, calls and carriers simulated** | More convincing than invented records; simulated parts are labelled, carriers stay fictional so no fake quote sits on a real letterhead |
 | **Everything local, bundled** (uv, pgserver, nodejs-wheel) | Unusual setup; one prerequisite, nothing installed system-wide |
 
 ---
@@ -468,13 +502,16 @@ practice ransomware case, Becker's 2026 dental breach roundup, a dental billing 
 the Change Healthcare outage, HHS's first ransomware settlement, the proposed HIPAA MFA/encryption
 rule, fake-invoice fraud patterns).
 
-**Fictional:** the client, agency, carriers, indications, specimen sections, call transcripts.
+**Real:** the client and everything public about it (state registry, NPI, website, directory listings, DNS).
+
+**Simulated:** the agency and its records, the renewal date, carriers and indications, specimen sections, call transcripts.
 
 **Known gaps (say these before they're asked):**
 - **Limit walkthrough figures** (lost income, ransom range, notification cost, etc.) show as
   "not modelled yet." The formulas are written (`docs/client-intake.md`); defaults need sourcing.
 - **Without an API key**, extraction, narrative and Ask use cached or offline outputs (same guards).
-- **One client;** no renewal queue, auth, multi-agency tenancy, carrier integrations or e-sign.
+- **One client;** no renewal queue, auth, multi-agency tenancy, carrier integrations, e-sign or binding.
+- **The demo seed runs call 1 before the pack** so the pack has answers to show; in production the pack goes first.
 - **Wispr Flow and phone calls:** whether it captures phone calls (vs meetings and dictation) is unverified.
 - Revenue per employee is a 2022 figure, not inflated (conservative, stated).
 
@@ -495,15 +532,13 @@ rule, fake-invoice fraud patterns).
 | 26–28 | Open questions + interview plan | Section 16 |
 | 28–30 | How I built it with AI | Section 18 |
 
-**Live demo (≈8 minutes):**
-1. **Enrich:** delinquent same-name entity (37% vs 100%) → confirm Sage Dentistry, PLLC; revenue "method & sources" → two methods ~$1.1M apart, low confidence → leave flagged for the call.
-2. **Intake → Live call:** numbered questions, prefilled identity with confidence, "Client unsure," CPL log, walkthrough with the owner's answers and DB figures. Tap Q2 "50–75%."
-3. **After the call:** call 1's quotes; hedged MFA flagged; re-ingest → **Q2 conflict**; revenue stays open (owner defers to the accountant); type a figure → report updates with a logged change.
-4. **Client pack:** open the HTML: price first, "What you've told us so far," real Colorado news items, exposure 63.
-5. **Follow-up call:** ingest call 2 → MFA/EDR close, backups stay open → exposure 45 → refresh the HTML.
-6. **Adjust & lock:** revenue to $2.4M → refresh banner, premiums unchanged → reset → submit → `v1.html` → send → client view.
-7. **Brief + Ask + Audit:** objections; "Would a ransomware payment be covered?" → escalates; audit trail.
-8. **Obsidian (30 sec):** graph view; the intake page with quotes.
+**Live demo (≈8 minutes), one tab per stage:**
+1. **Stage 1 · Confirm data:** delinquent same-name entity (37% vs 100%) → confirm Sage Dentistry, PLLC; revenue "method & sources" → two methods ~$1.1M apart, low confidence → approve or edit, with the source recorded.
+2. **Stage 2 · Get indications:** try Send before Stage 1 is done (refused) → send. **Read in** Northwind's revised letter: +10% and a new EDR condition become follow-ups. Cobalt's "5.29k" → **Matches the source**.
+3. **Stage 3 · Proposal pack:** open the HTML: price first, "What you've told us so far," real Colorado news items. Revenue to $2.8M → refresh banner, premiums unchanged → reset → submit → `v1.html` → send → client view.
+4. **Stage 4 · Equip the agent:** objections; Ask "Would a ransomware payment be covered?" → escalates.
+5. **Stage 5 · Live call:** numbered questions, prefilled identity, "Client unsure," CPL log, walkthrough. Tap Q2 "50–75%." **After the call:** re-ingest call 1 → **Q2 conflict**; ingest call 2 → MFA/EDR close, backups open → exposure 45. **Application & bind:** e-sign stays off until everything is confirmed.
+6. **Audit + Obsidian (30 sec):** who changed what; graph view and the call page with quotes.
 
 **If something breaks:** `uv run python -m pipeline.run_all` resets in seconds; screenshots and the
 HTML file work without the app.
@@ -521,7 +556,10 @@ HTML file work without the app.
   only; carrier numbers locked; consent on recordings; the client signs the application; full audit trail.
 - *Why a dental practice?* Health data, single-system dependency and front-office payment fraud
   make it a clear case, and the industry page carries over to every dental client.
-- *What would you build first?* Renewal queue + enrichment with review by exception + pack, then
+- *Why five stages when we gave you four?* Your Stage 1 hides two jobs: confirming five facts we
+  mostly already have, and the carrier round trip. Splitting them puts a person's approval before
+  client data leaves the agency, and makes each half measurable on its own.
+- *What would you build first?* Renewal queue + Stage 1 with review by exception + pack, then
   carrier integrations. Skip binding and e-sign until carriers are integrated.
 - *How do you know the estimates are right?* Two independent methods, ranges, confidence, confirmed
   on the call; next step is a golden set of 15–20 businesses for field-level accuracy.
@@ -580,9 +618,11 @@ HTML file work without the app.
   **critical review** of my own workflow (it called the first design "a platform, not an MVP," and I
   cut scope to one client, built deep), benchmark and incident research with sources, and most of
   the code.
-- **Parallel sessions, merged:** a second session built a richer intake (question bank, call screen,
+- **Parallel sessions, merged:** a second session built a richer call screen (question bank,
   live-tap reconciliation). The two were merged into one flow, and the merge is recorded in
   `docs/chat-log.md`.
+- **Redesign mid-build:** re-reading the brief, I split UKON's Stage 1 into confirm data and get
+  indications, and moved the security questions after the price (decision #55).
 - **The LLM-wiki pattern** (Karpathy) for the knowledge layer, opened in **Obsidian**.
 - **Wispr Flow** for call capture, pulled in by a Claude skill.
 - **Guardrails built by me, around the AI:** no-digits validator, hedge override, locked carrier
@@ -615,9 +655,9 @@ Optional: put `ANTHROPIC_API_KEY` in `.env` to run extraction, narrative and Ask
 |---|---|
 | `docs/00-brief.md` | UKON's assignment |
 | `docs/interview-notes.md` | This document |
-| `docs/decisions.md` | All 36 design decisions with reasons and who made them |
+| `docs/decisions.md` | All 55 design decisions with reasons and who made them |
 | `docs/workflow.md` | Per-step AI / human / failure modes + diagram |
-| `docs/client-intake.md` | Intake questions and limit walkthrough script |
+| `docs/client-intake.md` | Stage 5 call questions and limit walkthrough script |
 | `docs/proposal-pack.md` | Client pack outline |
 | `docs/mvp-scope.md` | Critique, built / later / skipped |
 | `docs/assumptions-risks-questions.md` | Write-up raw material |
@@ -625,8 +665,8 @@ Optional: put `ANTHROPIC_API_KEY` in `.env` to run extraction, narrative and Ask
 | `docs/deliverables.md` | Deliverable status + checklist |
 | `docs/chat-log.md` | How it was designed and built |
 | `wiki/index.md` | Start of the Obsidian vault |
-| `wiki/clients/sloanslake.md`, `…-intake.md` | Generated client and intake pages |
+| `wiki/clients/sloanslake.md`, `…-indications.md`, `…-intake.md` | Generated client, carrier-indication and call-answer pages |
 | `wiki/raw/` | Sources, benchmarks, research, carriers, intake bank, transcripts |
 | `reports/sloanslake/` | HTML client packs |
-| `pipeline/`, `api/`, `web/`, `db/`, `scripts/` | The app |
-| `.claude/skills/` | `client-ingest`, `call-ingest`, `client-research`, `client-ask` |
+| `pipeline/`, `api/`, `web/`, `db/`, `scripts/` | The app (`pipeline/stages.py` defines the five stages) |
+| `.claude/skills/` | `client-ingest`, `indication-ingest`, `call-ingest`, `client-research`, `client-ask` |

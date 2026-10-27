@@ -11,7 +11,7 @@ RAW = WIKI / "raw"
 CLIENT_SLUG = "sloanslake"
 
 # Bump when db/schema.sql changes; the API refuses to run against an older database (run pipeline.run_all).
-SCHEMA_VERSION = "2026-10-26c"
+SCHEMA_VERSION = "2026-10-27a"
 
 
 def _load_dotenv(path: Path) -> None:
@@ -50,7 +50,7 @@ REVENUE_DRIFT_TOLERANCE = 0.15
 DENTAL_REVENUE_PER_EMPLOYEE = 152_600   # Census SAS 2022 revenue / BLS 2022 employment
 DENTAL_BILLINGS_PER_DENTIST = 965_660   # ADA HPI 2025 general practice gross billings
 
-# --- Stage 1: the agent <-> carrier exchange --------------------------------
+# --- Stage 2: the agent <-> carrier exchange --------------------------------
 # The two options requested from every carrier. `tier` keys the client pack columns.
 REQUESTED_OPTIONS = [
     {"tier": "recommended", "label": "$1M / $10K", "limit": 1_000_000, "deductible": 10_000},

@@ -1,12 +1,12 @@
-# Client pack (UKON Stage 2 deliverable)
+# Client proposal pack (Stage 3; UKON's Stage 2 deliverable)
 
-A **digital HTML report**: rendered from the client wiki, the intake answers and the database,
-adjustable by the agent, frozen when submitted. Built after intake, even if intake is incomplete.
+A **digital HTML report**: rendered from the client wiki, the carrier indications, the owner's answers
+so far and the database, adjustable by the agent, frozen when submitted. It never waits on missing answers.
 
 **Where it lives**
 - `reports/sloanslake/current.html`: the working draft, rewritten on every change. Open it in any browser.
 - `reports/sloanslake/v<N>.html`: written once when version N is submitted; never changes after.
-- In the app: the **Client pack** tab, and the "Open HTML report ↗" button (served at
+- In the app: the **Stage 3 · Proposal pack** tab, and the "Open HTML report ↗" button (served at
   `/api/clients/sloanslake/report.html`).
 
 ## Design principle

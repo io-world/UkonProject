@@ -8,40 +8,48 @@ database, not the model, owns every number a client sees.**
 flowchart LR
   Q[Renewal queue<br/>60–120 days out] --> S1
 
-  subgraph S1[1 · Indication-ready]
+  subgraph S1[1 · Confirm data · UKON 1a]
     A1[Ingest sources into client wiki<br/>AMS · filings · website · DNS] --> A2[Score entity candidates]
     A2 --> H1{{Human confirms entity}}
-    H1 --> A3[Estimate 5 fields + exposure<br/>ranges · confidence · method]
+    H1 --> A3[Five fields<br/>ranges · confidence · source]
     A3 --> H2{{Review by exception}}
   end
 
-  H2 --> C[Carriers return indications<br/>locked in DB]
-  C --> S2
-
-  subgraph S2[2 · Intake · human in the loop]
-    I1{{Agent calls owner<br/>plain-language questions<br/>one or more calls}} --> I2[Wispr Flow transcript → wiki]
-    I2 --> I3[AI extracts answers with quotes<br/>hedges flagged · calls merged]
-    I3 --> I4{{Agent confirms what matters}}
+  H2 --> S2
+  subgraph S2[2 · Get indications · UKON 1b]
+    G1{{Agent approves Send to carriers<br/>gated on Stage 1}} --> G2[Replies in: PDF · email · call<br/>figures checked against source · versioned]
+    G2 --> G3[Follow-ups by fixed rules<br/>price moved · new condition · declined]
+    G3 --> G4{{Agent checks flagged figures<br/>closes follow-ups}}
   end
 
-  S2 -->|incomplete is OK| S3
+  S2 --> S3
   R[AI web research<br/>industry incidents · regulation<br/>cited, human-reviewed] --> S3
 
-  subgraph S3[3 · Client pack]
-    B1[AI drafts narrative<br/>no numbers allowed] --> B2[HTML report: numbers from DB<br/>+ intake status + research]
+  subgraph S3[3 · Client proposal pack · UKON 2]
+    B1[AI drafts narrative<br/>no numbers allowed] --> B2[HTML report: numbers from DB<br/>+ answers so far + research]
     B2 --> H3{{Agent adjusts estimates<br/>carrier numbers locked}}
-    H3 --> H4{{Agent submits → locked v‹N›.html}}
+    H3 --> H4{{Agent submits → locked v‹N›.html → sends}}
   end
 
   H4 --> S4
-  subgraph S4[4 · Agent brief → present → apply → bind]
-    D1[Pitch · objections · news talking points<br/>Ask about this client] --> E1{{Agent presents}}
-    E1 --> E2{{Close open intake items<br/>client e-signs application}}
+  subgraph S4[4 · Equip the agent · UKON 3]
+    D1[Pitch · objections · specimens<br/>news talking points · Ask about this client]
+  end
+
+  S4 --> S5
+  subgraph S5[5 · Present, apply, bind · UKON 4]
+    I1{{Agent presents on a call<br/>taps answers live}} --> I2[Wispr Flow transcript → wiki<br/>answers with quotes · hedges flagged]
+    I2 --> I3{{Agent confirms answers}}
+    I3 --> E2{{Client e-signs application}}
     E2 --> F[Carrier final terms → bind]
   end
+  I3 -.corrected revenue.-> S1
 
   F -.debrief.-> W[(Client + industry wiki<br/>smarter next renewal)]
 ```
+
+UKON's brief has four stages; this splits its Stage 1 into **1 · Confirm data** and **2 · Get indications**,
+so stages 3–5 here are UKON's 2–4 (decision #55).
 
 Legend: rectangles = AI or system; hexagons = a human decision.
 
@@ -55,7 +63,7 @@ Legend: rectangles = AI or system; hexagons = a human decision.
 | **Human** | Agent or account manager picks which to pursue; can snooze a client. |
 | **What could go wrong** | Clients already have cyber (as a BOP endorsement or elsewhere) → wasted effort. **Catch:** check existing policies and endorsements in the AMS before queuing. *(Designed, not built.)* |
 
-## Stage 1 · Get to indication-ready (built)
+## Stage 1 · Confirm data (built; UKON Stage 1, part 1)
 
 | Step | AI does | Human does | What could go wrong → how it's caught |
 |---|---|---|---|
@@ -65,14 +73,15 @@ Legend: rectangles = AI or system; hexagons = a human decision.
 | Employees | Most recent direct count wins; range spans recent signals; stale signals ignored. With no published count, an explicit estimate (dentists × support-staff assumption), low confidence. | Reviews if signals disagree beyond ±20%, or if the count is estimated. | Headcount ≠ FTEs → stated as an assumption; confirmed on the call. |
 | Revenue | Waterfall: agency record → public filing → two benchmark methods (staff × revenue/employee; dentists × billings/dentist). Range + confidence. | **Always reviews** estimated revenue. | Revenue isn't public for private SMBs → two independent methods must agree; flagged for confirmation before binding. |
 | Exposure | Rough, explainable score: data sensitivity, email accounts, DMARC/SPF, online payments, record volume. | Adjusts with a slider. | Mistaken for a security rating → labeled "not a security scan"; controls unknown until the call. |
-| Indications | See **Stage 1, step B** below (same screen). | | |
 
 Review by exception: in the demo, 3 of ~8 items need a person (entity, revenue, plus anything with conflicting signals).
 
-## Stage 1, step B · The agent ↔ carrier exchange (designed and built in the backend; not shown in the demo UI)
+## Stage 2 · Get indications: the agent ↔ carrier exchange (built; UKON Stage 1, part 2)
 
-An indication is a carrier's non-binding ballpark for a given limit and deductible. Stage 1 isn't done
-until those come back, so Stage 1 has two directions.
+An indication is a carrier's non-binding ballpark for a given limit and deductible. UKON's Stage 1 isn't done
+until those come back, so the prototype gives the round trip its own stage, with a person's approval before
+anything is sent. The app's Stage 2 screen sends (gated on Stage 1), reads replies in from the inbox, shows
+every carrier's versions read-only, lets a person check a flagged figure, and closes follow-ups with a note.
 
 | Step | AI does | Human does | What could go wrong → how it's caught |
 |---|---|---|---|
@@ -85,23 +94,7 @@ until those come back, so Stage 1 has two directions.
 | Current state | The client pack reads only the latest **written**, **checked** version per carrier + option. | Picks the carrier to show (default rule: cheapest $1M with full-limit ransomware). | Verbal number reaches the client → impossible: verbal versions are excluded from the view. |
 
 Demo: run_all loads four replies (Northwind PDF, Cobalt email, Ridgeline call then letter); the revised Northwind
-letter can be ingested from the command line.
-
-## Intake · human in the loop (built)
-
-Intake comes **before** the client pack. The agent gathers what the carriers' applications will ask,
-in conversation, and the pack is built from whatever is known so far.
-
-| Step | AI does | Human does | What could go wrong → how it's caught |
-|---|---|---|---|
-| Question list | Plain-language questions from the carrier question bank, minus what the wiki/DB already knows. | — | Jargon → plain wording ("a code from your phone" for MFA). |
-| Call(s) | — | Agent runs one or more calls from **Intake → Live call**: reads the numbered questions, taps answers, marks "client unsure," logs coverage questions for a CPL, reads the limit walkthrough. Each call opens with recording consent; Wispr Flow captures it. | No consent → transcript not used. Agent answers a coverage question → script says escalate; it's logged. |
-| Extract & merge | Pulls intake + application answers with quote + timestamp per call; checks them against the live taps; merges with earlier calls. | — | "Mostly" → **hedge check forces follow-up**. Recording ≠ tap → **CONFLICT** flagged. A later call contradicts a confirmed answer → reopened, never silently overwritten. Re-ingesting an older call never overwrites a newer one. |
-| Proceed incomplete | Exposure score recalculated from controls confirmed so far. | Agent decides it's enough to build the pack. | Owner thinks the gaps block a price → pack lists them as "to confirm" and says they don't hold anything up. |
-| Confirm | — | Agent confirms in **Intake → After the call**; that also confirms the application questions the answer fills; confirmed revenue/records update the report as logged changes. | Wrong answer reaches the application → agent review now, client signature later. |
-
-Demo: call 1 leaves three items open (MFA for hygienists, backups, EDR); call 2 closes two of
-them and exposure drops from 66 to 48. Backups stay open, and the pack still goes out.
+letter waits in Stage 2's carrier inbox for a live "Read it in" (or the command line).
 
 ## Industry research (built)
 
@@ -111,7 +104,7 @@ them and exposure drops from 66 to 48. Backups stay open, and the pack still goe
 | **Human does** | Reviews the items; deletes any that don't fit. Each item is tagged for the client pack, the agent brief, or both. |
 | **What could go wrong** | Invented or stale events → every item needs a URL and date; figures are quoted from the source; the tailored line may not add numbers. |
 
-## Client pack · the HTML report (built)
+## Stage 3 · Client proposal pack: the HTML report (built)
 
 | Step | AI does | Human does | What could go wrong → how it's caught |
 |---|---|---|---|
@@ -121,7 +114,7 @@ them and exposure drops from 66 to 48. Backups stay open, and the pack still goe
 | Adjust | Shows its recommendation next to the current value. | Moves revenue, employees, exposure, records, carrier; adds a reason. | Revenue moves far from what carriers priced on → "indication needs refresh" banner; premiums are not recalculated. |
 | Lock & send | — | Submits (version locked), then sends. Any later change creates a new version. | Client sees an unreviewed draft → client view only shows submitted versions. |
 
-## Agent brief (built)
+## Stage 4 · Equip the agent: the brief (built)
 
 | Step | AI does | Human does | What could go wrong → how it's caught |
 |---|---|---|---|
@@ -129,7 +122,24 @@ them and exposure drops from 66 to 48. Backups stay open, and the pack still goe
 | Ask about this client | Answers from DB (numbers) + wiki (reasons), cited; read-only. | Asks questions. | Coverage interpretation → **escalates to CPL**. Agent wants to change a value → told to use the slider so it's logged. |
 | Debrief *(designed)* | Ingests meeting notes and new objections into client + industry pages. | Logs outcome. | New objections bypass review → go to CPLs before entering the library. |
 
-## Present, apply, bind (application designed; reuses intake)
+## Stage 5 · Present and ask: the call, human in the loop (built)
+
+The agent presents the pack on a call and asks what the carrier application needs, in plain language. These
+questions used to come before the pack; they moved here because asking about security practices before the owner
+has seen a price adds friction. (The demo seed runs call 1 early so the pack shows answers so far.)
+
+| Step | AI does | Human does | What could go wrong → how it's caught |
+|---|---|---|---|
+| Question list | Plain-language questions from the carrier question bank, minus what the wiki/DB already knows. | — | Jargon → plain wording ("a code from your phone" for MFA). |
+| Call(s) | — | Agent runs one or more calls from **Stage 5 → Live call**: reads the numbered questions, taps answers, marks "client unsure," logs coverage questions for a CPL, reads the limit walkthrough. Each call opens with recording consent; Wispr Flow captures it. | No consent → transcript not used. Agent answers a coverage question → script says escalate; it's logged. |
+| Extract & merge | Pulls intake + application answers with quote + timestamp per call; checks them against the live taps; merges with earlier calls. | — | "Mostly" → **hedge check forces follow-up**. Recording ≠ tap → **CONFLICT** flagged. A later call contradicts a confirmed answer → reopened, never silently overwritten. Re-ingesting an older call never overwrites a newer one. |
+| Proceed incomplete | Exposure score recalculated from controls confirmed so far. | Agent decides it's enough to build the pack. | Owner thinks the gaps block a price → pack lists them as "to confirm" and says they don't hold anything up. |
+| Confirm | — | Agent confirms in **Stage 5 → After the call**; that also confirms the application questions the answer fills; confirmed revenue/records update the report as logged changes. | Wrong answer reaches the application → agent review now, client signature later. |
+
+Demo: call 1 leaves three items open (MFA for hygienists, backups, EDR); call 2 closes two of
+them and exposure drops from 63 to 45. Backups stay open, and the pack still goes out.
+
+## Stage 5 · Apply and bind (application built; carrier submission and binding simulated)
 
 | Step | AI does | Human does | What could go wrong → how it's caught |
 |---|---|---|---|

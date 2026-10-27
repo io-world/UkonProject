@@ -19,7 +19,7 @@ The problems were scope and who does the work:
    **renewal queue**: everyone renewing in 90 days, ranked, with stage and blockers.
 4. **Frame it around agent economics.** Agents skip cyber because premium (and commission) is small
    relative to effort. → North-star metric: **agent minutes per bound policy.**
-5. **Stage 4: offer the call or a link.** The call is right for relationship clients; a phone-
+5. **Stage 5 (UKON's Stage 4): offer the call or a link.** The call is right for relationship clients; a phone-
    friendly link keeps low-touch clients from eating agent time.
 6. **Be ready for "why a wiki *and* a database?"** → The DB holds facts and versions; the wiki holds
    evidence and industry knowledge that compounds across clients and years.
@@ -32,22 +32,25 @@ for many clients even though the prototype runs one.
 
 ## Built
 
-- Stage 1: ingest → entity resolution (human-confirmed) → five fields + exposure with ranges,
+Five stages: UKON's four, with its Stage 1 split in two (decision #55).
+
+- Stage 1 · Confirm data: ingest → entity resolution (human-confirmed) → the five fields with ranges,
   confidence, method, sources; review by exception
-- Carrier indications (three fictional carriers, benchmark-calibrated), locked
-- Stage 2: digital report, agent/client modes, sliders, drift banner, versions, audit trail
-- Stage 3: agent brief (pitch, CPL objection library, escalations, specimen map, application
-  preview) + "Ask about this client" (app panel + Claude Code skill)
-- Intake (before the pack): one or more call transcripts → answers merged across calls, with
-  quotes, hedge flags and agent confirmation; proceeds incomplete; Wispr Flow skill
-- Industry research from the web (cited) feeding the pack and the brief
-- Standalone HTML report files in `reports/`
+- Stage 2 · Get indications: send to chosen carriers (gated on Stage 1) → replies from any channel
+  checked against the source and versioned → rule-based follow-ups (three fictional carriers,
+  benchmark-calibrated; values locked)
+- Stage 3 · Proposal pack: digital report, agent/client modes, sliders, drift banner, versions, audit
+  trail; standalone HTML files in `reports/`; cited industry research from the web
+- Stage 4 · Equip the agent: brief (pitch, CPL objection library, escalations, specimen map,
+  application preview) + "Ask about this client" (app panel + Claude Code skill)
+- Stage 5 · Present, apply, bind: one or more call transcripts → answers merged across calls, with
+  quotes, hedge flags and agent confirmation; application filled from them; e-sign gated (binding simulated)
 
 ## Later (designed, not built)
 
 - Renewal queue across a whole book; prioritization
 - Existing-cyber check (BOP endorsements) and appetite/class-code filter before submission
-- Real carrier integrations (API/portal), indication refresh
+- Real carrier integrations (API/portal)
 - Client self-serve question link (alternative to the call)
 - Debrief ingestion; CPL review of new objections
 - Practice mode: AI role-plays this skeptical owner so the agent can rehearse

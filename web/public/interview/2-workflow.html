@@ -124,7 +124,7 @@ footer.foot .wrap{display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space
 .tile p{font-size:.86rem;color:var(--ink-2);margin-top:4px}
 @media (max-width:700px){.tiles{grid-template-columns:1fr}}
 
-.flow{display:grid;grid-template-columns:92px repeat(6,minmax(0,1fr));grid-template-rows:auto auto auto auto;gap:0 10px;margin-top:16px}
+.flow{display:grid;grid-template-columns:92px repeat(7,minmax(0,1fr));grid-template-rows:auto auto auto auto;gap:0 10px;margin-top:16px}
 .lane-l{display:flex;align-items:flex-start;padding-top:12px;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .lane-l.ai{color:var(--ai)} .lane-l.hu{color:var(--amber)}
 .col{display:grid;grid-row:1 / span 4;grid-template-rows:subgrid;position:relative}
@@ -192,35 +192,42 @@ details .tablewrap{padding-bottom:14px}
       </div>
 
       <div class="col key" role="listitem" style="grid-column:3">
-        <div class="ch"><span class="s">UKON Stage 1 · prototyped</span><h3>Get indication-ready</h3><span class="pill green">Built</span></div>
-        <div class="cell ai"><span class="mlab">AI / system</span><div class="node ai">Read agency record, state filing, website and DNS into a client wiki, with a citation per value.</div><div class="node ai">Score possible company matches. Estimate the five fields with ranges and confidence (the estimates are code, not the model).</div><div class="node sys">Carrier indications stored and locked.</div></div>
+        <div class="ch"><span class="s">Stage 1 · UKON 1, part 1</span><h3>Confirm data</h3><span class="pill green">Built</span></div>
+        <div class="cell ai"><span class="mlab">AI / system</span><div class="node ai">Read agency record, state filing, website and DNS into a client wiki, with a citation per value.</div><div class="node ai">Score possible company matches. Estimate the five fields with ranges and confidence (the estimates are code, not the model).</div></div>
         <div class="cell hu"><span class="mlab">Person</span><div class="node hu">Always confirms the company match.</div><div class="node hu">Reviews only what's flagged, including estimated revenue (3 of about 8 items in the demo).</div></div>
         <div class="cell risk"><span class="mlab">Could go wrong → caught by</span><span class="rk"><b>Same name, different company</b> → name, state, address and domain scored together; a person confirms.</span><span class="rk"><b>Wrong revenue</b> → two independent methods, a range, confirmed with the owner.</span></div>
       </div>
 
-      <div class="col" role="listitem" style="grid-column:4">
-        <div class="ch"><span class="s">Added step</span><h3>Intake call</h3><span class="pill green">Built</span></div>
-        <div class="cell ai"><span class="mlab">AI / system</span><div class="node ai">Pull answers from the call recording with the quote each came from; check them against the agent's taps; merge across calls.</div></div>
-        <div class="cell hu"><span class="mlab">Person</span><div class="node hu">Agent runs one or more plain-language calls, tapping answers live. Opens with recording consent.</div><div class="node hu">Agent confirms what matters. Gaps don't block the pack.</div></div>
-        <div class="cell risk"><span class="mlab">Could go wrong → caught by</span><span class="rk"><b>"Mostly" becomes "yes"</b> → a fixed hedge check overrides the model and flags it.</span><span class="rk"><b>Recording and tap disagree</b> → flagged as a conflict, never auto-resolved.</span></div>
+      <div class="col key" role="listitem" style="grid-column:4">
+        <div class="ch"><span class="s">Stage 2 · UKON 1, part 2</span><h3>Get indications</h3><span class="pill green">Built</span></div>
+        <div class="cell ai"><span class="mlab">AI / system</span><div class="node sys">Send the five fields to the chosen carriers for two options ($1M / $10K, $2M / $25K), storing exactly what was sent.</div><div class="node ai">Read each reply (PDF, email, underwriter call) and check every figure against the source text. Each reply adds a version; fixed rules turn changes into follow-ups.</div></div>
+        <div class="cell hu"><span class="mlab">Person</span><div class="node hu">Approves "Send to carriers"; sending is gated on Stage 1's review.</div><div class="node hu">Checks any figure not found word for word; acts on follow-ups (price moved, new condition, decline).</div></div>
+        <div class="cell risk"><span class="mlab">Could go wrong → caught by</span><span class="rk"><b>A verbal "around $2,300" reaches the client</b> → verbal figures are stored but never client-facing.</span><span class="rk"><b>AI misreads a premium</b> → a figure not in the source waits for a person; carrier values are locked.</span></div>
       </div>
 
       <div class="col" role="listitem" style="grid-column:5">
-        <div class="ch"><span class="s">UKON Stage 2</span><h3>Client proposal pack</h3><span class="pill green">Built</span></div>
+        <div class="ch"><span class="s">Stage 3 · UKON 2</span><h3>Client proposal pack</h3><span class="pill green">Built</span></div>
         <div class="cell ai"><span class="mlab">AI / system</span><div class="node ai">Write why it matters, scenarios and next steps, with no digits allowed. Find recent, cited incidents in the client's industry.</div><div class="node sys">Every figure rendered from the database.</div></div>
         <div class="cell hu"><span class="mlab">Person</span><div class="node hu">Agent adjusts estimates; carrier numbers stay locked.</div><div class="node hu">Agent submits (version locked), then sends.</div></div>
         <div class="cell risk"><span class="mlab">Could go wrong → caught by</span><span class="rk"><b>AI invents a figure</b> → any digit fails validation.</span><span class="rk"><b>Stale price after an edit</b> → ±15% revenue drift shows "indication needs refresh."</span></div>
       </div>
 
       <div class="col" role="listitem" style="grid-column:6">
-        <div class="ch"><span class="s">UKON Stage 3</span><h3>Equip the agent</h3><span class="pill green">Built</span></div>
+        <div class="ch"><span class="s">Stage 4 · UKON 3</span><h3>Equip the agent</h3><span class="pill green">Built</span></div>
         <div class="cell ai"><span class="mlab">AI / system</span><div class="node ai">Tailor a 60-second pitch. Pick objection answers from the CPL-approved library. Map where items sit in the policy form. Answer questions about the client, read-only.</div></div>
         <div class="cell hu"><span class="mlab">Person</span><div class="node hu">Agent reads the brief and presents to the client.</div></div>
         <div class="cell risk"><span class="mlab">Could go wrong → caught by</span><span class="rk"><b>AI makes up an answer</b> → library only; tailoring can't add claims.</span><span class="rk"><b>"Would this be covered?"</b> → always escalates to a CPL.</span></div>
       </div>
 
       <div class="col" role="listitem" style="grid-column:7">
-        <div class="ch"><span class="s">UKON Stage 4</span><h3>Apply and bind</h3><span class="pill plain">Partly built</span></div>
+        <div class="ch"><span class="s">Stage 5 · UKON 4</span><h3>Present and ask</h3><span class="pill green">Built</span></div>
+        <div class="cell ai"><span class="mlab">AI / system</span><div class="node ai">Pull answers from the call recording with the quote each came from; check them against the agent's taps; merge across calls.</div></div>
+        <div class="cell hu"><span class="mlab">Person</span><div class="node hu">Agent runs one or more plain-language calls, tapping answers live. Opens with recording consent.</div><div class="node hu">Agent confirms what matters; a corrected revenue flows back to Stage 1.</div></div>
+        <div class="cell risk"><span class="mlab">Could go wrong → caught by</span><span class="rk"><b>"Mostly" becomes "yes"</b> → a fixed hedge check overrides the model and flags it.</span><span class="rk"><b>Recording and tap disagree</b> → flagged as a conflict, never auto-resolved.</span></div>
+      </div>
+
+      <div class="col" role="listitem" style="grid-column:8">
+        <div class="ch"><span class="s">Stage 5 · UKON 4</span><h3>Apply and bind</h3><span class="pill plain">Partly built</span></div>
         <div class="cell ai"><span class="mlab">AI / system</span><div class="node ai">Pre-fill the carrier application from confirmed intake answers.</div><div class="node sys">Carrier confirms final terms; bind.</div></div>
         <div class="cell hu"><span class="mlab">Person</span><div class="node hu">Agent closes open items.</div><div class="node hu">Client reviews and e-signs the application.</div></div>
         <div class="cell risk"><span class="mlab">Could go wrong → caught by</span><span class="rk"><b>Misrepresentation voids a claim</b> → the client signs; e-sign stays off until every answer is confirmed.</span></div>
@@ -230,15 +237,15 @@ details .tablewrap{padding-bottom:14px}
   </section>
 
   <section class="block">
-    <h2>Why intake is an extra step</h2>
-    <p class="sub">UKON's sequence goes indications → pack → agent → apply. I put a short intake conversation <em>before</em> the pack, for two reasons: the pack can speak to what the owner actually said, and the same answers later pre-fill the carrier application, so the owner signs answers they already gave. Intake can be incomplete; open items show as "to confirm" and don't hold anything up.</p>
+    <h2>Why five stages, not four</h2>
+    <p class="sub">UKON's Stage 1, "get indications," hides two jobs with different owners and failure modes: confirming the five facts (mostly already in the agency's file at renewal) and the round trip with carriers (requests out, replies in, versions, follow-ups). Splitting them puts a person's approval between the two, before client data leaves the agency. Stages 3–5 are UKON's 2–4. The detailed questions about the business and its security practices wait for Stage 5: asking them before the owner has seen a price adds the friction the renewal window can't afford. The seeded demo runs one Stage 5 call early so the pack can show what the owner has said so far; in production the pack goes first.</p>
   </section>
 
   <section class="block">
     <h2>Step detail</h2>
     <p class="sub">The full tables behind the map.</p>
     <div class="mt">
-      <details open><summary>Stage 1 · Get indication-ready</summary><div class="tablewrap"><table>
+      <details open><summary>Stage 1 · Confirm data</summary><div class="tablewrap"><table>
         <thead><tr><th>Step</th><th>AI does</th><th>Person does</th><th>Could go wrong → caught by</th></tr></thead><tbody>
         <tr><td>Read sources</td><td>Reads the agency record, state filing, website, loan record, DNS and job postings into the client wiki, with a citation for each value.</td><td>—</td><td>Junk or instructions hidden in a source → sources are data, never instructions; every value cites its file.</td></tr>
         <tr><td>Company match</td><td>Scores candidates on name, state, address and domain together.</td><td><strong>Always confirms.</strong></td><td>Same name at the same address, but delinquent → status counts; the real demo client has exactly this case.</td></tr>
@@ -246,18 +253,17 @@ details .tablewrap{padding-bottom:14px}
         <tr><td>Employees</td><td>The most recent direct count wins; stale signals are ignored.</td><td>Reviews if signals disagree by more than ±20%.</td><td>Headcount isn't full-time staff → stated as an assumption; confirmed on the call.</td></tr>
         <tr><td>Revenue</td><td>Agency record → public filing → two benchmark methods. Gives a range and confidence.</td><td><strong>Always reviews</strong> an estimate.</td><td>Not public for private businesses → two methods must agree; confirmed before binding.</td></tr>
         <tr><td>Exposure</td><td>A rough, explainable score from data sensitivity, email accounts, email-spoofing settings and payments.</td><td>Can adjust it.</td><td>Mistaken for a security rating → labelled "not a security scan."</td></tr>
-        <tr><td>Indications</td><td>Submitted to carriers; responses stored as locked rows.</td><td>—</td><td>A carrier declines a limit → shown as "not offered."</td></tr>
-      </tbody></table></div></details>
+        </tbody></table></div></details>
 
-      <details><summary>Intake call</summary><div class="tablewrap"><table>
+      <details><summary>Stage 2 · Get indications</summary><div class="tablewrap"><table>
         <thead><tr><th>Step</th><th>AI does</th><th>Person does</th><th>Could go wrong → caught by</th></tr></thead><tbody>
-        <tr><td>Question list</td><td>Plain-language questions from the carrier question bank, minus what's already known.</td><td>—</td><td>Jargon → plain wording ("a code from your phone" for MFA).</td></tr>
-        <tr><td>Call(s)</td><td>—</td><td>Reads numbered questions, taps answers, marks "client unsure," logs coverage questions for a CPL.</td><td>No consent → transcript not used. Coverage question → escalated and logged.</td></tr>
-        <tr><td>Extract and merge</td><td>Pulls answers with the quote and time for each call; checks them against the taps; merges with earlier calls.</td><td>—</td><td>Hedged answer → forced follow-up. Later call contradicts a confirmed answer → reopened, never overwritten.</td></tr>
-        <tr><td>Confirm</td><td>—</td><td>Confirms answers; confirmed revenue and record counts update the pack as logged changes.</td><td>Wrong answer reaches the application → agent review now, client signature later.</td></tr>
+        <tr><td>Send</td><td>Records the five fields exactly as sent, per carrier, for two options.</td><td><strong>Approves</strong> and picks carriers; gated on Stage 1's review.</td><td>Wrong company or stale revenue priced → the basis snapshot shows what each carrier priced on; ±15% revenue drift raises "re-request."</td></tr>
+        <tr><td>Reply in</td><td>Reads the PDF, email or underwriter call; checks each figure word for word against the source.</td><td>Checks only figures that failed the check.</td><td>Misread premium → waits for a person; carrier values are locked by the database.</td></tr>
+        <tr><td>Versions</td><td>Each reply adds a version with a diff; nothing is overwritten.</td><td>—</td><td>Verbal figure reaches the client → verbal is stored, never client-facing.</td></tr>
+        <tr><td>Follow-ups</td><td>Fixed rules (not the model): price changed, new condition (checked against the client's answers), declined, get it in writing.</td><td>Closes each with a note.</td><td>A carrier declines a limit → shown as declined; offer it from another carrier.</td></tr>
       </tbody></table></div></details>
 
-      <details><summary>Client proposal pack</summary><div class="tablewrap"><table>
+      <details><summary>Stage 3 · Client proposal pack</summary><div class="tablewrap"><table>
         <thead><tr><th>Step</th><th>AI does</th><th>Person does</th><th>Could go wrong → caught by</th></tr></thead><tbody>
         <tr><td>Draft</td><td>Why it matters, three industry scenarios, exposure explainer, next steps, with placeholders for any number.</td><td>—</td><td>Invented figure → any digit fails validation; figures come from the database.</td></tr>
         <tr><td>Coverage text</td><td>— (CPL-approved plain-language library)</td><td>—</td><td>Overstating coverage → library text only; the funds-transfer limit is flagged visually.</td></tr>
@@ -265,13 +271,22 @@ details .tablewrap{padding-bottom:14px}
         <tr><td>Lock and send</td><td>—</td><td>Submits, then sends. Later changes create a new version.</td><td>Client sees an unreviewed draft → the client view shows only submitted versions.</td></tr>
       </tbody></table></div></details>
 
-      <details><summary>Equip the agent · Apply and bind</summary><div class="tablewrap"><table>
+      <details><summary>Stage 4 · Equip the agent</summary><div class="tablewrap"><table>
         <thead><tr><th>Step</th><th>AI does</th><th>Person does</th><th>Could go wrong → caught by</th></tr></thead><tbody>
         <tr><td>Agent brief</td><td>Tailored pitch; objection answers selected from the approved library; policy-form map.</td><td>Reads it before the meeting.</td><td>Invented answer → library only. Form references must match real text on the cited page, or they're dropped.</td></tr>
         <tr><td>Ask about this client</td><td>Answers from the database (numbers) and wiki (reasons), cited, read-only.</td><td>Asks.</td><td>Coverage interpretation → escalates. A requested change → told to use the logged control.</td></tr>
+      </tbody></table></div></details>
+
+      <details><summary>Stage 5 · Present, apply, bind</summary><div class="tablewrap"><table>
+        <thead><tr><th>Step</th><th>AI does</th><th>Person does</th><th>Could go wrong → caught by</th></tr></thead><tbody>
+        <tr><td>Question list</td><td>Plain-language questions from the carrier question bank, minus what's already known.</td><td>—</td><td>Jargon → plain wording ("a code from your phone" for MFA).</td></tr>
+        <tr><td>Call(s)</td><td>—</td><td>Reads numbered questions, taps answers, marks "client unsure," logs coverage questions for a CPL.</td><td>No consent → transcript not used. Coverage question → escalated and logged.</td></tr>
+        <tr><td>Extract and merge</td><td>Pulls answers with the quote and time for each call; checks them against the taps; merges with earlier calls.</td><td>—</td><td>Hedged answer → forced follow-up. Later call contradicts a confirmed answer → reopened, never overwritten.</td></tr>
+        <tr><td>Confirm</td><td>—</td><td>Confirms answers; confirmed revenue and record counts update the pack as logged changes.</td><td>Wrong answer reaches the application → agent review now, client signature later.</td></tr>
         <tr><td>Close gaps</td><td>—</td><td>Closes items still "to confirm" (short call or a link).</td><td>Binding on an open answer → e-sign stays off.</td></tr>
         <tr><td>Sign and bind</td><td>—</td><td>Client reviews and e-signs; carrier confirms terms; bind.</td><td>Misrepresentation → the client signs; the transcript is never the final word.</td></tr>
       </tbody></table></div></details>
+
     </div>
   </section>
 </main>

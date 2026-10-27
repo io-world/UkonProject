@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { api, money, SOURCE_LABEL, readClipboard } from '../api.js'
 
 const INDICATION_KEYS = ['legal_name', 'domain', 'industry', 'annual_revenue', 'address']
-const EXTRA_KEYS = ['employee_count', 'dentists', 'exposure_score', 'records_estimate']
 
 function fmt(f, v = f.current_value) {
   if (v == null) return '—'
@@ -34,7 +33,7 @@ function Provenance({ f }) {
   )
 }
 
-function FieldCard({ f, actor, onChange, required }) {
+export function FieldCard({ f, actor, onChange, required }) {
   const [editing, setEditing] = useState(false)
   const [val, setVal] = useState(f.current_value)
   const [reason, setReason] = useState('')
@@ -108,19 +107,21 @@ function FieldCard({ f, actor, onChange, required }) {
   )
 }
 
-export default function Enrichment({ data, actor, onChange }) {
+export default function Enrichment({ data, actor, onChange, goNext }) {
   const byKey = Object.fromEntries(data.fields.map((f) => [f.key, f]))
   const confirmed = data.entities.find((e) => e.status === 'confirmed')
-  const reviewCount = data.fields.filter((f) => f.needs_review).length
+  const reviewCount = INDICATION_KEYS.filter((k) => byKey[k]?.needs_review).length
+  const left = reviewCount + (confirmed ? 0 : 1)
 
   return (
     <div className="stack">
       <section className="intro">
-        <h2>Stage 1 · Get indications from carriers</h2>
+        <h2>Stage 1 · Confirm data</h2>
         <p>
-          Build the five fields carriers need to give an indication. The pipeline pulls the agency's file and public records;
-          anyone can edit a field, and every value shows where it came from (public records, a conversation, the clipboard,
-          an API, or typed in). <strong>{reviewCount + (confirmed ? 0 : 1)} items</strong> need a human: review by exception.
+          Carriers need five facts for an indication. This is a renewal, so most are already in the agency's file; the pipeline
+          fills the rest from public records and flags what a person must check. Every value shows where it came from (agency file
+          or public records, a conversation, the clipboard, an API, or typed in), and anyone can correct one.
+          Only gaps go back to the client, usually the domain or this year's revenue. <strong>{left} item{left === 1 ? '' : 's'}</strong> need a human.
         </p>
       </section>
 
@@ -169,17 +170,17 @@ export default function Enrichment({ data, actor, onChange }) {
           {INDICATION_KEYS.map((k) => byKey[k] && <FieldCard key={k} f={byKey[k]} actor={actor} onChange={onChange} required />)}
         </div>
       </section>
-      <section>
-        <h3 className="section-h">Supporting estimates</h3>
-        <div className="grid">
-          {EXTRA_KEYS.map((k) => byKey[k] && <FieldCard key={k} f={byKey[k]} actor={actor} onChange={onChange} />)}
+      <section className={`card next ${left ? 'muted-card' : ''}`}>
+        <div className="row">
+          <div className="grow">
+            <b>Next: Stage 2 · Get indications.</b>{' '}
+            {left ? <span className="muted">Sending is gated on this review: {left} item{left === 1 ? '' : 's'} left.</span>
+              : <span>All five fields are reviewed. Pick carriers and send.</span>}
+          </div>
+          <button className="btn primary" onClick={goNext}>Go to Stage 2 →</button>
         </div>
-      </section>
-      <section>
-        <h3 className="section-h">Benchmarks used in the client pack <span className="muted small">· published figures, editable for the demo</span></h3>
-        <div className="grid">
-          {data.fields.filter((f) => f.kind === 'benchmark').map((f) => <FieldCard key={f.key} f={f} actor={actor} onChange={onChange} />)}
-        </div>
+        <p className="small muted">Headcount, record counts, security controls and the exposure score aren't needed for an
+          indication. They live in the proposal pack (Stage 3) and the application (Stage 5).</p>
       </section>
     </div>
   )

@@ -19,7 +19,7 @@ Suggested flow, ~10–12 slides:
 1. The problem in one line: the renewal window is missed because "no cyber → protected" is too much manual work
 2. Users: agent (time, commission economics) and owner (not technical, needs price first)
 3. Interview plan: who and what we'd ask before building
-4. Workflow map: four stages, AI vs human per step
+4. Workflow map: five stages (UKON's four, Stage 1 split), AI vs human per step
 5. Where AI helps / where it doesn't (DB owns numbers, wiki owns evidence)
 6. Live demo (~8 min; script in `README.md`)
 7. How this scales: the renewal queue
@@ -31,8 +31,8 @@ Suggested flow, ~10–12 slides:
 
 ## Before the demo
 
-- [ ] Install and run on the Mac (`README.md`), click through all five tabs
-- [ ] Record a short mock intake call in Wispr Flow, then run the `call-ingest` skill against it
+- [ ] Reload the demo data (`uv run python -m pipeline.run_all`) and click through the five stage tabs + audit
+- [ ] Record a short mock Stage 5 call in Wispr Flow, then run the `call-ingest` skill against it
 - [ ] Run `client-research` once more close to the presentation so the news items are current
 - [ ] Optional: set `ANTHROPIC_API_KEY` so narrative, extraction and Ask run live
 - [ ] Verify whether Wispr Flow captures phone calls

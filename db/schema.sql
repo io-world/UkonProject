@@ -7,7 +7,7 @@ SET search_path TO ukon;
 
 -- Which version of this file built the database (checked by the API; see config.SCHEMA_VERSION).
 CREATE TABLE schema_info (version TEXT NOT NULL);
-INSERT INTO schema_info VALUES ('2026-10-26c');
+INSERT INTO schema_info VALUES ('2026-10-27a');
 
 CREATE TABLE users (
   id          SERIAL PRIMARY KEY,
@@ -21,12 +21,14 @@ CREATE TABLE clients (
   display_name  TEXT NOT NULL,
   renewal_date  DATE NOT NULL,
   agency        TEXT NOT NULL,
-  stage         TEXT NOT NULL DEFAULT 'enrichment'
-                CHECK (stage IN ('enrichment','indications','intake','report','presented','application','bound')),
+  -- Furthest stage reached (five stages: UKON's Stage 1 split into confirm + indications). The API also derives
+  -- each stage's status from the data, which is what the app shows.
+  stage         TEXT NOT NULL DEFAULT 'confirm'
+                CHECK (stage IN ('confirm','indications','proposal','agent_kit','apply_bind','bound')),
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Stage 1: entity resolution is always human-confirmed in the MVP
+-- Stage 1 (confirm data): entity resolution is always human-confirmed in the MVP
 CREATE TABLE entity_candidates (
   id           SERIAL PRIMARY KEY,
   client_id    INT NOT NULL REFERENCES clients(id),
@@ -41,7 +43,7 @@ CREATE TABLE entity_candidates (
   decided_at   TIMESTAMPTZ
 );
 
--- Stage 1/2: every field that feeds an indication or a report
+-- Stage 1 (the five fields) and Stage 3 (pack estimates): every field that feeds an indication or a report
 CREATE TABLE fields (
   id            SERIAL PRIMARY KEY,
   client_id     INT NOT NULL REFERENCES clients(id),
@@ -80,7 +82,7 @@ CREATE TABLE field_changes (
   changed_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- ===== Stage 1: the agent <-> carrier exchange =====================================
+-- ===== Stage 2: the agent <-> carrier exchange (indications) =====================================
 -- Outbound: one request per carrier, with the five fields exactly as sent (basis snapshot).
 CREATE TABLE indication_requests (
   id          SERIAL PRIMARY KEY,
@@ -211,7 +213,7 @@ CREATE TABLE report_versions (
   UNIQUE (client_id, version_no)
 );
 
--- Intake: each call (Wispr Flow capture) ingested into the wiki. A client can have several.
+-- Stage 5 (present, apply, bind): each call (Wispr Flow capture) ingested into the wiki. A client can have several.
 CREATE TABLE intake_calls (
   id           SERIAL PRIMARY KEY,
   client_id    INT NOT NULL REFERENCES clients(id),
@@ -284,7 +286,7 @@ CREATE TABLE application_answers (
   UNIQUE (client_id, question_key)
 );
 
--- Stage 3: every question an agent asks the "Ask about this client" skill
+-- Any stage: every question an agent asks the "Ask about this client" skill
 CREATE TABLE ask_log (
   id          SERIAL PRIMARY KEY,
   client_id   INT NOT NULL REFERENCES clients(id),

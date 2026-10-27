@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api, money, when } from '../api.js'
 import ReportDocument from './ReportDocument.jsx'
+import { FieldCard } from './Enrichment.jsx'
 
 const STATE_LABEL = {
   ai_draft: 'AI draft', agent_edited: 'Agent edited', submitted: 'Submitted · locked',
@@ -36,7 +37,7 @@ function Slider({ label, k, fact, min, max, step, fmt, actor, onApplied, aiOverr
   )
 }
 
-export default function ReportTab({ actor, onChange, tick }) {
+export default function ReportTab({ data, actor, onChange, tick }) {
   const [mode, setMode] = useState('agent')
   const [rep, setRep] = useState(null)
   const [versions, setVersions] = useState([])
@@ -54,8 +55,17 @@ export default function ReportTab({ actor, onChange, tick }) {
 
   const act = async (fn) => { setBusy(true); try { await fn(actor) } finally { setBusy(false); onChange() } }
 
+  const inputs = data.fields.filter((f) => ['employee_count', 'dentists', 'records_estimate'].includes(f.key) || f.kind === 'benchmark')
+
   return (
     <div className="stack">
+      <section className="intro">
+        <h2>Stage 3 · Client proposal pack</h2>
+        <p>Built from the carriers' indications: why cyber matters to this practice, the options, and what they cost, in plain
+          language for an owner who isn't technical. AI writes the prose; every figure comes from the database, and carrier
+          numbers can't be moved here. The agent adjusts estimates, submits a locked version, and sends it. Questions the owner
+          hasn't answered yet show as “to confirm”; they never block the pack.</p>
+      </section>
       <div className="report-bar">
         <div className="seg" role="tablist" aria-label="Report view">
           <button className={mode === 'agent' ? 'on' : ''} onClick={() => setMode('agent')}>Agent view</button>
@@ -121,6 +131,13 @@ export default function ReportTab({ actor, onChange, tick }) {
           )}
           <ReportDocument s={s} version={v} agentMode={mode === 'agent'} />
         </div>
+      )}
+
+      {mode === 'agent' && inputs.length > 0 && (
+        <details className="card">
+          <summary><b>Estimates and benchmarks behind the pack</b> <span className="muted small">· not sent to carriers; editable, every change logged</span></summary>
+          <div className="grid mt">{inputs.map((f) => <FieldCard key={f.key} f={f} actor={actor} onChange={onChange} />)}</div>
+        </details>
       )}
     </div>
   )

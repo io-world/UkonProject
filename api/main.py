@@ -10,7 +10,7 @@ from pydantic import BaseModel
 
 from pathlib import Path
 
-from pipeline import html_report, intake, intake_ingest, report, wiki_render
+from pipeline import html_report, indications, intake, intake_ingest, report, stages, wiki_render
 from pipeline.config import RAW, WIKI
 from pipeline.sources import read_source
 from pipeline.db import client_by_slug, connect, j, user_id
@@ -122,7 +122,8 @@ def client(slug: str):
             f["ai_low"], f["ai_high"] = _num(f["ai_low"]), _num(f["ai_high"])
         for e in ents:
             e["match_score"] = float(e["match_score"])
-        return {"client": c | {"days_to_renewal": days}, "entities": ents, "fields": fields}
+        return {"client": c | {"days_to_renewal": days}, "entities": ents, "fields": fields,
+                "progress": stages.derive(conn, c["id"])}
 
 
 @app.post("/api/clients/{slug}/entity/{cand_id}/confirm")
@@ -195,6 +196,101 @@ def approve_field(slug: str, key: str, body: Actor):
                      (f["id"], uid, j(f["current_value"]), j(f["current_value"]), "Reviewed — kept AI value"))
         conn.execute("UPDATE fields SET needs_review=FALSE, updated_by=%s WHERE id=%s", (uid, f["id"]))
         wiki_render.render_client(conn, c["id"])
+    return {"ok": True}
+
+
+# ---------------------------------------------------------------------------------------------
+# Stage 2: get indications. Send the five fields to carriers (gated on Stage 1), bring replies in from the
+# inbox, and show what each carrier said. Carrier figures are read-only: there is no route that writes one.
+# ---------------------------------------------------------------------------------------------
+
+class SendRequest(Actor):
+    carriers: list[str]
+
+
+class IngestReply(Actor):
+    path: str
+
+
+class Review(Actor):
+    decision: str            # confirmed | rejected
+    note: str | None = None
+
+
+@app.get("/api/clients/{slug}/indications")
+def indications_view(slug: str):
+    with connect() as conn:
+        c = client_by_slug(conn, slug)
+        st = indications.state(conn, c["id"])
+    return st | {"panel": indications.panel()}
+
+
+@app.post("/api/clients/{slug}/indications/send")
+def indications_send(slug: str, body: SendRequest):
+    with connect() as conn:
+        c = client_by_slug(conn, slug)
+        uid = user_id(conn, body.actor)
+        prior = conn.execute("SELECT 1 FROM indication_requests WHERE client_id=%s", (c["id"],)).fetchone()
+        try:
+            n = indications.request_all(conn, c["id"], uid, "re-request (reviewed basis)" if prior else "initial",
+                                        gate=True, carriers=body.carriers)
+        except ValueError as e:
+            raise HTTPException(409, str(e))
+        indications.render_wiki(conn, c["id"])
+    wiki_render.log(f"request | {slug} — {body.actor} sent indication requests to {', '.join(body.carriers)}")
+    return {"sent": n}
+
+
+@app.post("/api/clients/{slug}/indications/ingest")
+def indications_ingest(slug: str, body: IngestReply):
+    """Ingest a carrier reply that's waiting in the client's inbox (wiki/raw/<slug>/indications/)."""
+    with connect() as conn:
+        c = client_by_slug(conn, slug)
+        if body.path not in indications.state(conn, c["id"])["inbox"]:
+            raise HTTPException(404, f"{body.path} isn't waiting in the inbox")
+        uid = user_id(conn, body.actor)
+        res = indications.ingest(conn, c["id"], body.path, uid, input_by=uid)
+        indications.after_change(conn, c["id"], uid)
+    wiki_render.log(f"indication | {slug} — {res['carrier']} via {res['channel']} ingested by {body.actor}: "
+                    + "; ".join(res["options"]))
+    return res
+
+
+@app.post("/api/clients/{slug}/indications/versions/{vid}/review")
+def indications_review(slug: str, vid: int, body: Review):
+    with connect() as conn:
+        c = client_by_slug(conn, slug)
+        uid = user_id(conn, body.actor)
+        try:
+            res = indications.review_version(conn, c["id"], vid, uid, body.decision, body.note)
+        except LookupError as e:
+            raise HTTPException(404, str(e))
+        except ValueError as e:
+            raise HTTPException(409, str(e))
+        indications.after_change(conn, c["id"], uid)
+    wiki_render.log(f"review | {slug} — {body.actor} {res['review']} {res['carrier']} {res['tier']} figures")
+    return res
+
+
+class ActionDone(Actor):
+    note: str
+
+
+@app.post("/api/clients/{slug}/indications/actions/{aid}/done")
+def indications_action_done(slug: str, aid: int, body: ActionDone):
+    """Close a follow-up a carrier reply created (e.g. "tell the client the price moved"). The note is required."""
+    if not body.note.strip():
+        raise HTTPException(400, "Say what you did (the note is logged with your name)")
+    with connect() as conn:
+        c = client_by_slug(conn, slug)
+        uid = user_id(conn, body.actor)
+        r = conn.execute("""UPDATE indication_actions SET status='done', closed_by=%s, closed_at=now(), close_note=%s
+                            WHERE id=%s AND client_id=%s AND status='open' RETURNING text""",
+                         (uid, body.note.strip(), aid, c["id"])).fetchone()
+        if not r:
+            raise HTTPException(404, "No open action with that id")
+        indications.render_wiki(conn, c["id"])
+    wiki_render.log(f"action | {slug} — {body.actor} closed: {r['text'][:80]} ({body.note.strip()})")
     return {"ok": True}
 
 
@@ -371,7 +467,7 @@ def confirm_answer(slug: str, key: str, body: AnswerConfirm):
 
 
 # ---------------------------------------------------------------------------------------------
-# Intake: live call screen + recorded calls, one record per question-bank item
+# Stage 5 (present, apply, bind): live call screen + recorded calls, one record per question-bank item
 # ---------------------------------------------------------------------------------------------
 
 class LiveTap(Actor):

@@ -3,7 +3,7 @@ name: client-ask
 description: Answer an agent's question about a renewal client from the database (numbers) and the client wiki (reasons), read-only and cited. Use when someone asks about a client's revenue, staff, exposure, carrier options, call answers, or who changed what.
 ---
 
-# Ask about this client (Stage 3)
+# Ask about this client (any stage)
 
 Read-only. You explain; you don't change anything.
 

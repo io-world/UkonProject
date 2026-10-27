@@ -28,12 +28,12 @@ wiki/
     <client-slug>/     AMS export, filings, website capture, DNS, call transcripts, signals
     benchmarks/        published industry + premium benchmarks, with URLs
     research/          cited recent events per industry (client-research skill)
-    intake/            intake question bank + limit walkthrough script
+    intake/            Stage 5 call question bank + limit walkthrough script
     <client-slug>/indications/  carrier replies as received: PDF letters, emails, underwriter calls
     carriers/          carrier panel, specimen map, coverage language, application question bank
     _cache/            cached AI output used when no API key is set
   clients/<slug>.md    one page per client (generated from DB + raw, re-rendered on change)
-  clients/<slug>-intake.md  the intake, answer by answer (generated)
+  clients/<slug>-intake.md  the Stage 5 call answers, answer by answer (generated)
   clients/<slug>-indications.md  requests, every carrier reply as a version, diffs, actions (generated)
   industries/<naics>.md shared industry pages — compound across every client in that industry
 ```
@@ -58,7 +58,7 @@ wiki/
 | review | human confirms/overrides | DB records actor + reason; client page re-renders |
 | report | agent submits | immutable report version snapshot in DB; log entry |
 | indication | carrier reply lands (PDF, email, call) | extract → check figures in source → new version + diff → actions; pack refresh |
-| call | intake call transcript lands (one of several) | extract answers, merge with earlier calls; hedged answers flagged; exposure + pack refresh |
+| call | Stage 5 call transcript lands (one of several) | extract answers, merge with earlier calls; hedged answers flagged; exposure + pack refresh |
 | research | building/refreshing a pack | cited industry events into `raw/research/`; human-reviewed |
 | ask | agent asks a question | answer from DB (numbers) + wiki (why), cited, read-only |
 | lint | weekly / pre-renewal | stale facts (>12 mo), unresolved conflicts, missing sources |

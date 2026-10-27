@@ -76,3 +76,16 @@
 ## [2026-10-26] review | sloanslake — Jordan Pike undid the confirmation of 'Sage Dentistry, PLLC'
 ## [2026-10-26] review | sloanslake — Jordan Pike confirmed entity 'Darren Bennett DDS PC'
 ## [2026-10-26] review | sloanslake — Jordan Pike undid the confirmation of 'Darren Bennett DDS PC'
+## [2026-10-26] review | sloanslake — Jordan Pike confirmed entity 'Sage Dentistry, PLLC'
+## [2026-10-26] review | sloanslake — Jordan Pike undid the confirmation of 'Sage Dentistry, PLLC'
+## [2026-10-26] estimate | sloanslake — stage 1 fields computed
+## [2026-10-26] request | sloanslake — indication requests sent to 3 carriers ($1M / $10K, $2M / $25K)
+## [2026-10-26] indication | sloanslake — Northwind Specialty via pdf, input file (cached): $1M / $10K indicated $2,980 [verified]; $2M / $25K indicated $4,720 [verified]
+## [2026-10-26] indication | sloanslake — Cobalt Harbor Insurance via email, input file (cached): $1M / $10K indicated $3,340 [verified]; $2M / $25K indicated $5,290 [pending_review]; 1 figure(s) to confirm
+## [2026-10-26] indication | sloanslake — Ridgeline Mutual via call, input conversation (cached): $1M / $10K indicated $2,600 [not_applicable]; $2M / $25K declined [not_applicable]
+## [2026-10-26] indication | sloanslake — Ridgeline Mutual via pdf, input file (cached): $1M / $10K indicated $2,590 [verified]; $2M / $25K declined [verified]
+## [2026-10-26] call | sloanslake — call_1_intake: 28 intake items updated (cached); 8 flagged, 0 conflicts with live taps, 1 coverage questions for a CPL; 9 still open; exposure 63
+## [2026-10-26] report | sloanslake — v1 ai_draft created (narrative: cached)
+## [2026-10-26] review | sloanslake — Jordan Pike confirmed entity 'Sage Dentistry, PLLC'
+## [2026-10-26] indication | sloanslake — Northwind Specialty via pdf ingested by Jordan Pike: $1M / $10K indicated $3,280 [verified]; $2M / $25K indicated $5,190 [verified]
+## [2026-10-26] review | sloanslake — Jordan Pike undid the confirmation of 'Sage Dentistry, PLLC'

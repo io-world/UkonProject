@@ -1,7 +1,7 @@
 """Intake — the human-in-the-loop step between enrichment and the client pack.
 
 Two inputs, one record per question (table intake_answers):
-- **Live taps**: what the agent marks on the app's Intake → Live call screen while talking.
+- **Live taps**: what the agent marks on the app's Stage 5 (Present, apply, bind) → Live call screen while talking.
 - **The recording**: each call captured by Wispr Flow is saved to the wiki, and the LLM extracts
   answers that must quote the transcript line (pipeline/intake.py holds the prompt and rules).
 
@@ -254,8 +254,8 @@ def run(slug: str = CLIENT_SLUG, transcript_path: str | None = None) -> dict:
                         VALUES (%s,%s,%s,%s,%s) ON CONFLICT (client_id, call_ref) DO UPDATE SET
                         answered=EXCLUDED.answered, flagged=EXCLUDED.flagged""",
                      (cid, call_ref, f"raw/{slug}/{call_ref}.md", len(touched), flagged))
-        if c["stage"] in ("enrichment", "indications"):
-            conn.execute("UPDATE clients SET stage='intake' WHERE id=%s", (cid,))
+        if c["stage"] in ("confirm", "indications", "proposal", "agent_kit"):
+            conn.execute("UPDATE clients SET stage='apply_bind' WHERE id=%s", (cid,))
         ex = after_change(conn, cid, slug, ai, provenance=provenance)
         still_open = conn.execute("SELECT count(*) AS n FROM intake_answers WHERE client_id=%s AND section<>'walkthrough' "
                                   "AND status IN ('needs_followup','unanswered')", (cid,)).fetchone()["n"]

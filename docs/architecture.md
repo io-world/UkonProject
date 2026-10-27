@@ -7,8 +7,8 @@
        read sources│                                │re-render on every change
                    ▼                                │
   ┌─────────── pipeline/ (Python, uv) ───────────────┴──┐
-  │ entity_resolution → estimators (no LLM) → indications│
-  │ narrative (LLM, no digits) · intake ingest · HTML out │
+  │ stages · entity_resolution → estimators (no LLM)     │
+  │ indications · narrative (no digits) · calls · HTML   │
   └───────────────┬──────────────────────────────────────┘
                   │ writes numbers, versions, answers
                   ▼
@@ -29,20 +29,21 @@ reaches a client.
 | Path | Role |
 |---|---|
 | `wiki/` | LLM-wiki knowledge layer. Raw sources as Markdown (JSON in a code block where structured); generated client page; shared industry page; `log.md`; schema in `wiki/CLAUDE.md`. |
-| `db/schema.sql` | `fields` (value, AI value, range, confidence, method, sources), `field_changes` (append-only audit), `indication_requests` (basis as sent), `indication_sources` (each carrier reply), `indication_versions` (append-only, values locked by trigger), `indication_actions`, `indications` (read-only view: latest written, checked version), `report_versions` (immutable once submitted), `application_answers`, `ask_log`, `audit_trail` view. |
+| `db/schema.sql` | `fields` (value, AI value, range, confidence, method, sources), `field_changes` (append-only audit), `indication_requests` (basis as sent), `indication_sources` (each carrier reply), `indication_versions` (append-only, values locked by trigger), `indication_actions` (follow-ups), `indications` (read-only view: latest written, checked version), `report_versions` (immutable once submitted), `intake_calls` / `intake_answers` / `intake_escalations` (Stage 5 calls), `application_answers`, `ask_log`, `audit_trail` view. |
+| `pipeline/stages.py` | The five stages (UKON's four, Stage 1 split) and each stage's status, derived from the data. |
 | `pipeline/sources.py` | Reads/writes the JSON block inside a wiki Markdown source. |
 | `pipeline/entity_resolution.py` | Weighted match on name 25%, state 20%, address 30%, domain 25%. |
 | `pipeline/estimators.py` | Employees, revenue waterfall, exposure score, revenue drift. No LLM. |
 | `pipeline/narrative.py` | LLM prose with placeholders; rejects any digit; cached fallback. |
-| `pipeline/report.py` | Snapshot builder; working → submitted → sent → superseded. |
-| `pipeline/intake.py` | Intake rules with no database: question bank, extraction prompt, hedge check, recording-vs-live-tap reconciliation, intake wiki page. |
+| `pipeline/stage3_proposal.py`, `pipeline/report.py` | Stage 3: draft v1; snapshot builder; working → submitted → sent → superseded. |
+| `pipeline/intake.py` | Stage 5 call rules with no database: question bank, extraction prompt, hedge check, recording-vs-live-tap reconciliation, intake wiki page. |
 | `pipeline/intake_ingest.py` | One call → intake + application answers; merges across calls; conflicts with live taps; CPL questions; exposure; pack + wiki refresh. |
 | `pipeline/indication_extract.py` | Carrier reply → text (pypdf / file) → LLM extraction (cached fallback) → deterministic check that every figure appears in the source. |
-| `pipeline/indications.py` | Requests out; replies in; versions + diffs; rule-based actions; condition status from the intake; generated `wiki/clients/<slug>-indications.md`. |
+| `pipeline/indications.py` | Stage 2: requests out (gated on Stage 1, chosen carriers); replies in; versions + diffs; rule-based follow-ups; review of a flagged figure; condition status from the call answers; generated `wiki/clients/<slug>-indications.md`. |
 | `pipeline/html_report.py` | Snapshot → standalone HTML file in `reports/<slug>/`. |
 | `pipeline/config.py` | Every review threshold in one place; loads `.env`. |
-| `api/main.py`, `api/ask.py` | REST for the app; Ask uses read-only tools (live with an API key, rule-based offline). |
-| `web/` | Workbench tabs: Enrich · Indications · Intake (Live call · After the call · Application) · Client pack · Agent brief · Audit, plus Ask drawer. |
+| `api/main.py`, `api/ask.py` | REST for the app (no route writes a carrier figure); Ask uses read-only tools (live with an API key, rule-based offline). |
+| `web/` | Workbench, one tab per stage with a derived status: 1 Confirm data · 2 Get indications · 3 Proposal pack · 4 Equip the agent · 5 Present, apply, bind (Live call · After the call · Application & bind) · Audit, plus Ask drawer. |
 | `.claude/skills/` | `client-ingest`, `indication-ingest` (carrier replies), `call-ingest` (Wispr Flow intake), `client-research` (web), `client-ask`. |
 | `reports/` | Generated HTML client packs: `current.html` + `v<N>.html` per submitted version. |
 
@@ -63,4 +64,4 @@ reaches a client.
 - **Obsidian + LLM-wiki pattern:** knowledge that compounds across renewals and is readable by people.
 - **FastAPI + React (Vite):** fastest path to a clickable, honest prototype.
 - **uv:** reproducible Python environment from one lockfile.
-- **Wispr Flow:** call capture for the Stage 4 Q&A, pulled into the wiki by a Claude skill.
+- **Wispr Flow:** call capture for Stage 5 calls and underwriter calls (Stage 2), pulled into the wiki by Claude skills.

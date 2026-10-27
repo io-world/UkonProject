@@ -13,8 +13,8 @@ export default function Brief({ tick }) {
   return (
     <div className="stack">
       <section className="intro">
-        <h2>Stage 3 · Agent brief</h2>
-        <p>Everything the producer needs before the conversation. AI tailors the pitch and selects objection answers from a
+        <h2>Stage 4 · Equip the agent</h2>
+        <p>Everything the producer needs before presenting the pack: talking points, likely objections and answers, and the policy specimens. AI tailors the pitch and selects objection answers from a
           CPL-approved library; it doesn't invent new ones, and it never interprets coverage.</p>
       </section>
 

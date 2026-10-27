@@ -7,7 +7,7 @@ import Application from './Application.jsx'
 const VIEWS = [
   { id: 'live', label: 'Live call', sub: 'Tap answers while you talk' },
   { id: 'review', label: 'After the call', sub: 'Recording vs taps · confirm' },
-  { id: 'app', label: 'Application', sub: 'Carrier questions · e-sign' },
+  { id: 'app', label: 'Application & bind', sub: 'Carrier questions · e-sign · bind' },
 ]
 
 export default function Intake({ actor, onChange, tick }) {
@@ -21,11 +21,10 @@ export default function Intake({ actor, onChange, tick }) {
   return (
     <div className="stack">
       <section className="intro">
-        <h2>Intake · human in the loop</h2>
-        <p>The agent walks the owner through the question bank on a call, tapping answers live; Wispr Flow records it. Each recording is
+        <h2>Stage 5 · Present, apply, bind</h2>
+        <p>The agent presents the pack and walks the owner through the application questions on a call, tapping answers live; Wispr Flow records it. Each recording is
           ingested into the wiki and checked against the taps: the AI quotes the line each answer came from, hedges stay flagged, and
-          a recording that disagrees with a tap is a conflict, not an overwrite. It can take several calls. <b>Open questions never block
-          the client pack.</b></p>
+          a recording that disagrees with a tap is a conflict, not an overwrite. It can take several calls. Confirmed answers flow back: a corrected revenue updates Stage 1 and, if it moved enough, flags the indications for re-request.</p>
         <div className="seg" role="tablist" aria-label="Intake view">
           {VIEWS.map((v) => (
             <button key={v.id} className={view === v.id ? 'on' : ''} onClick={() => setView(v.id)} title={v.sub}>{v.label}</button>

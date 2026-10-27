@@ -1,4 +1,4 @@
-"""Stage 2/3 prose. The LLM writes stories and talking points from the wiki.
+"""Stage 3/4 prose (client pack, agent kit). The LLM writes stories and talking points from the wiki.
 It is forbidden from writing numbers: any digit outside an approved {placeholder}
 fails validation, and the renderer fills placeholders from the database."""
 import json

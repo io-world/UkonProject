@@ -1,4 +1,4 @@
-"""Client pack — generate the AI draft (report v1) from enrichment + intake so far + industry research.
+"""Stage 3 — client proposal pack: generate the AI draft (report v1) from enrichment + intake so far + industry research.
 Prose from the LLM; numbers from the DB. Also writes reports/<slug>/current.html."""
 from .config import CLIENT_SLUG
 from . import narrative, report, wiki_render
@@ -22,7 +22,7 @@ def run(slug: str = CLIENT_SLUG):
         v = conn.execute("""INSERT INTO report_versions (client_id, version_no, state, snapshot, narrative, created_by)
                             VALUES (%s, 1, 'ai_draft', %s, %s, %s) RETURNING *""", (cid, j(snap), j(blocks), ai)).fetchone()
         html_path = report.export_html(conn, cid, v)
-        conn.execute("UPDATE clients SET stage='report' WHERE id=%s", (cid,))
+        conn.execute("UPDATE clients SET stage='proposal' WHERE id=%s AND stage IN ('confirm','indications')", (cid,))
     wiki_render.log(f"report | {slug} — v1 ai_draft created (narrative: {provenance})")
     print(f"report v1 drafted (narrative {provenance}) -> {html_path}")
 

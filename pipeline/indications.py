@@ -1,4 +1,4 @@
-"""Stage 1 — the agent <-> carrier exchange.
+"""Stage 2 — get indications: the agent <-> carrier exchange.
 
 Outbound: request indications from each carrier on the panel, with the five fields as a basis
 snapshot (what exactly did we send, and was it reviewed?).
@@ -10,7 +10,7 @@ the history shows what each carrier said, when, and what changed. Changes become
 by fixed rules (new condition, price moved, declined, verbal-only, figure to confirm).
 
     uv run python -m pipeline.indications                       # demo seed: requests + first replies
-(The app no longer shows the carrier exchange; the client pack reads its result through the `indications` view.)
+(The app's Stage 2 screen sends requests, ingests replies from the inbox and shows them read-only.)
     uv run python -m pipeline.indications <reply.pdf|.md>       # ingest one carrier reply"""
 import sys
 from datetime import date
@@ -58,19 +58,30 @@ def unreviewed(basis: dict) -> list[str]:
     return out + [v["label"] for v in basis["fields"].values() if v["needs_review"]]
 
 
-def request_all(conn, cid: int, actor_id: int, reason: str, gate: bool = True) -> int:
-    """Send (record) a request to every carrier on the panel. With gate=True the five fields must be
-    reviewed first; the demo seed passes gate=False and says so in the reason."""
+def panel() -> list[dict]:
+    return read_source(RAW / "carriers" / "carrier_panel.md")["carriers"]
+
+
+def request_all(conn, cid: int, actor_id: int, reason: str, gate: bool = True, carriers: list[str] | None = None) -> int:
+    """Send (record) a request to the chosen carriers (default: the whole panel). With gate=True the five
+    fields must be reviewed first; the demo seed passes gate=False and says so in the reason."""
     basis = basis_snapshot(conn, cid)
     if gate and unreviewed(basis):
-        raise ValueError("Review before sending: " + ", ".join(unreviewed(basis)))
-    panel = read_source(RAW / "carriers" / "carrier_panel.md")["carriers"]
-    for c in panel:
+        raise ValueError("Finish Stage 1 before sending: review " + ", ".join(unreviewed(basis)))
+    panel_ = panel()
+    if carriers is not None:
+        unknown = set(carriers) - {c["carrier"] for c in panel_}
+        if unknown:
+            raise ValueError("Not on the carrier panel: " + ", ".join(sorted(unknown)))
+        panel_ = [c for c in panel_ if c["carrier"] in carriers]
+        if not panel_:
+            raise ValueError("Pick at least one carrier")
+    for c in panel_:
         conn.execute("""INSERT INTO indication_requests (client_id, carrier, channel, options, basis, reason, sent_by)
                         VALUES (%s,%s,%s,%s,%s,%s,%s)""",
                      (cid, c["carrier"], c["request_channel"], j(REQUESTED_OPTIONS), j(basis), reason, actor_id))
-    conn.execute("UPDATE clients SET stage='indications' WHERE id=%s AND stage='enrichment'", (cid,))
-    return len(panel)
+    conn.execute("UPDATE clients SET stage='indications' WHERE id=%s AND stage='confirm'", (cid,))
+    return len(panel_)
 
 
 # --- inbound -------------------------------------------------------------------
@@ -294,6 +305,24 @@ def _refresh_default_carrier(conn, cid: int, actor_id: int):
         conn.execute("""UPDATE fields SET current_value=%s WHERE client_id=%s AND key='selected_carrier'
                         AND NOT EXISTS (SELECT 1 FROM field_changes fc WHERE fc.field_id=fields.id)""",
                      (j(default), cid))
+
+
+def review_version(conn, cid: int, version_id: int, actor_id: int, decision: str, note: str | None) -> dict:
+    """A person checks an extracted figure that wasn't found verbatim in the source. Only the review
+    columns change (the trigger locks the carrier's numbers); the matching action closes."""
+    if decision not in ("confirmed", "rejected"):
+        raise ValueError("decision must be confirmed or rejected")
+    v = conn.execute("SELECT * FROM indication_versions WHERE id=%s AND client_id=%s", (version_id, cid)).fetchone()
+    if not v:
+        raise LookupError("no such indication version")
+    if v["review"] != "pending_review":
+        raise ValueError(f"Nothing to review: this version is '{v['review']}'")
+    conn.execute("""UPDATE indication_versions SET review=%s, reviewed_by=%s, reviewed_at=now(), review_note=%s
+                    WHERE id=%s""", (decision, actor_id, note, version_id))
+    _close_actions(conn, cid, v["carrier"], "confirm_extraction", actor_id,
+                   f"{decision.capitalize()} against the source" + (f": {note}" if note else ""), version_id)
+    _refresh_default_carrier(conn, cid, actor_id)
+    return {"carrier": v["carrier"], "tier": v["tier"], "review": decision}
 
 
 # --- read model (API + wiki) ------------------------------------------------------------

@@ -1,22 +1,18 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api } from './api.js'
 import Enrichment from './components/Enrichment.jsx'
+import Indications from './components/Indications.jsx'
 import ReportTab from './components/ReportTab.jsx'
 import Brief from './components/Brief.jsx'
 import Intake from './components/Intake.jsx'
 import Audit from './components/Audit.jsx'
 import AskPanel from './components/AskPanel.jsx'
 
-const TABS = [
-  { id: 'enrich', n: 1, label: 'Get indications', sub: 'Five fields carriers need' },
-  { id: 'app', n: 2, label: 'Intake', sub: 'Live call · recording · confirm' },
-  { id: 'report', n: 3, label: 'Client pack', sub: 'HTML report for the owner' },
-  { id: 'brief', n: 4, label: 'Agent brief', sub: 'Pitch, objections, news' },
-  { id: 'audit', n: null, label: 'Audit trail', sub: 'Who changed what' },
-]
+// The five stages come from the API (pipeline/stages.py), each with a status derived from the data.
+// UKON's brief has four; its Stage 1 is split into "confirm data" and "get indications".
 
 export default function App() {
-  const [tab, setTab] = useState('enrich')
+  const [tab, setTab] = useState('confirm')
   const [users, setUsers] = useState([])
   const [actor, setActor] = useState('Jordan Pike')
   const [data, setData] = useState(null)
@@ -32,7 +28,8 @@ export default function App() {
   if (!data) return <div className="boot">Loading…</div>
 
   const c = data.client
-  const review = data.fields.filter((f) => f.needs_review).length + (data.entities.some((e) => e.status === 'confirmed') ? 0 : 1)
+  const { stages, current } = data.progress
+  const cur = stages.find((s) => s.key === current)
 
   return (
     <div className="shell">
@@ -47,7 +44,7 @@ export default function App() {
         <div className="client-head">
           <div className="client-name">{c.display_name}</div>
           <div className="client-meta">
-            {c.agency} · renews {c.renewal_date} · <strong>{c.days_to_renewal} days</strong> out · stage <code>{c.stage}</code>
+            {c.agency} · renews {c.renewal_date} · <strong>{c.days_to_renewal} days</strong> out · next: <strong>Stage {cur.n} · {cur.label}</strong>
           </div>
         </div>
         <label className="actor">
@@ -58,26 +55,32 @@ export default function App() {
         </label>
       </header>
 
-      <nav className="tabs" role="tablist">
-        {TABS.map((t) => (
-          <button key={t.id} role="tab" aria-selected={tab === t.id} className={tab === t.id ? 'tab on' : 'tab'}
-                  onClick={() => setTab(t.id)}>
-            {t.n && <span className="tab-n">{t.n}</span>}
-            <span className="tab-label">{t.label}</span>
-            <span className="tab-sub">{t.sub}</span>
-            {t.id === 'enrich' && review > 0 && <span className="pill warn">{review} to review</span>}
+      <nav className="tabs stages" role="tablist">
+        {stages.map((s) => (
+          <button key={s.key} role="tab" aria-selected={tab === s.key} className={`tab stage-${s.status} ${tab === s.key ? 'on' : ''}`}
+                  onClick={() => setTab(s.key)} title={`UKON stage ${s.ukon}`}>
+            <span className="tab-n">{s.status === 'done' ? '✓' : s.n}</span>
+            <span className="tab-label">{s.label}</span>
+            <span className="tab-sub">{s.note}</span>
+            {s.status === 'attention' && <span className="pill warn">to do</span>}
           </button>
         ))}
+        <button className={tab === 'audit' ? 'tab on' : 'tab'} onClick={() => setTab('audit')}>
+          <span className="tab-label">Audit trail</span><span className="tab-sub">Who changed what</span>
+        </button>
         <button className="ask-btn" onClick={() => setAskOpen(true)}>Ask about this client</button>
       </nav>
+      <div className="stage-map small muted">
+        UKON's brief has four stages; this splits its Stage 1 into <b>1 · Confirm data</b> and <b>2 · Get indications</b>, so
+        stages 3–5 here are UKON's 2–4.
+      </div>
 
       <main className="main">
-        {tab === 'enrich' && (
-          <Enrichment data={data} actor={actor} onChange={refresh} />
-        )}
-        {tab === 'report' && <ReportTab data={data} actor={actor} onChange={refresh} tick={tick} />}
-        {tab === 'brief' && <Brief tick={tick} />}
-        {tab === 'app' && <Intake actor={actor} onChange={refresh} tick={tick} />}
+        {tab === 'confirm' && <Enrichment data={data} actor={actor} onChange={refresh} goNext={() => setTab('indications')} />}
+        {tab === 'indications' && <Indications data={data} actor={actor} onChange={refresh} tick={tick} goStage1={() => setTab('confirm')} />}
+        {tab === 'proposal' && <ReportTab data={data} actor={actor} onChange={refresh} tick={tick} />}
+        {tab === 'agent_kit' && <Brief tick={tick} />}
+        {tab === 'apply_bind' && <Intake actor={actor} onChange={refresh} tick={tick} />}
         {tab === 'audit' && <Audit tick={tick} />}
       </main>
 

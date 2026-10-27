@@ -3,9 +3,9 @@ name: call-ingest
 description: Ingest an intake call for a renewal client from Wispr Flow into the wiki and merge it into the intake (checked against the agent's live taps; hedges and conflicts flagged). Use after any agent-client intake call, or when the user says ingest the call, process the Wispr recording, or update the intake.
 ---
 
-# Call ingest (intake, human in the loop)
+# Call ingest (Stage 5 calls, human in the loop)
 
-The agent runs the call from the app's **Intake → Live call** screen, tapping answers as the client
+The agent runs the call from the app's **Stage 5 (Present, apply, bind) → Live call** screen, tapping answers as the client
 talks; Wispr Flow records it. This skill brings the recording in. Intake can take several calls;
 each is merged into what's known, and the client pack is rebuilt even if items are still open.
 
@@ -23,7 +23,7 @@ each is merged into what's known, and the client pack is rebuilt even if items a
    transcript. Use `[mm:ss] **Speaker:**` lines when Wispr gives times; if it doesn't, keep its
    speaker lines as they are (answers will have no timestamp). Keep mis-transcriptions as-is.
    Raw files are never edited after this.
-4. **Ingest.** Either click **Ingest** next to the file in **Intake → After the call**, or run
+4. **Ingest.** Either click **Ingest** next to the file in **Stage 5 → After the call**, or run
    `uv run python -m pipeline.intake_ingest wiki/raw/<slug>/call_<n>_<label>.md`.
    Needs `ANTHROPIC_API_KEY` for a new call (cached extractions exist only for the samples).
    What it does: extracts intake + application answers with quotes; hedged answers → follow-up;

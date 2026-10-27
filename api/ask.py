@@ -1,4 +1,4 @@
-"""'Ask about this client' — the Stage 3 skill, exposed to the app.
+"""'Ask about this client' — available at every stage, exposed to the app.
 
 Read-only by construction: the only tools are readers. Numbers come from DB tools;
 the 'why' comes from wiki pages. Coverage-interpretation questions escalate to a CPL."""
