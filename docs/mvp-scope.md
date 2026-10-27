@@ -30,10 +30,10 @@ The problems were scope and who does the work:
 end. Add a "how this scales" slide showing the renewal queue so the panel sees it was designed
 for many clients even though the prototype runs one.
 
-**What to build first in production (Randy, Oct 27):** (1) data capture that shows where renewals break and
-what to prioritize (offered or not, quoted, bound, not now and why, carrier declines, year-two drop-offs, time
-per step); (2) everything about the carriers and how they work (channels, turnaround, applications, appetite,
-conditions, renewal), reading what carriers already send before building APIs; (3) then what the data points to.
+**What to build first in production (Randy, Oct 27):** (1) process-mine the real workflow (mining tool + an AI
+layer turning emails, carrier documents and call notes into source-linked events; tag why each manual step is
+manual: relationship, judgment, missing data, habit); (2) model how the two or three main carriers work; (3) automate
+the paperwork and augment the relationships, ranked by deals lost × cost to fix, measured against the same event log.
 
 ## Built
 
