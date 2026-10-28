@@ -5,9 +5,9 @@ import IntakeReview from './intake/IntakeReview.jsx'
 import Application from './Application.jsx'
 
 const VIEWS = [
-  { id: 'live', label: 'Live call', sub: 'Tap answers while you talk' },
-  { id: 'review', label: 'After the call', sub: 'Recording vs taps · confirm' },
-  { id: 'app', label: 'Application', sub: 'Carrier questions · e-sign' },
+  { id: 'live', label: '1 · On the call', sub: 'Tap answers while you talk' },
+  { id: 'review', label: '2 · Check the recording', sub: 'Recording vs taps · the only place answers are confirmed' },
+  { id: 'app', label: '3 · Application', sub: 'Read-only · carrier questions · e-sign' },
 ]
 
 export default function Intake({ actor, onChange, tick }) {
@@ -33,7 +33,7 @@ export default function Intake({ actor, onChange, tick }) {
       </section>
       {view === 'live' && <LiveCall data={data} actor={actor} onSaved={() => setLocal((x) => x + 1)} />}
       {view === 'review' && <IntakeReview data={data} actor={actor} onChange={refresh} />}
-      {view === 'app' && <Application actor={actor} onChange={refresh} tick={tick + local} embedded />}
+      {view === 'app' && <Application tick={tick + local} embedded goReview={() => setView('review')} />}
     </div>
   )
 }

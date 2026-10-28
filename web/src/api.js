@@ -45,8 +45,6 @@ export const api = {
   intakeEscalate: (text, call_time, actor) => req(`${base}/intake/escalations`, { method: 'POST', body: { actor, text, call_time } }),
   intakeIngest: (transcript, actor) => req(`${base}/intake/ingest`, { method: 'POST', body: { actor, transcript } }),
   htmlUrl: (version) => `${base}/report.html${version ? `?version=${version}` : ''}`,
-  confirmAnswer: (key, actor, answer, normalized) =>
-    req(`${base}/application/${key}/confirm`, { method: 'POST', body: { actor, answer, normalized } }),
   // Stage 5 decision + Stage 6 close
   close: () => req(`${base}/close`),
   decide: (body, actor) => req(`${base}/decision`, { method: 'POST', body: { actor, ...body } }),

@@ -72,11 +72,6 @@ class FieldChange(Actor):
     source_ref: str | None = None      # e.g. call_1_intake, "email from Dr. Pollack 10/28", "agency AMS API"
 
 
-class AnswerConfirm(Actor):
-    answer: str | None = None
-    normalized: str | None = None
-
-
 class Question(Actor):
     question: str
 
@@ -521,20 +516,6 @@ def _confirm_app(conn, cid: int, key: str, uid: int, answer=None, normalized=Non
     return None
 
 
-@app.post("/api/clients/{slug}/application/{key}/confirm")
-def confirm_answer(slug: str, key: str, body: AnswerConfirm):
-    with connect() as conn:
-        c = client_by_slug(conn, slug)
-        uid = user_id(conn, body.actor)
-        if not conn.execute("SELECT 1 FROM application_answers WHERE client_id=%s AND question_key=%s",
-                            (c["id"], key)).fetchone():
-            raise HTTPException(404)
-        applied = _confirm_app(conn, c["id"], key, uid, body.answer, body.normalized)
-        intake_ingest.after_change(conn, c["id"], slug, uid, edited=True)
-    wiki_render.log(f"review | {slug} — {body.actor} confirmed application answer '{key}'")
-    return {"ok": True, "applied_to": applied}
-
-
 # ---------------------------------------------------------------------------------------------
 # Stage 5 (present, apply, bind): live call screen + recorded calls, one record per question-bank item
 # ---------------------------------------------------------------------------------------------
@@ -597,12 +578,17 @@ def intake_view(slug: str):
         calls = conn.execute("SELECT call_ref, wiki_path, answered, flagged, ingested_at FROM intake_calls "
                              "WHERE client_id=%s ORDER BY ingested_at, id", (c["id"],)).fetchall()
         figures = _figures(conn, c["id"])
+        app_rows = {a["question_key"]: {"question": a["question"], "answer": a["answer"], "normalized": a["normalized"],
+                                        "status": a["status"]} for a in conn.execute(
+            "SELECT question_key, question, answer, normalized, status FROM application_answers WHERE client_id=%s",
+            (c["id"],)).fetchall()}
     bank = intake.load_bank()
     items = []
     for it in bank:
         r = rows.get(it["key"]) or {}
         f = fields.get(it.get("prefill_from")) if it.get("prefill_from") else None
-        items.append(it | {"row": r, "prefill": None if not f else {
+        items.append(it | {"row": r, "app": [app_rows[k] | {"key": k} for k in (it.get("app_keys") or []) if k in app_rows],
+                           "prefill": None if not f else {
             "value": f["current_value"], "confidence": f["confidence"], "method": f["method"],
             "needs_review": f["needs_review"]}})
     ingested = {c["call_ref"] for c in calls}
@@ -652,8 +638,20 @@ def intake_confirm(slug: str, key: str, body: IntakeConfirm):
                               f"Confirmed with client on {r['source_call'] or 'call'} [{r['source_ts']}]",
                               "conversation", r["source_call"])
                 applied.append("annual_revenue")
+        corrected = body.value is not None and body.value != r["value"]
         for app_key in (r["app_keys"] or []):
-            a = _confirm_app(conn, cid, app_key, uid)
+            if corrected:   # the application is read-only now: a correction here is what the application says
+                text = ", ".join(map(str, value)) if isinstance(value, list) else (f"${value:,.0f}" if key == "revenue"
+                       and isinstance(value, (int, float)) else str(value))
+                low = text.strip().lower()
+                norm = "yes" if low.startswith("yes") else "no" if low.startswith("no") else \
+                       "partial" if low.startswith(("partial", "some")) else None
+                if isinstance(value, (int, float)):
+                    conn.execute("UPDATE application_answers SET value=%s WHERE client_id=%s AND question_key=%s",
+                                 (j(value), cid, app_key))
+                a = _confirm_app(conn, cid, app_key, uid, text, norm)
+            else:
+                a = _confirm_app(conn, cid, app_key, uid)
             if a and a not in applied:
                 applied.append(a)
         intake_ingest.after_change(conn, cid, slug, uid, edited=True)

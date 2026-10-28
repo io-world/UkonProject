@@ -36,7 +36,15 @@ function ItemCard({ it, actor, onDone }) {
       {(r.notes || []).map((n, i) => (
         <div key={i} className={n.startsWith('CONFLICT') ? 'banner warn small' : 'small note-line'}>{n}</div>
       ))}
-      {it.app_keys?.length > 0 && <div className="small muted">Fills application: {it.app_keys.join(', ')}</div>}
+      {it.app?.length > 0 && (
+        <div className="on-app">
+          <div className="muted small">On the application{r.status !== 'confirmed' && ' · confirming confirms this wording too'}</div>
+          {it.app.map((a) => (
+            <div key={a.key} className="small"><span className="muted">{a.question}</span> → <b>{a.answer || '—'}</b>
+              {a.normalized && !['value', 'unknown'].includes(a.normalized) && <code> {a.normalized}</code>}</div>
+          ))}
+        </div>
+      )}
       {r.status === 'confirmed' && <div className="muted small">Confirmed by {r.confirmed_by_name} · {when(r.confirmed_at)}</div>}
       {msg && <div className="banner ok small">{msg}</div>}
       {r.status !== 'confirmed' && it.section !== 'walkthrough' && !edit && (
@@ -128,8 +136,9 @@ export default function IntakeReview({ data, actor, onChange }) {
             <div><b>{count('needs_followup')}</b><span>need follow-up</span></div>
             <div><b>{count('unanswered')}</b><span>not covered yet</span></div>
           </div>
-          <p className="small">Open items don't block the client pack; it shows them as “to confirm.” Confirming an answer also confirms
-            the application questions it fills, and a confirmed revenue or record count updates the report (logged).</p>
+          <p className="small">This is the only place answers are confirmed. Each answer shows how it will read on the carrier's
+            application; confirming it confirms that wording too, and a correction here is what the application will say. Open items
+            don't block the client pack; it shows them as “to confirm.” A confirmed revenue or record count updates the report (logged).</p>
           <h4 className="mt">Coverage questions for a CPL</h4>
           <ul className="esc">{data.escalations.map((e) => (
             <li key={e.id}>“{e.text}” <span className="muted small">{e.call_time} · {e.source === 'call' ? e.call_ref : `logged live by ${e.created_by_name}`}</span></li>

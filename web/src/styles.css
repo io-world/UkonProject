@@ -506,3 +506,4 @@ details > summary { cursor: pointer; }
 .inbox > a { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .spin { display: inline-block; width: 11px; height: 11px; border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; vertical-align: -1px; margin-right: 4px; }
 @keyframes spin { to { transform: rotate(360deg) } }
+.on-app { border-left: 2px solid var(--line); padding: 4px 0 4px 10px; display: grid; gap: 2px; }
