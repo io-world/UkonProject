@@ -77,6 +77,12 @@ Decisions made while designing and building the prototype (Oct 25–26, 2026), w
 
 ## Things flagged but not yet resolved
 
+- **Stages 2 and 3 are a loop, not a line.** In practice the owner reacts to the pack (a different limit or deductible,
+  a corrected revenue, a new control) and the agent goes back to the carriers, often for a few rounds until the renewal
+  date or the indications expire. The prototype has part of it (re-request with the current basis; every reply
+  versioned) but not the owner's side (requested options are fixed). Noted, not built (Randy, Oct 27). UI ideas if it
+  is built later: a round counter ("2 ⇄ 3 · Round 2"), an "owner asked for…" panel that pre-fills the re-request, and
+  an options × carriers grid. Ask UKON: how many rounds is typical, and who drives them?
 - Whether Wispr Flow captures **phone calls** or only meetings and dictation. The design says
   "call capture (e.g., Wispr Flow)" so it doesn't depend on one tool. Verify before the demo.
 - Whether carriers accept a **revenue band** for an indication (vs a point value).

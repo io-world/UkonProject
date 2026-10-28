@@ -113,6 +113,11 @@ letter). A reply is refused for a carrier nobody asked.
 | **Human does** | Reviews the items; deletes any that don't fit. Each item is tagged for the client pack, the agent brief, or both. |
 | **What could go wrong** | Invented or stale events → every item needs a URL and date; figures are quoted from the source; the tailored line may not add numbers. |
 
+> **Stages 2 and 3 loop.** The owner usually asks for changes after seeing the pack (another limit or deductible, a
+> corrected fact), and the agent goes back to the carriers for a new round, until the owner decides or the renewal date
+> arrives. The prototype re-requests on a changed basis and versions every reply, but doesn't capture the owner's
+> requested changes yet (see "Things flagged" in `decisions.md`).
+
 ## Stage 3 · Client proposal pack: the HTML report (built)
 
 | Step | AI does | Human does | What could go wrong → how it's caught |
