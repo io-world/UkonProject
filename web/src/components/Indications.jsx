@@ -179,6 +179,7 @@ function Version({ v, actor, onDone }) {
         <b>v{v.version_no}</b>
         <span>{v.status === 'declined' ? 'Declined' : money(v.premium) + '/yr'}</span>
         <span className="muted small">{CHANNEL[v.channel] || v.channel} · {v.doc_date}{v.trust === 'verbal' ? ' · verbal' : ''}</span>
+        {v.path && <a className="link small" href={api.wikiUrl(v.path)} target="_blank" rel="noreferrer">Open the {v.path.endsWith('.pdf') ? 'PDF' : 'source'}</a>}
         {v.review === 'pending_review' && <span className="pill warn">check figure</span>}
         {v.review === 'confirmed' && <span className="pill s-confirmed">checked by {v.reviewed_by_name}</span>}
         {v.review === 'rejected' && <span className="pill s-unanswered">rejected</span>}
@@ -300,6 +301,27 @@ export default function Indications({ data, actor, onChange, tick, goStage1 }) {
     } catch (e) { setMsg({ err: e.message }) } finally { setBusy(null) }
   }
 
+  // Take every waiting reply in, one at a time in date order (same checks as one by one); stops at the first error.
+  const ingestAll = async () => {
+    const queue = [...ind.inbox]
+    const got = []
+    setMsg(null)
+    for (let i = 0; i < queue.length; i++) {
+      setBusy({ all: true, path: queue[i], n: i + 1, of: queue.length })
+      try {
+        const r = await api.ingestReply(queue[i], actor)
+        got.push(`${r.carrier} (${CHANNEL[r.channel] || r.channel})` + (r.failed_checks.length ? `: ${r.failed_checks.length} figure(s) to check` : ''))
+        api.indications().then(setInd).catch(() => {})   // the read reply leaves the inbox as you watch
+      } catch (e) {
+        setMsg({ err: `Stopped at ${queue[i].split('/').pop()}: ${e.message}` + (got.length ? ` (${got.length} taken in before it)` : '') })
+        break
+      }
+    }
+    if (got.length === queue.length) setMsg({ ok: `All ${got.length} replies taken in: ${got.join(' · ')}` })
+    setBusy(null); done()
+  }
+  const allBusy = busy?.all
+
   return (
     <div className="stack">
       <section className="intro">
@@ -319,7 +341,13 @@ export default function Indications({ data, actor, onChange, tick, goStage1 }) {
         </section>
       ) : (
         <section className="card">
-          <h3>Carrier inbox <span className="muted">· {ind.inbox.length ? `${ind.inbox.length} repl${ind.inbox.length === 1 ? 'y' : 'ies'} to come` : 'all replies read in'}</span></h3>
+          <div className="row" style={{ justifyContent: 'space-between' }}>
+            <h3>Carrier inbox <span className="muted">· {ind.inbox.length ? `${ind.inbox.length} repl${ind.inbox.length === 1 ? 'y' : 'ies'} to come` : 'all replies read in'}</span></h3>
+            {ind.inbox.length > 1 && (
+              <button className="btn sm" disabled={!!busy} onClick={ingestAll}>
+                {allBusy ? <><span className="spin" /> Reading {busy.n} of {busy.of}…</> : `Take all ${ind.inbox.length}`}</button>
+            )}
+          </div>
           {ind.sources.length === 0 && (
             <p className="small">Requests sent {when(ind.requests[0].sent_at)} to {new Set(ind.requests.map((r) => r.carrier)).size} carriers. <b>Waiting on carriers:</b> in real life replies take days and arrive by PDF, email or a call
               with the underwriter. In this demo they arrive below, in date order.</p>
@@ -330,10 +358,12 @@ export default function Indications({ data, actor, onChange, tick, goStage1 }) {
             return (
               <div key={p} className={`row inbox ${i ? 'later' : ''}`}>
                 <span className="small muted" style={{ minWidth: 92 }}>{/^\d{4}-\d{2}-\d{2}$/.test(date) ? new Date(date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}</span>
-                <code>{name}</code>
-                {i === 0
-                  ? <button className="btn sm" disabled={busy === p} onClick={() => ingest(p)}>{busy === p ? 'Reading…' : 'Take it in'}</button>
-                  : <span className="pill">arrives later</span>}
+                <a className="link" href={api.wikiUrl(p)} target="_blank" rel="noreferrer" title="Open the file as received"><code>{name}</code></a>
+                {allBusy && busy.path === p
+                  ? <span className="pill"><span className="spin" /> Reading…</span>
+                  : i === 0
+                    ? <button className="btn sm" disabled={!!busy} onClick={() => ingest(p)}>{busy === p ? 'Reading…' : 'Take it in'}</button>
+                    : <span className="pill">arrives later</span>}
               </div>
             )
           })}
