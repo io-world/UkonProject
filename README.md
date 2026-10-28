@@ -50,7 +50,7 @@ Edit `web/src` and the browser updates live. `uv run npm run build` refreshes `w
 API also serves at http://localhost:8000 (handy for a one-terminal demo).
 
 After pulling an update, if the app says the database is from an older version, run
-`uv run python -m pipeline.run_all` and refresh.
+`uv run python -m pipeline.run_all` and refresh. Or open **/reset** in the browser (e.g. http://localhost:5173/reset) and click **Yes, reset everything**: same reset, using saved AI outputs so the demo starts the same way every time.
 
 Stop the database with `scripts/db.sh stop`. Reset all demo data any time with
 `uv run python -m pipeline.run_all`.

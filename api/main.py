@@ -828,6 +828,25 @@ def bind_now(slug: str, body: Actor):
 
 
 # ---------------------------------------------------------------------------------------------
+# Demo reset (/reset page): everything back to the seeded starting state. Local demo only.
+# ---------------------------------------------------------------------------------------------
+class ResetBody(BaseModel):
+    confirm: bool = False
+    live_ai: bool = False
+
+
+@app.post("/api/reset")
+def reset_demo_route(body: ResetBody):
+    if not body.confirm:
+        raise HTTPException(400, "Confirm the reset")
+    import time
+    from pipeline import run_all
+    t0 = time.time()
+    res = run_all.reset_demo(offline=not body.live_ai)
+    return res | {"seconds": round(time.time() - t0, 1)}
+
+
+# ---------------------------------------------------------------------------------------------
 # The built front end (web/dist) is served from the same port, so the app runs without Node:
 #   uv run uvicorn api.main:app --port 8000   →   http://localhost:8000
 # Rebuild after editing web/src:  cd web && npm install && npm run build   (needs Node)

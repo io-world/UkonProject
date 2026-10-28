@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reset the Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16202e; --ink-2:#3c4a5c; --muted:#5f6b7c; --line:#e3e0d8; --line-2:#eeebe4;
+  --paper:#fbfaf7; --card:#ffffff; --wash:#f3f1ec;
+  --accent:#0f6b62; --accent-2:#e7f2f0; --on-accent:#ffffff;
+  --amber:#a35f00; --amber-bg:#fff4e0; --red:#b3372f; --red-bg:#fdecea; --green:#2f7d4b; --green-bg:#e9f5ee;
+  --shadow:0 1px 2px rgba(22,32,46,.06),0 4px 16px rgba(22,32,46,.04);
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --radius:10px; color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ink:#e6e9ee; --ink-2:#b9c2ce; --muted:#95a1b2; --line:#2c333d; --line-2:#242a33;
+  --paper:#11151b; --card:#181d25; --wash:#1f252e;
+  --accent:#4fb3a7; --accent-2:#17302d; --on-accent:#0c1714;
+  --amber:#e3a24a; --amber-bg:#33270f; --red:#f08479; --red-bg:#3a1d1b; --green:#6cc28b; --green-bg:#16301f;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25); color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --ink:#e6e9ee; --ink-2:#b9c2ce; --muted:#95a1b2; --line:#2c333d; --line-2:#242a33;
+  --paper:#11151b; --card:#181d25; --wash:#1f252e;
+  --accent:#4fb3a7; --accent-2:#17302d; --on-accent:#0c1714;
+  --amber:#e3a24a; --amber-bg:#33270f; --red:#f08479; --red-bg:#3a1d1b; --green:#6cc28b; --green-bg:#16301f;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25); color-scheme:dark;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.6}
+h1,h2,h3{margin:0;line-height:1.2}
+p{margin:0}
+a{color:var(--accent)}
+.wrap{max-width:760px;margin:0 auto;padding:40px 16px 60px}
+.eyebrow{font-size:.74rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);font-weight:700}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(1.8rem,4vw,2.4rem);margin-top:8px}
+.lede{color:var(--ink-2);margin-top:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;margin-top:22px}
+.q{font-family:var(--serif);font-size:1.35rem;font-weight:600}
+.small{font-size:.88rem;color:var(--ink-2)}
+.starts{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:8px}
+.starts li{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;font-size:.92rem}
+.n{width:24px;height:24px;border-radius:50%;background:var(--accent-2);color:var(--accent);font-weight:700;font-size:.8rem;display:grid;place-items:center}
+.cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:14px}
+@media (max-width:600px){.cols{grid-template-columns:1fr}}
+.cols h3{font-size:.95rem;margin-bottom:6px}
+.cols ul{margin:0;padding-left:18px;font-size:.88rem;color:var(--ink-2);display:grid;gap:4px}
+.opt{display:flex;gap:10px;align-items:flex-start;margin-top:16px;font-size:.9rem;color:var(--ink-2)}
+.opt input{margin-top:4px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.btn{font:600 .95rem var(--sans);border-radius:8px;padding:10px 16px;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;display:inline-block}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn:disabled{opacity:.5;cursor:progress}
+.status{margin-top:16px;padding:12px 14px;border-radius:8px;font-size:.92rem;display:none}
+.status.show{display:block}
+.status.busy{background:var(--wash)}
+.status.ok{background:var(--green-bg);color:var(--green)}
+.status.err{background:var(--red-bg);color:var(--red)}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:s .8s linear infinite;vertical-align:-2px;margin-right:8px}
+@keyframes s{to{transform:rotate(360deg)}}
+</style></head>
+<body>
+<main class="wrap">
+  <span class="eyebrow">Demo tools</span>
+  <h1>Reset the demo</h1>
+  <p class="lede">Puts the whole workbench back to where the demo starts, so every stage can be walked through again from the top.</p>
+
+  <section class="card" aria-labelledby="q">
+    <p class="q" id="q">Reset all toggles and configurations to the start of the demo?</p>
+    <p class="small" style="margin-top:6px">Every change, decision, confirmation and pack version made since the last reset is wiped. This can't be undone.</p>
+
+    <h3 style="margin-top:18px;font-size:.95rem">Where each stage starts after a reset</h3>
+    <ul class="starts">
+      <li><span class="n">1</span><span><b>Confirm data:</b> the company match and three fields waiting for review.</span></li>
+      <li><span class="n">2</span><span><b>Get indications:</b> three carriers' first replies in; Northwind's revised letter waiting in the inbox to take in live.</span></li>
+      <li><span class="n">3</span><span><b>Proposal pack:</b> v1 as an AI draft, nothing submitted.</span></li>
+      <li><span class="n">4</span><span><b>Equip the agent:</b> brief, objections and people notes ready.</span></li>
+      <li><span class="n">5</span><span><b>Questionnaire:</b> call 1, call 2 and the office manager's email in; three questions open; nothing confirmed.</span></li>
+      <li><span class="n">6</span><span><b>Decision, bind, report:</b> empty; Northwind's firm quote waiting to take in.</span></li>
+    </ul>
+
+    <div class="cols">
+      <div><h3>Reset</h3><ul><li>The database: every field, decision, toggle and log entry</li><li>Generated wiki pages and the client pack</li><li>Submitted pack files (v1, v2…)</li></ul></div>
+      <div><h3>Kept</h3><ul><li>Raw sources in the wiki (public records, calls, carrier letters)</li><li>The interview pages and the AI agents page</li><li>The code and your git history</li></ul></div>
+    </div>
+
+    <label class="opt"><input type="checkbox" id="live"> <span>Use live AI for the reset (slower, and results can differ from the demo script). Off by default: saved outputs are used so the demo starts the same way every time.</span></label>
+
+    <div class="actions">
+      <button class="btn primary" id="yes">Yes, reset everything</button>
+      <a class="btn" href="/">No, take me back</a>
+    </div>
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+  </section>
+</main>
+<script>
+(function(){
+  var yes=document.getElementById('yes'), st=document.getElementById('status'), live=document.getElementById('live');
+  function show(cls, html){ st.className='status show '+cls; st.innerHTML=html; }
+  yes.addEventListener('click', async function(){
+    yes.disabled=true;
+    show('busy','<span class="spin"></span>Resetting… this takes a few seconds' + (live.checked ? ' (longer with live AI)' : '') + '.');
+    try{
+      var r=await fetch('/api/reset',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({confirm:true,live_ai:live.checked})});
+      var d=await r.json().catch(function(){return {}});
+      if(!r.ok) throw new Error(d.detail||r.statusText);
+      show('ok','Done in '+d.seconds+'s. The demo is back at the start. <a href="/">Open the workbench</a> · <a href="/interview/">Interview pages</a>');
+    }catch(e){
+      show('err','The reset didn’t finish: '+e.message+'. Is the backend running? Start it with <code>uv run uvicorn api.main:app --port 8000</code>, or run <code>uv run python -m pipeline.run_all</code> in a terminal.');
+    }finally{ yes.disabled=false; }
+  });
+})();
+</script>
+</body></html>

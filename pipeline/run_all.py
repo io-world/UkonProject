@@ -27,14 +27,31 @@ def reset_schema():
     print("schema reset")
 
 
+def reset_demo(offline: bool = True) -> dict:
+    """Put the demo back to its starting state: fresh schema, the seeded stages, generated pages and pack.
+    offline=True uses the saved AI outputs even when an API key is set, so the reset is fast and the demo
+    starts the same way every time. Submitted pack files (reports/<slug>/v*.html) are removed too."""
+    from . import config
+    key = config.ANTHROPIC_API_KEY
+    if offline:
+        config.ANTHROPIC_API_KEY = None
+    try:
+        for f in (ROOT / "reports" / CLIENT_SLUG).glob("v*.html"):
+            f.unlink()
+        reset_schema()
+        stage1_enrich.run()        # Stage 1
+        indications.run()          # Stage 2
+        intake_ingest.run()        # Stage 5 call 1 (see the docstring)
+        stage3_proposal.run()      # Stage 3
+        # Stage 5 keeps going after the pack: a follow-up call and an email from the office manager (both simulated)
+        intake_ingest.run(transcript_path=str(RAW_DIR / "call_2_followup.md"))
+        intake_ingest.run(transcript_path=str(RAW_DIR / "email_1_office_manager.md"))
+    finally:
+        config.ANTHROPIC_API_KEY = key
+    return {"ok": True, "offline": offline}
+
+
 if __name__ == "__main__":
-    reset_schema()
-    stage1_enrich.run()        # Stage 1
-    indications.run()          # Stage 2
-    intake_ingest.run()        # Stage 5 call 1 (see the docstring)
-    stage3_proposal.run()      # Stage 3
-    # Stage 5 keeps going after the pack: a follow-up call and an email from the office manager (both simulated)
-    intake_ingest.run(transcript_path=str(RAW_DIR / "call_2_followup.md"))
-    intake_ingest.run(transcript_path=str(RAW_DIR / "email_1_office_manager.md"))
+    reset_demo(offline=False)
     print("ready: uv run uvicorn api.main:app --port 8000   then   cd web && uv run npm run dev")
     print(f"HTML report: reports/{CLIENT_SLUG}/current.html")
