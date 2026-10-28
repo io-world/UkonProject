@@ -7,26 +7,28 @@ client_id: 1
 # Sloan's Lake Dental — decision, final terms, bind
 
 > [!warning] Generated page — do not edit in Obsidian
-> Rendered from the database after every Stage 5/6 change.
+> Rendered from the database after every Stage 6 change.
 
 - **Presentation:** chose — Northwind Specialty $1M / $10K (Jordan Pike, 2026-10-27)
+- **Final terms:** accepted — Northwind Specialty $1M / $10K (Jordan Pike, 2026-10-27)
 
 ## Firm quote
 
 - Northwind Specialty $1M / $10K: **$3,410** · review `verified` · [[raw/sloanslake/quotes/2026-12-03_northwind_firm_quote.pdf|source]]
-- Compared with indication v1: $2,980
-  - Premium: $2,980 → $3,410
+- Compared with indication v2: $3,280
+  - Premium: $3,280 → $3,410
 
 ## Conditions
 
-- [ ] (before) Before binding: written confirmation that MFA is enforced on all email accounts
-- [ ] (before) Before binding: written confirmation that backups are offline or immutable and were restore-tested in the last 12 months
-- [ ] (before) Coverage is not in force until bound in writing by the company.
-- [ ] (before) Premium excludes taxes and fees.
-- [ ] (before) Failure to satisfy post-binding subjectivities may result in cancellation.
-- [ ] (after) Within 60 days of binding: phishing awareness training completed by all staff, with evidence provided
+- [x] (before) Before binding: written confirmation that MFA is enforced on all email accounts
+- [x] (before) Before binding: written confirmation that backups are offline or immutable and were restore-tested in the last 12 months
+- [x] (after) Within 60 days of binding: phishing awareness training completed by all staff, with evidence provided
 
-## After-bind plan (draft)
+## Bound
+
+- Policy NS-CY-27-10001 (simulated), 2027-01-15 to 2028-01-15, $3,410
+
+## After-bind plan
 
 - Day 0 (2027-01-15) · Agent · Welcome call: walk the owner and office manager through the one-page summary; save the incident steps where staff can find them
 - Day 7 (2027-01-22) · Carrier · Carrier onboarding: policyholder portal and any included security services switched on

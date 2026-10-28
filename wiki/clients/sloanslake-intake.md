@@ -7,7 +7,7 @@ calls:
   - raw/sloanslake/call_1_intake
   - raw/sloanslake/call_2_followup
   - raw/sloanslake/email_1_office_manager
-last_rendered: 2026-10-27T15:35:40-06:00
+last_rendered: 2026-10-28T00:24:17-06:00
 ---
 
 # Intake — Sage Dentistry, PLLC
@@ -16,7 +16,7 @@ last_rendered: 2026-10-27T15:35:40-06:00
 > Rendered from the database after each call is ingested and whenever an agent confirms an answer
 > in the app (logged with their name).
 
-Calls: [[raw/sloanslake/call_1_intake|call_1_intake]], [[raw/sloanslake/call_2_followup|call_2_followup]], [[raw/sloanslake/email_1_office_manager|email_1_office_manager]] · last extraction: live · 0 confirmed · 22 ready to confirm · 6 need follow-up · 1 not covered
+Calls: [[raw/sloanslake/call_1_intake|call_1_intake]], [[raw/sloanslake/call_2_followup|call_2_followup]], [[raw/sloanslake/email_1_office_manager|email_1_office_manager]] · last extraction: cached · 0 confirmed · 26 ready to confirm · 3 need follow-up · 0 not covered
 
 **Status: draft.** The intake is complete when every identity and exposure item is confirmed by an agent.
 
@@ -43,10 +43,9 @@ Calls: [[raw/sloanslake/call_1_intake|call_1_intake]], [[raw/sloanslake/call_2_f
 
 ### 0.4 · Annual revenue
 - Asked: We estimated annual revenue at about $2.35 million. Is that in the right range?
-- Answer: **$2,520,000** — Gross revenue for 2025 was $2,520,000, per their accountant
+- Answer: **$2,520,000** — $2,520,000 gross revenue for 2025, per the practice's accountant
 - Status: `ready to confirm`
-- Client said: “our accountant says gross revenue for 2025 was $2,520,000.” ([[raw/sloanslake/email_1_office_manager|email_1_office_manager]] )
-- Client corrected the pre-filled value ($2,350,000). Confirming it in the app applies it to the report as a logged change.
+- Client said: “Revenue: our accountant says gross revenue for 2025 was $2,520,000.” ([[raw/sloanslake/email_1_office_manager|email_1_office_manager]] )
 - Fills application: revenue
 
 ### 0.5 · State / business address
@@ -81,10 +80,9 @@ Calls: [[raw/sloanslake/call_1_intake|call_1_intake]], [[raw/sloanslake/call_2_f
 
 ### Q4 · Backups
 - Asked: Do you have offline backups? When did you last test restoring everything from them?
-- Answer: **Backups have not been test-restored yet. A restore test is scheduled for next month. Whether the backups are offline was not discussed. The agent left this item open.**
-- Status: `needs follow-up`
+- Answer: **Backups, never tested** — Nightly cloud backups; a restore has still never been tested (test scheduled next month)
+- Status: `ready to confirm`
 - Client said: “Not yet. They've scheduled a restore test for next month.” ([[raw/sloanslake/call_2_followup|call_2_followup]] 00:37)
-- Partial answer. Confirm the rest before it goes on the application.
 - Fills application: backups
 
 ### Q5 · Critical systems
@@ -111,15 +109,15 @@ Calls: [[raw/sloanslake/call_1_intake|call_1_intake]], [[raw/sloanslake/call_2_f
 
 ### Q8 · Regulated data
 - Asked: Do you hold health data covered by HIPAA, or data on California residents?
-- Answer: **HIPAA health data** — Holds HIPAA health data. No California patients "that we know of" (hedged), so California is not confirmed.
+- Answer: **HIPAA health data** — HIPAA health data; no known California patients
 - Status: `ready to confirm`
-- Client said: “we don't have any California patients that we know of. Health data, yes, obviously.” ([[raw/sloanslake/email_1_office_manager|email_1_office_manager]] )
+- Client said: “California: we don't have any California patients that we know of. Health data, yes, obviously.” ([[raw/sloanslake/email_1_office_manager|email_1_office_manager]] )
 
 ### Q9 · Encryption at rest
 - Asked: Is sensitive data encrypted where it’s stored?
-- Answer: **Yes** — Per their IT vendor Peak Tech, the server and all laptops are encrypted with BitLocker
+- Answer: **Yes** — Yes: server and all laptops encrypted (BitLocker), per the IT provider
 - Status: `ready to confirm`
-- Client said: “Peak Tech says the server and all the laptops are encrypted with BitLocker.” ([[raw/sloanslake/email_1_office_manager|email_1_office_manager]] )
+- Client said: “Encryption: Peak Tech says the server and all the laptops are encrypted with BitLocker.” ([[raw/sloanslake/email_1_office_manager|email_1_office_manager]] )
 
 #### Payments
 
@@ -145,27 +143,25 @@ Calls: [[raw/sloanslake/call_1_intake|call_1_intake]], [[raw/sloanslake/call_2_f
 
 ### Q13 · Payment-change callback
 - Asked: When a vendor asks to change their bank details, do you call them back on a number you already have?
-- Answer: **Always** — Always calls the vendor back on the number already on file before changing bank details
+- Answer: **Always** — Always; office manager calls back
 - Status: `ready to confirm`
-- Client said: “if a vendor asks to change bank details we always call them back at the number we already have on file before changing anything.” ([[raw/sloanslake/email_1_office_manager|email_1_office_manager]] )
+- Client said: “Yes. Our office manager always calls. We almost got burned on a lab invoice two years ago, so that's a hard rule now.” ([[raw/sloanslake/call_1_intake|call_1_intake]] 03:42)
 - Fills application: payment_verify
 
 #### Security posture
 
 ### Q14 · Multi-factor authentication
 - Asked: Is multi-factor authentication turned on for email, remote access and admin accounts?
-- Answer: **Email** — MFA is now on for all email accounts, including the three hygienists. Remote access and admin accounts were not discussed.
-- Status: `needs follow-up`
+- Answer: **Email, Remote access** — Phone codes on for every email account now, including the hygienists; remote access already had them
+- Status: `ready to confirm`
 - Client said: “Yes. Peak Tech turned on the phone codes for all three hygienists on Monday, so it's everyone now.” ([[raw/sloanslake/call_2_followup|call_2_followup]] 00:13)
-- Partial answer. Confirm the rest before it goes on the application.
 - Fills application: mfa_email, mfa_remote
 
 ### Q15 · Detection and response plan
 - Asked: Do you have endpoint detection software, and a written plan for responding to an incident?
-- Answer: **Endpoint detection** — Endpoint detection and response is on all nine computers, and Peak Tech watches the alerts. A written incident response plan was not discussed.
-- Status: `needs follow-up`
+- Answer: **Endpoint detection** — Endpoint detection and response on all computers, monitored by the IT provider; no word on a written plan
+- Status: `ready to confirm`
 - Client said: “They confirmed it's endpoint detection and response, on all nine computers, and they watch the alerts.” ([[raw/sloanslake/call_2_followup|call_2_followup]] 00:25)
-- Partial answer. Confirm the rest before it goes on the application.
 - Fills application: edr
 
 ### Q16 · Prior incidents
@@ -193,10 +189,10 @@ Calls: [[raw/sloanslake/call_1_intake|call_1_intake]], [[raw/sloanslake/call_2_f
 
 ### Q17 · Current cyber policy
 - Asked: Current cyber limit, deductible, waiting period and sublimits. Pull from the policy; ask only if it’s missing.
-- Answer: **BOP data breach endorsement, limit possibly $50,000 (unconfirmed)** — Business owner's policy has a data breach endorsement; limit is possibly $50,000 (unsure). Declarations page still to be located. Deductible, waiting period and sublimits not given.
+- Answer: **BOP data breach endorsement, about $50,000 (to confirm from declarations)** — No standalone cyber policy; the business owner's policy has a data breach endorsement, limit believed to be $50,000 (declarations page to come)
 - Status: `needs follow-up`
-- Client said: “our business owner's policy has a data breach endorsement, I think the limit is $50,000. I'll look for the declarations page.” ([[raw/sloanslake/email_1_office_manager|email_1_office_manager]] )
-- Partial answer. Confirm the rest before it goes on the application.
+- Client said: “Current coverage: our business owner's policy has a data breach endorsement, I think the limit is $50,000. I'll look for the declarations page.” ([[raw/sloanslake/email_1_office_manager|email_1_office_manager]] )
+- Client hedged (“I think”). Confirm before it goes on the application.
 
 ### Q18 · Contract minimums
 - Asked: Do any contracts require you to carry a minimum cyber limit?
@@ -223,8 +219,9 @@ What the client said about the numbers. Figures themselves live in the report.
 
 ### F7 · Callback before bank changes?
 - Asked: Do you call to confirm before changing anyone’s bank details?
-- Answer: **—**
-- Status: `not asked`
+- Answer: **Yes, call back at the number on file** — Yes: always call the vendor back at the number on file before changing bank details
+- Status: `ready to confirm`
+- Client said: “Bank changes: yes, if a vendor asks to change bank details we always call them back at the number we already have on file before changing anything.” ([[raw/sloanslake/email_1_office_manager|email_1_office_manager]] )
 
 ### Roll-up · Anything that doesn’t fit?
 - Asked: Is there anything here that doesn’t fit how your practice really works?

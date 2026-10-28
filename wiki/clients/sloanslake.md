@@ -5,7 +5,7 @@ client_id: 1
 legal_name: "Sage Dentistry, PLLC"
 naics: "621210"
 renewal_date: 2027-01-15
-last_rendered: 2026-10-27T21:44:06+00:00
+last_rendered: 2026-10-28T06:24:23+00:00
 ---
 
 # Sloan's Lake Dental
@@ -55,12 +55,12 @@ Agency: Front Range Independent Insurance Group (fictional) · Renewal: **2027-0
 - Last changed by: Pipeline (AI)
 
 ### Employees
-- Value: **22** (AI recommended 12)
+- Value: **12**
 - Range: 9 – 15
-- Confidence: low
+- Confidence: low · **needs review**
 - Method: Not published. Estimated: 3 dentists on the team page x about 4 support staff per dentist (hygienists, assistants, front office). The 4-per-dentist ratio is an assumption, not a sourced figure; confirm on the call. Range ±25%.
 - Sources: [[raw/sloanslake/website|website]]
-- Last changed by: Jordan Pike
+- Last changed by: Pipeline (AI)
 
 ### Annual revenue
 - Value: **$2,350,000**
@@ -81,20 +81,20 @@ Agency: Front Range Independent Insurance Group (fictional) · Renewal: **2027-0
   - Attack-monitoring software on every computer (from intake): -6
   - Calls to confirm payment changes (from intake): -5
   - Unknown until the call: tested_backups
-- Value: **22** (AI recommended 45)
+- Value: **45**
 - Range: 0 – 100
 - Confidence: low
 - Method: Rough proxy, not a security scan: data sensitivity + email accounts + public DNS email settings + online payments + record volume, minus credits for controls the intake confirmed cleanly.
 - Sources: [[raw/sloanslake/dns_records|dns_records]], [[raw/sloanslake/website|website]] (Adit online bill pay)
-- Last changed by: Jordan Pike
+- Last changed by: Pipeline (AI)
 
 ### Patient records held (est.)
-- Value: **8000** (AI recommended 12000)
+- Value: **12000**
 - Range: 8,000 – 16,000
 - Confidence: low
 - Method: Not published. Estimated: ~1,500 active patients per dentist x 3 dentists, all-time records typically 2-3x active; 620 Google reviews suggest a large, long-running patient base. Ask on the call.
 - Sources: none (estimate — confirm on the call)
-- Last changed by: Jordan Pike
+- Last changed by: Pipeline (AI)
 
 ### Dentists
 - Value: **3**
@@ -103,24 +103,15 @@ Agency: Front Range Independent Insurance Group (fictional) · Renewal: **2027-0
 - Sources: [[raw/sloanslake/website|website]] (team page, Oct 2026), [[raw/sloanslake/press_releases|press_releases]] (Aug 2025: three dentists), [[raw/sloanslake/ams_export|ams_export]] (3 dentists on professional liability, simulated)
 - Last changed by: Pipeline (AI)
 
-### Carrier shown to client
-- Value: **Ridgeline Mutual** (AI recommended Northwind Specialty)
-- Confidence: high
-- Method: Default rule: lowest $1M premium that keeps ransomware at the full limit, from written, checked indications. Agent may switch.
-- Sources: Cobalt Harbor Insurance v1, Northwind Specialty v1, Ridgeline Mutual v2
-- Last changed by: Jordan Pike
+### Average staff pay (per person, per year)
+- Value: **$58,155**
+- Range: $47,280 – $90,160
+- Confidence: low
+- Method: U.S. Bureau of Labor Statistics, OEWS May 2023, Offices of Dentists: average pay of dental office support staff (hygienists, assistants, front office), weighted by how many people hold each role. National wages only (no benefits or payroll taxes), not this practice's payroll.
+- Sources: [[raw/raw/benchmarks/wages_621210|wages_621210]]
+- Last changed by: Pipeline (AI)
 
 ## Human changes
 
-- 2026-10-27 15:36 — Jordan Pike changed **Business legal name** Sage Dentistry, PLLC → Sage Dentistry, PLLC — "Entity match confirmed"
-- 2026-10-27 15:36 — Jordan Pike changed **Annual revenue** 2350000 → 2350000 — "Reviewed — kept AI value"
-- 2026-10-27 15:36 — Jordan Pike changed **Annual revenue** 2350000 → 2800000
-- 2026-10-27 15:37 — Jordan Pike changed **Patient records held (est.)** 12000 → 8000
-- 2026-10-27 15:37 — Jordan Pike changed **Exposure score (0–100)** 45 → 30
-- 2026-10-27 15:37 — Jordan Pike changed **Exposure score (0–100)** 30 → 75
-- 2026-10-27 15:37 — Jordan Pike changed **Exposure score (0–100)** 75 → 22
-- 2026-10-27 15:37 — Jordan Pike changed **Employees** 12 → 22
-- 2026-10-27 15:37 — Jordan Pike changed **Annual revenue** 2800000 → 1800000
-- 2026-10-27 15:43 — Jordan Pike changed **Annual revenue** 1800000 → 2350000
-- 2026-10-27 15:44 — Jordan Pike changed **Carrier shown to client** Northwind Specialty → Cobalt Harbor Insurance — "Agent switched carrier"
-- 2026-10-27 15:44 — Jordan Pike changed **Carrier shown to client** Cobalt Harbor Insurance → Ridgeline Mutual — "Agent switched carrier"
+- 2026-10-28 00:24 — Jordan Pike changed **Business legal name** Sage Dentistry, PLLC → Sage Dentistry, PLLC — "Entity match confirmed"
+- 2026-10-28 00:24 — Jordan Pike changed **Annual revenue** 2350000 → 2350000 — "Reviewed — kept AI value"
