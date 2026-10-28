@@ -51,6 +51,13 @@ dd.warn{color:var(--amber)}.grid3{display:grid;grid-template-columns:repeat(3,1f
 .opex{background:var(--paper);border-left:3px solid var(--accent);border-radius:12px;padding:14px 16px;margin-bottom:12px}
 .opex p{font-size:13.5px;color:var(--ink2);margin:6px 0 0}.ofig{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
 .ofig b{font:600 26px 'Source Serif 4',Georgia,serif}.ofig span{font-size:13px;color:var(--ink2)}
+.otag{flex-basis:100%;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+details.info{font-size:12.5px;margin-top:6px}details.info summary{cursor:pointer;color:var(--accent);font-weight:600;list-style:none;display:inline-flex;align-items:center;gap:6px}
+details.info summary::-webkit-details-marker{display:none}
+details.info summary::before{content:'i';display:inline-grid;place-items:center;width:15px;height:15px;border-radius:50%;border:1.5px solid currentColor;font:italic 700 10px Georgia,serif}
+details.info[open]{background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+details.info p{margin:6px 0 0;font-size:12.5px;color:var(--ink2)}
+details.info .formula{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:var(--paper);border-radius:6px;padding:6px 8px;color:var(--ink)}
 .meter{position:relative;display:grid;grid-template-columns:40fr 25fr 35fr;height:12px;max-width:560px;margin:8px 0 4px}
 .meter i:nth-child(1){background:#cfe6d8;border-radius:999px 0 0 999px}.meter i:nth-child(2){background:#f6dea9}.meter i:nth-child(3){background:#f1b8b2;border-radius:0 999px 999px 0}
 .pin{position:absolute;top:-5px;width:4px;height:22px;background:var(--ink);border-radius:2px;transform:translateX(-2px)}
@@ -126,19 +133,33 @@ def render(s: dict, version: dict, client_view: bool = True) -> str:
     w('<h2>What could happen to a practice like yours</h2>')
     ox = s.get("opex")
     if ox:
-        w(f'<div class="opex"><div class="ofig"><b>{_m(ox["daily_low"])}–{_m(ox["daily_high"])}</b>'
+        lo, hi = round(ox["ratio_low"] * 100), round(ox["ratio_high"] * 100)
+        w('<div class="opex"><div class="ofig"><span class="otag">Operating costs (OPEX)</span>'
+          f'<b>{_m(ox["daily_low"])}–{_m(ox["daily_high"])}</b>'
           '<span>a day to keep the practice running, open or closed</span></div>'
           f'<p>Staff, rent, supplies and loans keep costing money while systems are down. That\'s about '
-          f'{_short(ox["annual_low"])}–{_short(ox["annual_high"])} a year, based on typical dental overhead of '
-          f'{round(ox["ratio_low"] * 100)}–{round(ox["ratio_high"] * 100)}% of revenue.</p>'
-          f'<p class="small muted">Source: <a href="{_e(ox["source_url"])}">{_e(ox["source"])}</a>. '
-          'An industry average, not your books; your accountant can give the real figure.</p></div>')
+          f'{_short(ox["annual_low"])}–{_short(ox["annual_high"])} a year, based on typical dental overhead of {lo}–{hi}% of revenue.</p>'
+          '<details class="info"><summary>What\'s OPEX, and how is this calculated?</summary>'
+          '<p><b>OPEX</b> (operating expenses) is what it costs to keep the doors open: staff pay, rent, supplies, lab fees, '
+          'software and equipment leases, loan payments. Unlike revenue, it doesn\'t stop when systems go down.</p>'
+          f'<p class="formula">{_m(ox["revenue"])} annual revenue × {lo}% to {hi}% typical dental overhead = '
+          f'{_m(ox["annual_low"])} to {_m(ox["annual_high"])} a year<br>÷ 365 days = {_m(ox["daily_low"])} to '
+          f'{_m(ox["daily_high"])} a day (rounded)</p>'
+          '<p class="small muted">Every calendar day, because rent, salaries and loans keep running on days the office is '
+          'closed. The revenue is the figure your agent has on file; the overhead share is an industry average, not your '
+          'books, so your accountant can give the real number. This is a cost to you, not a statement of what any policy pays.</p>'
+          '</details>'
+          f'<p class="small muted">Source: <a href="{_e(ox["source_url"])}">{_e(ox["source"])}</a>.</p></div>')
     w('<div class="grid3">')
     for sc in n["scenarios"]:
         cost = s["scenario_costs"].get(sc["key"]) or {}
         rng = f'{_short(cost.get("low"))}–{_short(cost.get("high"))}' if cost.get("high") else _short(cost.get("low"))
         w(f'<div class="box"><h4>{_e(sc["title"])}</h4><p>{_e(sc["story"])}</p>'
-          + (f'<div class="cost"><b>{rng}</b><span>{_e(cost.get("label"))}</span></div>' if cost else "") + '</div>')
+          + (f'<div class="cost"><b>{rng}</b><span>{_e(cost.get("label"))}</span>'
+             + (f'<details class="info"><summary>How is this figure worked out?</summary><p>{_e(cost["how"])}</p>'
+                f'<p class="small muted">Source: <a href="{_e(cost.get("source_url"))}">{_e(cost.get("source"))}</a></p></details>'
+                if cost.get("how") else "")
+             + '</div>' if cost else "") + '</div>')
     w('</div>')
 
     # Exposure

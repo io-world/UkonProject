@@ -80,13 +80,24 @@ export default function ReportDocument({ s, version, agentMode }) {
         {s.opex && (
           <div className="opex">
             <div className="opex-fig">
+              <span className="opex-tag">Operating costs (OPEX)</span>
               <b>{money(s.opex.daily_low)}–{money(s.opex.daily_high)}</b>
               <span>a day to keep the practice running, open or closed</span>
             </div>
             <p>Staff, rent, supplies and loans keep costing money while systems are down. That's about {short(s.opex.annual_low)}–{short(s.opex.annual_high)} a
               year, based on typical dental overhead of {Math.round(s.opex.ratio_low * 100)}–{Math.round(s.opex.ratio_high * 100)}% of revenue.</p>
-            <p className="muted small">Source: <a href={s.opex.source_url} target="_blank" rel="noreferrer">{s.opex.source}</a>. An industry average, not your
-              books; your accountant can give the real figure.{agentMode && <> · revenue {short(s.opex.revenue)} from the database · wiki: <code>raw/benchmarks/dental_overhead_benchmarks.md</code></>}</p>
+            <details className="info">
+              <summary>What's OPEX, and how is this calculated?</summary>
+              <p><b>OPEX</b> (operating expenses) is what it costs to keep the doors open: staff pay, rent, supplies, lab fees,
+                software and equipment leases, loan payments. Unlike revenue, it doesn't stop when systems go down.</p>
+              <p className="formula">{money(s.opex.revenue)} annual revenue × {Math.round(s.opex.ratio_low * 100)}% to {Math.round(s.opex.ratio_high * 100)}% typical
+                dental overhead = {money(s.opex.annual_low)} to {money(s.opex.annual_high)} a year<br />
+                ÷ 365 days = {money(s.opex.daily_low)} to {money(s.opex.daily_high)} a day (rounded)</p>
+              <p className="muted small">Every calendar day, because rent, salaries and loans keep running on days the office is closed.
+                The revenue is the figure your agent has on file; the overhead share is an industry average, not your books, so your
+                accountant can give the real number. This is a cost to you, not a statement of what any policy pays.</p>
+            </details>
+            <p className="muted small">Source: <a href={s.opex.source_url} target="_blank" rel="noreferrer">{s.opex.source}</a>.{agentMode && <> · revenue from the database · wiki: <code>raw/benchmarks/dental_overhead_benchmarks.md</code></>}</p>
           </div>
         )}
         <div className="scenarios">
@@ -100,6 +111,13 @@ export default function ReportDocument({ s, version, agentMode }) {
                   <div className="cost">
                     <b>{cost.high ? `${short(cost.low)}–${short(cost.high)}` : short(cost.low)}</b>
                     <span>{cost.label}</span>
+                    {cost.how && (
+                      <details className="info">
+                        <summary>How is this figure worked out?</summary>
+                        <p>{cost.how}</p>
+                        <p className="muted small">Source: <a href={cost.source_url} target="_blank" rel="noreferrer">{cost.source}</a></p>
+                      </details>
+                    )}
                   </div>
                 )}
               </div>

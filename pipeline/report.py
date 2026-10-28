@@ -101,12 +101,28 @@ def build_snapshot(conn, cid: int, narrative_blocks: dict) -> dict:
     filled = json.loads(narrative.fill(json.dumps(narrative_blocks), placeholders))
 
     bench = {k: f[k]["current_value"] for k in f if k.startswith("scenario.")}
+    # The "how" text is a fixed template (not AI); the figures come from the benchmark fields.
+    spg = ("S&P Global Market Intelligence", "https://www.spglobal.com/marketintelligence/en/news-insights/latest-news-headlines/"
+           "cyber-insurance-claims-rising-for-small-medium-sized-businesses-62084560")
+    ndl = ("NetDiligence 2025 Cyber Claims Study, via Baker Donelson",
+           "https://www.bakerdonelson.com/cybersecurity-awareness-month-2025-avoid-cyber-claims-scares")
     scenario_costs = {
         "ransomware": {"low": bench.get("scenario.ir_cost_median"), "high": bench.get("scenario.ir_cost_average"),
-                       "label": "Typical small-business incident response cost (median to average)"},
-        "bec": {"low": bench.get("scenario.bec_claim_cost"), "high": None, "label": "Average fake-invoice (BEC) claim"},
+                       "label": "Typical small-business incident response cost (median to average)",
+                       "how": "Not calculated for your practice: two published industry figures for what small businesses pay "
+                              "for incident response (the experts who find out what happened and get systems back). The low end "
+                              "is the median, the middle claim; the high end is the average, pulled up by a few very large "
+                              "claims. Lost revenue while closed isn't included (see operating costs above).",
+                       "source": spg[0], "source_url": spg[1]},
+        "bec": {"low": bench.get("scenario.bec_claim_cost"), "high": None, "label": "Average fake-invoice (BEC) claim",
+                "how": "Not calculated for your practice: the average insurance claim for business email compromise "
+                       "(a fake invoice or changed bank details that gets paid), across all claims in the study.",
+                "source": ndl[0], "source_url": ndl[1]},
         "breach": {"low": bench.get("scenario.sme_incident_cost"), "high": None,
-                   "label": "Average cyber incident cost for small and mid-sized businesses"},
+                   "label": "Average cyber incident cost for small and mid-sized businesses",
+                   "how": "Not calculated for your practice: the average total cost of a cyber incident for small and "
+                          "mid-sized businesses across all claims in the study (all incident types, not only breaches).",
+                   "source": ndl[0], "source_url": ndl[1]},
     }
     # Operating costs (OPEX): revenue × typical dental overhead, per calendar day. Computed here, never by the AI.
     opex = None
