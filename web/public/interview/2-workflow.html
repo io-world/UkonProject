@@ -141,10 +141,10 @@ footer.foot .wrap{display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space
 .tile p{font-size:.86rem;color:var(--ink-2);margin-top:4px}
 @media (max-width:700px){.tiles{grid-template-columns:1fr}}
 
-.flow{display:grid;grid-template-columns:92px repeat(7,minmax(0,1fr));grid-template-rows:auto auto auto auto auto;gap:0 10px;margin-top:16px}
+.flow{display:grid;grid-template-columns:92px repeat(7,minmax(0,1fr));grid-template-rows:auto auto auto auto auto auto;gap:0 10px;margin-top:16px}
 .lane-l{display:flex;align-items:flex-start;padding-top:12px;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .lane-l.ai{color:var(--ai)} .lane-l.sys{color:var(--sys)} .lane-l.hu{color:var(--amber)}
-.col{display:grid;grid-row:1 / span 5;grid-template-rows:subgrid;position:relative}
+.col{display:grid;grid-row:1 / span 6;grid-template-rows:subgrid;position:relative}
 .col + .col::before{content:"";position:absolute;left:-10px;top:22px;width:10px;height:2px;background:var(--line)}
 .ch{background:var(--card);border:1px solid var(--line);border-radius:10px 10px 0 0;padding:10px 12px;border-bottom:0}
 .ch .s{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
@@ -156,6 +156,17 @@ footer.foot .wrap{display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space
 .col.key .cell{border-color:var(--accent)}
 .cell.ai{box-shadow:inset 3px 0 0 var(--ai)}
 .cell.sys{box-shadow:inset 3px 0 0 var(--sys)}
+.cell.time{background:var(--paper);box-shadow:inset 3px 0 0 var(--hu);gap:8px}
+.cell.time.long{background:var(--red-bg)}
+.tm{display:grid;gap:1px}.tm span{font-size:.66rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tm b{font-weight:600;font-size:.85rem;color:var(--ink)}.tm s{text-decoration:none;font-size:.74rem;color:var(--muted)}
+.tm .pill{justify-self:start;margin-top:3px}.pill.longest{background:var(--red);color:#fff}.pill.waitp{background:var(--hu-bg);color:var(--amber)}
+.lane-l.time{color:var(--amber);flex-direction:column;gap:2px}.lane-l .est{font-weight:600;letter-spacing:.04em;text-transform:none;color:var(--muted)}
+.time-sum{margin-top:16px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.time-sum>div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;gap:3px;align-content:start}
+.time-sum .k{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--amber)}
+.time-sum b{font-size:1.05rem}.time-sum .note{grid-column:1/-1}
+@media (max-width:760px){.time-sum{grid-template-columns:1fr}}
 .cell.hu{box-shadow:inset 3px 0 0 var(--hu)}
 .cell.risk{border-radius:0 0 10px 10px;background:var(--wash)}
 .node{border-radius:6px;padding:6px 8px}
@@ -175,7 +186,7 @@ footer.foot .wrap{display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space
   .col{display:flex;flex-direction:column}
   .col + .col::before{display:none}
   .mlab{display:block;font-size:.66rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-  .cell.ai .mlab{color:var(--ai)} .cell.sys .mlab{color:var(--sys)} .cell.hu .mlab{color:var(--amber)}
+  .cell.ai .mlab{color:var(--ai)} .cell.sys .mlab{color:var(--sys)} .cell.hu .mlab,.cell.time .mlab{color:var(--amber)}
 }
 details{border:1px solid var(--line);border-radius:var(--radius);background:var(--card);padding:0 16px}
 details + details{margin-top:10px}
@@ -211,13 +222,15 @@ details .tablewrap{padding-bottom:14px}
       <div class="lane-l ai" style="grid-column:1;grid-row:2">AI</div>
       <div class="lane-l sys" style="grid-column:1;grid-row:3">Automated</div>
       <div class="lane-l hu" style="grid-column:1;grid-row:4">Person</div>
-      <div class="lane-l" style="grid-column:1;grid-row:5">Could go wrong → caught by</div>
+      <div class="lane-l time" style="grid-column:1;grid-row:5">Person's time<br><span class="est">estimate</span></div>
+      <div class="lane-l" style="grid-column:1;grid-row:6">Could go wrong → caught by</div>
 
       <div class="col" role="listitem" style="grid-column:2">
         <div class="ch"><span class="s">Step 0</span><h3>Spot the renewal</h3><span class="pill plain">Designed</span></div>
         <div class="cell ai"><span class="mlab">AI</span><div class="none">No AI step</div></div>
         <div class="cell sys"><span class="mlab">Automated</span><div class="node sys">Pull renewals 60–120 days out from the agency system and rank them by fit: industry, size, data sensitivity.</div></div>
         <div class="cell hu"><span class="mlab">Person</span><div class="node hu">Agent picks which clients to pursue, or snoozes one.</div></div>
+        <div class="cell time"><span class="mlab">Person's time (estimate)</span><div class="tm"><span>Hands-on</span><b>1–2 min</b><s>today by hand: 15–30 min</s></div><div class="tm"><span>Waiting</span><b>none: starts 60–120 days out</b></div></div>
         <div class="cell risk"><span class="mlab">Could go wrong → caught by</span><span class="rk"><b>Client already has cyber</b> (e.g., an endorsement on another policy) → check existing coverage before queuing.</span></div>
       </div>
 
@@ -226,6 +239,7 @@ details .tablewrap{padding-bottom:14px}
         <div class="cell ai"><span class="mlab">AI</span><div class="node ai">Read the agency record, state filing, website and DNS into a client wiki, pulling out each value with a citation.</div></div>
         <div class="cell sys"><span class="mlab">Automated</span><div class="node sys">Score possible company matches on name, state, address and domain together.</div><div class="node sys">Estimate the five fields with ranges and confidence, in code (not the model).</div></div>
         <div class="cell hu"><span class="mlab">Person</span><div class="node hu">Always confirms the company match.</div><div class="node hu">Reviews only what's flagged, including estimated revenue (3 of about 8 items in the demo).</div></div>
+        <div class="cell time"><span class="mlab">Person's time (estimate)</span><div class="tm"><span>Hands-on</span><b>3–5 min</b><s>today by hand: 30–60 min</s></div><div class="tm"><span>Waiting</span><b>0–2 days (revenue from the client)</b></div></div>
         <div class="cell risk"><span class="mlab">Could go wrong → caught by</span><span class="rk"><b>Same name, different company</b> → name, state, address and domain scored together; a person confirms.</span><span class="rk"><b>Wrong revenue</b> → two independent methods, a range, confirmed with the owner.</span></div>
       </div>
 
@@ -234,6 +248,7 @@ details .tablewrap{padding-bottom:14px}
         <div class="cell ai"><span class="mlab">AI</span><div class="node ai">Read each reply (PDF, email, underwriter call) and pull out the figures.</div></div>
         <div class="cell sys"><span class="mlab">Automated</span><div class="node sys">Send the five fields to the chosen carriers for two options ($1M / $10K, $2M / $25K), storing exactly what was sent.</div><div class="node sys">Check every figure word for word against the source. Each reply adds a version; fixed rules turn changes into follow-ups.</div><div class="node sys">Take replies in date order, one at a time or all at once; each links to the file as received.</div></div>
         <div class="cell hu"><span class="mlab">Person</span><div class="node hu">Approves "Send to carriers"; sending is gated on Stage 1's review.</div><div class="node hu">Checks any figure not found word for word; acts on follow-ups (price moved, new condition, decline).</div></div>
+        <div class="cell time"><span class="mlab">Person's time (estimate)</span><div class="tm"><span>Hands-on</span><b>5–10 min</b><s>today by hand: 30–60 min</s></div><div class="tm"><span>Waiting</span><b>2–10 days for carrier replies</b><span class="pill waitp">Long wait</span></div></div>
         <div class="cell risk"><span class="mlab">Could go wrong → caught by</span><span class="rk"><b>A verbal "around $2,300" reaches the client</b> → verbal figures are stored but never client-facing.</span><span class="rk"><b>AI misreads a premium</b> → a figure not in the source waits for a person; carrier values are locked.</span><span class="rk"><b>A reply from a carrier nobody asked, or out of order</b> → refused.</span></div>
       </div>
 
@@ -242,6 +257,7 @@ details .tablewrap{padding-bottom:14px}
         <div class="cell ai"><span class="mlab">AI</span><div class="node ai">Write why it matters, scenarios and next steps, with no digits allowed. Find recent, cited incidents in the client's industry.</div></div>
         <div class="cell sys"><span class="mlab">Automated</span><div class="node sys">Render every figure from the database; any digit in AI prose fails validation.</div><div class="node sys">Work out costs for this client: operating costs per day, staff wages, a redirected paycheck and pay run. Each shows its formula and source.</div></div>
         <div class="cell hu"><span class="mlab">Person</span><div class="node hu">Agent adjusts estimates; carrier numbers stay locked.</div><div class="node hu">Agent submits (version locked), then sends. Before sending, a submit can be undone: the version is kept as withdrawn, never unlocked.</div></div>
+        <div class="cell time"><span class="mlab">Person's time (estimate)</span><div class="tm"><span>Hands-on</span><b>10–15 min</b><s>today by hand: 1–2 hr</s></div><div class="tm"><span>Waiting</span><b>none</b></div></div>
         <div class="cell risk"><span class="mlab">Could go wrong → caught by</span><span class="rk"><b>AI invents a figure</b> → any digit fails validation.</span><span class="rk"><b>Stale price after an edit</b> → ±15% revenue drift shows "indication needs refresh."</span><span class="rk"><b>Owner can't tell where a number comes from</b> → every figure has an info button with the formula and source.</span><span class="rk"><b>An AI-written story read as a real event</b> → labelled an example and linked to the real incidents it's based on.</span></div>
       </div>
 
@@ -250,6 +266,7 @@ details .tablewrap{padding-bottom:14px}
         <div class="cell ai"><span class="mlab">AI</span><div class="node ai">Tailor a 60-second pitch. Pick objection answers from the CPL-approved library. Map where items sit in the policy form.</div><div class="node ai">"Ask the wiki" chat: answers from the client wiki first, the web only if the wiki doesn't cover it.</div></div>
         <div class="cell sys"><span class="mlab">Automated</span><div class="node sys">Label each chat answer wiki or web by which tools ran, not by what the model says.</div><div class="node sys">Drop any policy-form reference that doesn't match real text on the cited page.</div></div>
         <div class="cell hu"><span class="mlab">Person</span><div class="node hu">Agent reads the brief and presents to the client.</div></div>
+        <div class="cell time"><span class="mlab">Person's time (estimate)</span><div class="tm"><span>Hands-on</span><b>5–10 min</b><s>today by hand: 30–60 min</s></div><div class="tm"><span>Waiting</span><b>3–14 days to get the meeting</b></div></div>
         <div class="cell risk"><span class="mlab">Could go wrong → caught by</span><span class="rk"><b>AI makes up an answer</b> → library only; tailoring can't add claims.</span><span class="rk"><b>"Would this be covered?"</b> → always escalates to a CPL.</span><span class="rk"><b>A web answer passed off as the client's file</b> → the wiki / web label is set by which tools ran, not by the model; every block shows its wiki path.</span></div>
       </div>
 
@@ -258,6 +275,7 @@ details .tablewrap{padding-bottom:14px}
         <div class="cell ai"><span class="mlab">AI</span><div class="node ai">Pull answers from call recordings and emails, with the line each came from.</div><a class="node idea-tag" href="#idea-call">★ Idea, not built: agent-approved AI follow-up call</a></div>
         <div class="cell sys"><span class="mlab">Automated</span><div class="node sys">Check calls against the agent's taps and merge across sources; a fixed hedge check flags "mostly" and "I think."</div><div class="node sys">Carry confirmed answers, and their corrections, into the application.</div></div>
         <div class="cell hu"><span class="mlab">Person</span><div class="node hu">Agent works the open questions over as many calls and emails as it takes, tapping answers live. Calls open with recording consent.</div><div class="node hu">Agent confirms each answer in one place, Check the recording, and sees how it will read on the carrier's application; a corrected revenue flows back to Stage 1.</div></div>
+        <div class="cell time long"><span class="mlab">Person's time (estimate)</span><div class="tm"><span>Hands-on</span><b>30–45 min</b><s>today by hand: 1–2 hr</s></div><div class="tm"><span>Waiting</span><b>1–3 weeks chasing answers</b><span class="pill longest">Longest wait</span></div></div>
         <div class="cell risk"><span class="mlab">Could go wrong → caught by</span><span class="rk"><b>"Mostly" becomes "yes"</b> → a fixed hedge check overrides the model and flags it.</span><span class="rk"><b>Recording and tap disagree</b> → flagged as a conflict, never auto-resolved.</span><span class="rk"><b>The same answer confirmed in two places, disagreeing</b> → one place to confirm; the application is read-only.</span></div>
       </div>
 
@@ -266,8 +284,15 @@ details .tablewrap{padding-bottom:14px}
         <div class="cell ai"><span class="mlab">AI</span><div class="node ai">Read the carrier's firm quote and pull out its figures, dates and conditions.</div></div>
         <div class="cell sys"><span class="mlab">Automated</span><div class="node sys">Check every figure and date against the PDF, compare with the indication, and drop conditions the quote doesn't list.</div><div class="node sys">Bind (simulated) once every condition is met. Client summary, deal record and 30-60-90 plan with touchpoints, by rules.</div></div>
         <div class="cell hu"><span class="mlab">Person</span><div class="node hu">Records the owner's choice, or "not now" with a reason.</div><div class="node hu">Owner accepts the final terms; agent marks each condition Met or Not yet (proof optional; who and when always logged); client e-signs.</div></div>
+        <div class="cell time"><span class="mlab">Person's time (estimate)</span><div class="tm"><span>Hands-on</span><b>10–20 min</b><s>today by hand: 30–60 min</s></div><div class="tm"><span>Waiting</span><b>2–14 days: firm quote, then conditions</b><span class="pill waitp">Long wait</span></div></div>
         <div class="cell risk"><span class="mlab">Could go wrong → caught by</span><span class="rk"><b>The price changed since the pack</b> → shown side by side with the carrier's reason before the yes.</span><span class="rk"><b>Binding with an open condition</b> → Bind stays off and says why.</span></div>
       </div>
+    </div>
+    <div class="time-sum">
+      <div><span class="k">Hands-on, all stages</span><b>about 1–2 hours</b><span class="small muted">today by hand: about 4–8½ hours (75–80% less)</span></div>
+      <div><span class="k">Waiting, all stages</span><b>about 2–9 weeks</b><span class="small muted">against a renewal window of 60–120 days: the worst case uses most of it</span></div>
+      <div><span class="k">Where the time goes</span><b>Waiting, not working</b><span class="small muted">Stage 5 (the client's answers) and Stages 2 and 6 (carriers). Automation cuts hands-on time; the waits need reminders, parallel requests or the AI follow-up call below.</span></div>
+      <p class="small muted note">All times are my estimates, not measured, and are there to be argued with. Interview questions #5 (three recent deals, who did what and when) and #7 (how long carriers take) replace them with UKON's real numbers. The prototype logs who did what and when, so a walkthrough also gives a measured hands-on time for the demo path.</p>
     </div>
     <div class="idea-card" id="idea-call">
       <div class="idea-head"><span class="star">★</span><div><span class="pill idea">Idea · not built</span><h3>Stage 5 · AI follow-up call</h3></div></div>
