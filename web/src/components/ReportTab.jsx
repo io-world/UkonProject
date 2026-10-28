@@ -14,24 +14,33 @@ function Slider({ label, k, fact, min, max, step, fmt, actor, onApplied, aiOverr
   const ai = Number(fact?.ai_value ?? aiOverride)
   const [v, setV] = useState(current)
   const [reason, setReason] = useState('')
+  const [busy, setBusy] = useState(false)
   useEffect(() => setV(current), [current])
   const dirty = v !== current
+  const apply = async (value, why) => {
+    setBusy(true)
+    try { await api.changeField(k, value, actor, why || null); setReason(''); onApplied() } finally { setBusy(false) }
+  }
   return (
     <div className="slider">
       <div className="slider-top">
         <span>{label}</span>
         <strong>{fmt(v)}</strong>
       </div>
-      <input type="range" min={min} max={max} step={step} value={v} onChange={(e) => setV(Number(e.target.value))} />
+      <input type="range" min={Math.min(min, current, ai)} max={Math.max(max, current, ai)} step={step} value={v}
+             onChange={(e) => setV(Number(e.target.value))} />
       <div className="slider-meta">
         <span>AI recommended <b>{fmt(ai)}</b></span>
-        {current !== ai && <span className="you">In report: {fmt(current)}</span>}
+        {current !== ai && !dirty && (
+          <span className="you">In report: {fmt(current)}{' '}
+            <button className="link" disabled={busy} onClick={() => apply(ai, 'Reset to the AI recommendation')}>Reset to AI</button></span>
+        )}
       </div>
       {dirty && (
         <div className="apply">
           <input placeholder="Why? (logged with your name)" value={reason} onChange={(e) => setReason(e.target.value)} />
-          <button className="btn" onClick={async () => { await api.changeField(k, v, actor, reason || null); setReason(''); onApplied() }}>Apply</button>
-          <button className="btn ghost" onClick={() => setV(current)}>Reset</button>
+          <button className="btn" disabled={busy} onClick={() => apply(v, reason)}>Apply</button>
+          <button className="btn ghost" onClick={() => setV(current)}>Cancel</button>
         </div>
       )}
     </div>
@@ -145,7 +154,7 @@ export default function ReportTab({ data, actor, onChange, tick }) {
                 </div>
               )}
               <Slider label="Annual revenue" k="annual_revenue" fact={s.facts.annual_revenue} min={1000000} max={3500000}
-                      step={50000} fmt={money} actor={actor} onApplied={onChange} />
+                      step={10000} fmt={money} actor={actor} onApplied={onChange} />
               <Slider label="Employees" k="employee_count" fact={s.facts.employee_count} min={1} max={40} step={1}
                       fmt={(n) => n} actor={actor} onApplied={onChange} />
               <Slider label="Exposure score" k="exposure_score" fact={{ value: s.exposure.score, ai_value: s.exposure.ai_score }}

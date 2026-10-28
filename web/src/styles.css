@@ -111,7 +111,10 @@ tr.v-withdrawn td { color: var(--muted); text-decoration: line-through; }
 .slider input[type=range] { width: 100%; accent-color: var(--accent); padding: 0; border: 0; }
 .slider-meta { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--muted); }
 .slider-meta .you { color: var(--amber); font-weight: 600; }
-.apply { display: grid; grid-template-columns: 1fr auto auto; gap: 6px; }
+.apply { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 6px; }
+.apply input { min-width: 0; width: 100%; }
+.split > * { min-width: 0; }
+.controls { min-width: 0; }
 .banner { border-radius: 8px; padding: 9px 11px; font-size: 12.5px; }
 .banner.warn { background: var(--amber-bg); color: #6d4300; border: 1px solid #f1d9a8; }
 .banner.ok { background: var(--green-bg); color: var(--green); }
