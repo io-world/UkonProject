@@ -51,6 +51,7 @@ dd.warn{color:var(--amber)}.grid3{display:grid;grid-template-columns:repeat(3,1f
 .opex{background:var(--paper);border-left:3px solid var(--accent);border-radius:12px;padding:14px 16px;margin-bottom:12px}
 .opex p{font-size:13.5px;color:var(--ink2);margin:6px 0 0}.ofig{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
 .ofig b{font:600 26px 'Source Serif 4',Georgia,serif}.ofig span{font-size:13px;color:var(--ink2)}
+.isrc{margin:6px 0 0;padding-left:16px;font-size:12.5px}.isrc li{margin-top:4px}
 .otag{flex-basis:100%;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
 details.info{font-size:12.5px;margin-top:6px}details.info summary{cursor:pointer;color:var(--accent);font-weight:600;list-style:none;display:inline-flex;align-items:center;gap:6px}
 details.info summary::-webkit-details-marker{display:none}
@@ -154,7 +155,13 @@ def render(s: dict, version: dict, client_view: bool = True) -> str:
     for sc in n["scenarios"]:
         cost = s["scenario_costs"].get(sc["key"]) or {}
         rng = f'{_short(cost.get("low"))}–{_short(cost.get("high"))}' if cost.get("high") else _short(cost.get("low"))
-        w(f'<div class="box"><h4>{_e(sc["title"])}</h4><p>{_e(sc["story"])}</p>'
+        srcs = (s.get("scenario_sources") or {}).get(sc["key"]) or []
+        story_info = ('<details class="info"><summary>Where does this story come from?</summary>'
+                      '<p>An example written for your practice, based on what has happened to real dental practices:</p>'
+                      '<ul class="isrc">' + "".join(f'<li><a href="{_e(x["url"])}">{_e(x["headline"])}</a> '
+                      f'<span class="muted">· {_e(x["source"])}, {_e(x["date"])}</span></li>' for x in srcs)
+                      + '</ul></details>') if srcs else ""
+        w(f'<div class="box"><h4>{_e(sc["title"])}</h4><p>{_e(sc["story"])}</p>{story_info}'
           + (f'<div class="cost"><b>{rng}</b><span>{_e(cost.get("label"))}</span>'
              + (f'<details class="info"><summary>How is this figure worked out?</summary><p>{_e(cost["how"])}</p>'
                 f'<p class="small muted">Source: <a href="{_e(cost.get("source_url"))}">{_e(cost.get("source"))}</a></p></details>'

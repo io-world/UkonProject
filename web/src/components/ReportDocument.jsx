@@ -107,6 +107,15 @@ export default function ReportDocument({ s, version, agentMode }) {
               <div key={sc.key} className="scenario">
                 <h4>{sc.title}</h4>
                 <p>{sc.story}</p>
+                {s.scenario_sources?.[sc.key]?.length > 0 && (
+                  <details className="info">
+                    <summary>Where does this story come from?</summary>
+                    <p>An example written for your practice, based on what has happened to real dental practices:</p>
+                    <ul className="info-src">{s.scenario_sources[sc.key].map((x) => (
+                      <li key={x.url + x.headline}><a href={x.url} target="_blank" rel="noreferrer">{x.headline}</a>
+                        <span className="muted"> · {x.source}, {x.date}</span></li>))}</ul>
+                  </details>
+                )}
                 {cost && (
                   <div className="cost">
                     <b>{cost.high ? `${short(cost.low)}–${short(cost.high)}` : short(cost.low)}</b>

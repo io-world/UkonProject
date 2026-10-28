@@ -59,6 +59,25 @@ def research_items(naics: str, use: str = "client_pack") -> list[dict]:
     return items
 
 
+# Each scenario story is an illustration the AI writes; these are the real, cited incidents it stands for.
+# Fixed in code (not chosen by the AI), from the client-research file.
+STORY_SOURCES = {
+    "ransomware": ["360-dental-ransomware", "co-dental-wellness-anubis"],
+    "bec": ["bec-fake-invoices"],
+    "breach": ["dental-email-compromise-2026", "artistic-smiles-longmont"],
+}
+
+
+def story_sources(naics: str) -> dict:
+    by_id = {}
+    for page in sorted((RAW / "research").glob(f"{naics}_*.md")):
+        for i in read_source(page)["items"]:
+            if i.get("url") and i.get("date"):
+                by_id[i["id"]] = {"headline": i["headline"], "source": i["source"], "date": i["date"], "url": i["url"],
+                                  "wiki": f"raw/research/{page.stem}"}
+    return {k: [by_id[x] for x in ids if x in by_id] for k, ids in STORY_SOURCES.items()}
+
+
 def _fields(conn, cid):
     rows = conn.execute("SELECT * FROM fields WHERE client_id=%s ORDER BY id", (cid,)).fetchall()
     return {r["key"]: r for r in rows}
@@ -152,6 +171,7 @@ def build_snapshot(conn, cid: int, narrative_blocks: dict) -> dict:
         "limit_guidance": {"two_months_revenue": round(float(val("annual_revenue")) / 6, -3)},
         "revenue_drift": drift,
         "scenario_costs": scenario_costs,
+        "scenario_sources": story_sources(naics),
         "opex": opex,
         "narrative": filled,
         "coverage": coverage,
