@@ -812,6 +812,9 @@ def decision(slug: str, body: Decision):
 def quote_ingest(slug: str, body: QuoteIngest):
     def fn(conn, cid, uid):
         c = conn.execute("SELECT slug FROM clients WHERE id=%s", (cid,)).fetchone()
+        conn.execute("SELECT pg_advisory_xact_lock(%s)", (cid,))  # one take-in at a time per client; held to commit
+        if conn.execute("SELECT 1 FROM firm_quotes WHERE client_id=%s AND path=%s", (cid, body.path)).fetchone():
+            return {"skipped": True, "path": body.path}       # already taken in (e.g. a double click): not an error
         if body.path not in bind_mod.quote_inbox(conn, cid, c["slug"]):
             raise LookupError(f"{body.path} isn't waiting in the quote inbox")
         return bind_mod.ingest_quote(conn, cid, body.path, uid)

@@ -16,7 +16,7 @@ function Step({ n, title, done, children, sub }) {
   )
 }
 
-function QuoteStep({ d, actor, run }) {
+function QuoteStep({ d, actor, run, busy }) {
   const q = d.quote
   const [note, setNote] = useState('')
   if (!q) {
@@ -28,7 +28,9 @@ function QuoteStep({ d, actor, run }) {
             ? <p className="small muted">Waiting on {d.present.carrier}'s firm quote for {d.present.option_label}.</p>
             : <ul className="received">{d.inbox.map((p) => (
                 <li key={p}><span className="mono">{p.split('/').pop()}</span>
-                  <button className="btn sm" onClick={() => run(() => api.ingestQuote(p, actor))}>Take in</button></li>))}</ul>}
+                  <button className="btn sm" disabled={!!busy} onClick={() => run(() => api.ingestQuote(p, actor), `quote:${p}`)}>
+                    {busy === `quote:${p}` ? <><span className="spin" /> Reading the quote…</> : 'Take in'}</button></li>))}</ul>}
+        {busy?.startsWith('quote:') && <p className="small muted">Reading every figure and checking it against the document. This can take a few seconds.</p>}
       </Step>
     )
   }
@@ -274,7 +276,14 @@ export default function Close({ actor, onChange, tick }) {
   const [err, setErr] = useState(null)
   const [local, setLocal] = useState(0)
   useEffect(() => { api.close().then(setD).catch((e) => setErr(e.message)) }, [tick, local])
-  const run = async (fn) => { try { await fn(); setLocal((x) => x + 1); onChange() } catch (e) { alert(e.message) } }
+  const [busy, setBusy] = useState(null)
+  const [actErr, setActErr] = useState(null)
+  // One Stage 6 action at a time: a second click while the first is running is ignored, and errors show on the page.
+  const run = async (fn, key = 'action') => {
+    if (busy) return
+    setBusy(key); setActErr(null)
+    try { await fn(); setLocal((x) => x + 1); onChange() } catch (e) { setActErr(e.message) } finally { setBusy(null) }
+  }
   if (err) return <div className="card">Couldn't load Stage 6: {err}</div>
   if (!d) return <div className="card empty">Loading…</div>
   const lost = d.present?.decision === 'not_now'
@@ -290,7 +299,8 @@ export default function Close({ actor, onChange, tick }) {
       </section>
       <OwnerDecision actor={actor} onChange={() => { setLocal((x) => x + 1); onChange() }} tick={tick + local} locked={!!d.quote} />
       {!lost && <>
-        <QuoteStep d={d} actor={actor} run={run} />
+        {actErr && <div className="card err small" role="alert">{actErr} <button className="btn ghost sm" onClick={() => setActErr(null)}>Dismiss</button></div>}
+        <QuoteStep d={d} actor={actor} run={run} busy={busy} />
         <FinalStep d={d} actor={actor} run={run} />
         <BindStep d={d} actor={actor} run={run} />
       </>}
