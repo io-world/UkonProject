@@ -19,6 +19,10 @@ BENCHMARKS = [
      "benchmarks/claims_benchmarks.md (NetDiligence 2025)"),
     ("scenario.sme_incident_cost", "SME average cyber incident cost", 264_000,
      "benchmarks/claims_benchmarks.md (NetDiligence 2025)"),
+    ("benchmark.overhead_low", "Dental practice overhead — low (share of revenue)", 0.60,
+     "benchmarks/dental_overhead_benchmarks.md (ADA via Overjet)"),
+    ("benchmark.overhead_high", "Dental practice overhead — high (share of revenue)", 0.65,
+     "benchmarks/dental_overhead_benchmarks.md (ADA via Overjet)"),
 ]
 
 

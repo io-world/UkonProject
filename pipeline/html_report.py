@@ -48,6 +48,9 @@ dd.warn{color:var(--amber)}.grid3{display:grid;grid-template-columns:repeat(3,1f
 .box{background:var(--paper);border-radius:12px;padding:14px}.box p{font-size:13.5px;color:var(--ink2)}
 .cost{border-top:1px dashed var(--line);padding-top:8px;margin-top:6px}.cost b{font:600 18px 'Source Serif 4',Georgia,serif;display:block}
 .cost span{font-size:11.5px;color:var(--muted)}
+.opex{background:var(--paper);border-left:3px solid var(--accent);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.opex p{font-size:13.5px;color:var(--ink2);margin:6px 0 0}.ofig{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+.ofig b{font:600 26px 'Source Serif 4',Georgia,serif}.ofig span{font-size:13px;color:var(--ink2)}
 .meter{position:relative;display:grid;grid-template-columns:40fr 25fr 35fr;height:12px;max-width:560px;margin:8px 0 4px}
 .meter i:nth-child(1){background:#cfe6d8;border-radius:999px 0 0 999px}.meter i:nth-child(2){background:#f6dea9}.meter i:nth-child(3){background:#f1b8b2;border-radius:0 999px 999px 0}
 .pin{position:absolute;top:-5px;width:4px;height:22px;background:var(--ink);border-radius:2px;transform:translateX(-2px)}
@@ -120,7 +123,17 @@ def render(s: dict, version: dict, client_view: bool = True) -> str:
         w('</ul>')
 
     # Scenarios
-    w('<h2>What could happen to a practice like yours</h2><div class="grid3">')
+    w('<h2>What could happen to a practice like yours</h2>')
+    ox = s.get("opex")
+    if ox:
+        w(f'<div class="opex"><div class="ofig"><b>{_m(ox["daily_low"])}–{_m(ox["daily_high"])}</b>'
+          '<span>a day to keep the practice running, open or closed</span></div>'
+          f'<p>Staff, rent, supplies and loans keep costing money while systems are down. That\'s about '
+          f'{_short(ox["annual_low"])}–{_short(ox["annual_high"])} a year, based on typical dental overhead of '
+          f'{round(ox["ratio_low"] * 100)}–{round(ox["ratio_high"] * 100)}% of revenue.</p>'
+          f'<p class="small muted">Source: <a href="{_e(ox["source_url"])}">{_e(ox["source"])}</a>. '
+          'An industry average, not your books; your accountant can give the real figure.</p></div>')
+    w('<div class="grid3">')
     for sc in n["scenarios"]:
         cost = s["scenario_costs"].get(sc["key"]) or {}
         rng = f'{_short(cost.get("low"))}–{_short(cost.get("high"))}' if cost.get("high") else _short(cost.get("low"))

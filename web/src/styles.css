@@ -140,6 +140,10 @@ tr.v-withdrawn td { color: var(--muted); text-decoration: line-through; }
 .tier dt { color: var(--ink-2); } .tier dd { margin: 0; font-weight: 600; text-align: right; }
 .tier dd.flagged { color: var(--amber); }
 .disclaimer { margin-top: 10px; font-size: 12px; color: var(--muted); }
+.opex { background: var(--paper); border-left: 3px solid var(--accent); border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; display: grid; gap: 6px; }
+.opex-fig { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.opex-fig b { font: 600 26px 'Source Serif 4', Georgia, serif; } .opex-fig span { font-size: 13px; color: var(--ink-2); }
+.opex p { font-size: 13px; color: var(--ink-2); }
 .scenarios { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .scenario { background: var(--paper); border-radius: 12px; padding: 14px; display: grid; gap: 6px; align-content: start; }
 .scenario p { font-size: 13px; color: var(--ink-2); }

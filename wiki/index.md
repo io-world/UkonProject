@@ -50,6 +50,7 @@ Activity history: [[log]].
 ## Benchmarks (real, published)
 - [[raw/benchmarks/cyber_premium_benchmarks|Cyber premium benchmarks]]
 - [[raw/benchmarks/dental_industry_benchmarks|Dental industry benchmarks]]
+- [[raw/benchmarks/dental_overhead_benchmarks|Dental overhead benchmarks]] — 60–65% of collections (ADA via Overjet); feeds the pack's daily running-cost figure
 - [[raw/benchmarks/claims_benchmarks|Cyber claims benchmarks]]
 
 ## Carrier material (fictional carriers, benchmark-calibrated)

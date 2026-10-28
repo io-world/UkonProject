@@ -108,6 +108,16 @@ def build_snapshot(conn, cid: int, narrative_blocks: dict) -> dict:
         "breach": {"low": bench.get("scenario.sme_incident_cost"), "high": None,
                    "label": "Average cyber incident cost for small and mid-sized businesses"},
     }
+    # Operating costs (OPEX): revenue × typical dental overhead, per calendar day. Computed here, never by the AI.
+    opex = None
+    if "benchmark.overhead_low" in f and "benchmark.overhead_high" in f:
+        rev = float(val("annual_revenue"))
+        lo, hi = float(val("benchmark.overhead_low")), float(val("benchmark.overhead_high"))
+        opex = {"ratio_low": lo, "ratio_high": hi, "revenue": rev,
+                "annual_low": round(rev * lo, -3), "annual_high": round(rev * hi, -3),
+                "daily_low": round(rev * lo / 365, -2), "daily_high": round(rev * hi / 365, -2),
+                "source": "American Dental Association, via Overjet (2025)",
+                "source_url": "https://www.overjet.com/blog/average-dental-office-overhead-complete-breakdown-by-practice-size"}
     coverage = read_source(RAW / "carriers" / "coverage_language.md")
     naics = sig["industry"]["naics"]
 
@@ -126,6 +136,7 @@ def build_snapshot(conn, cid: int, narrative_blocks: dict) -> dict:
         "limit_guidance": {"two_months_revenue": round(float(val("annual_revenue")) / 6, -3)},
         "revenue_drift": drift,
         "scenario_costs": scenario_costs,
+        "opex": opex,
         "narrative": filled,
         "coverage": coverage,
         "intake": intake_summary(conn, cid),

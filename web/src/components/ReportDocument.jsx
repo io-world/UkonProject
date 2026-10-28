@@ -77,6 +77,18 @@ export default function ReportDocument({ s, version, agentMode }) {
 
       <section>
         <h2>What could happen to a practice like yours</h2>
+        {s.opex && (
+          <div className="opex">
+            <div className="opex-fig">
+              <b>{money(s.opex.daily_low)}–{money(s.opex.daily_high)}</b>
+              <span>a day to keep the practice running, open or closed</span>
+            </div>
+            <p>Staff, rent, supplies and loans keep costing money while systems are down. That's about {short(s.opex.annual_low)}–{short(s.opex.annual_high)} a
+              year, based on typical dental overhead of {Math.round(s.opex.ratio_low * 100)}–{Math.round(s.opex.ratio_high * 100)}% of revenue.</p>
+            <p className="muted small">Source: <a href={s.opex.source_url} target="_blank" rel="noreferrer">{s.opex.source}</a>. An industry average, not your
+              books; your accountant can give the real figure.{agentMode && <> · revenue {short(s.opex.revenue)} from the database · wiki: <code>raw/benchmarks/dental_overhead_benchmarks.md</code></>}</p>
+          </div>
+        )}
         <div className="scenarios">
           {n.scenarios.map((sc) => {
             const cost = s.scenario_costs[sc.key]
