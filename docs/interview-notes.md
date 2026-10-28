@@ -196,7 +196,7 @@ no Docker and nothing installed system-wide.
 - Revenue **$2,350,000** estimated (range $1.65M–$3.2M, low confidence): 12 staff × $152,600 = $1,831,200 and 3 dentists × $965,660 = $2,896,980. They disagree by ~$1.1M. On the (simulated) call the owner says it's higher and defers to the accountant; the office manager's (simulated) email then gives **$2,520,000** from the accountant.
 - Exposure **68/100 → 63 after call 1 → 45 after call 2**; the starting score uses the practice's real DNS (Paubox email, SPF -all, no DMARC) and real online bill pay (Adit)
 - Indications: three fictional carriers calibrated to real 2026 benchmarks, two options each ($1M/$10K, $2M/$25K). Default by rule: Northwind **$2,980 a year ($248 a month)** for $1M, social-engineering sublimit $100K, ransomware to the full limit (Ridgeline is cheaper at $2,590 but caps ransomware at $500K and declines $2M). Northwind's revised letter, read in live, moves both premiums up 10% ($3,280 / $5,190) and adds an EDR condition. Cobalt's $2M figure ($5,290, written "5.29k") waits for a person.
-- Firm quote (fictional, Stage 6): Northwind $1M / $10K **$3,410** (+14% vs the $2,980 indication), with the carrier's stated reason: revenue $2.52M, no phishing training, backups never restore-tested. Two conditions before binding (MFA on email, a restore test), one within 60 days (phishing training).
+- Firm quote (fictional, Stage 6): Northwind $1M / $10K **$3,410** (+4% vs the revised $3,280 indication), with the carrier's stated reason: revenue $2.52M, no phishing training, backups never restore-tested. Two conditions before binding (MFA on email, a restore test), one within 60 days (phishing training).
 
 ---
 
@@ -229,15 +229,16 @@ Each use case: who, trigger, what happens, outcome, guardrail. ✅ = built, ◻ 
 - **Flow:** the screen shows exactly what will go out and each field's review state → agent picks
   carriers → **Send**. Refused until the entity is confirmed and the five fields are reviewed.
   The basis is stored per request, so you can always see what a carrier priced on.
-- **Demo:** the seed's first requests went out before review (labelled "demo seed"); the re-request is gated
+- **Demo:** Stage 2 starts empty; Send is refused until Stage 1 is reviewed, then goes to all three carriers ("waiting on carriers")
 - **Guardrail:** a person approves before client data leaves the agency
 
 ### UC5 · Stage 2 · Read in a carrier reply ✅
 - **Flow:** reply lands in the carrier inbox (PDF letter, email, underwriter call via Wispr Flow) →
-  "Read it in" → AI extracts → every figure checked against the source text → new version per
+  "Take it in" (replies arrive in date order; only carriers we asked) → AI extracts → every figure checked against the source text → new version per
   carrier + option, with a diff → follow-ups by fixed rules (price changed, new condition checked
   against the client's answers, declined, get it in writing)
-- **Demo:** Northwind's revised letter: both premiums +10%, a new EDR condition; the pack updates itself
+- **Demo:** five replies taken in live: Northwind letter, Cobalt email ("5.29k" waits for a person), Ridgeline call
+  (verbal) then letter ($2M declined), Northwind's revised letter (+10%, a new EDR condition); the pack updates itself
 - **Guardrails:** values locked by a database trigger; a figure not found word for word waits for a
   person ("Matches the source" / "Doesn't match"); verbal figures are stored but never client-facing;
   revenue drift beyond ±15% from the carrier's basis raises "re-request"
@@ -317,7 +318,7 @@ Each use case: who, trigger, what happens, outcome, guardrail. ✅ = built, ◻ 
   carrier requirements, timing, other) → take in the carrier's firm quote (every figure and date checked
   against the PDF; compared with the indication; conditions tagged before / after binding) → owner
   accepts or declines with a reason → mark each before-binding condition met with evidence → bind
-- **Demo:** Northwind $2,980 → $3,410 (+14%) with the carrier's reason quoted; phishing training is a new
+- **Demo:** Northwind $3,280 → $3,410 (+4%) with the carrier's reason quoted; phishing training is a new
   60-day condition; bind gives a simulated policy number
 - **Guardrails:** the choice locks once a quote is in; Bind stays off (and says why) until the quote is
   checked, the owner said yes, conditions are met and every application answer is confirmed; e-signature
@@ -585,11 +586,11 @@ rule, fake-invoice fraud patterns).
 
 **Live demo (≈8 minutes), one tab per stage:**
 1. **Stage 1 · Confirm data:** delinquent same-name entity (37% vs 100%) → confirm Sage Dentistry, PLLC; revenue "method & sources" → two methods ~$1.1M apart, low confidence → approve or edit, with the source recorded.
-2. **Stage 2 · Get indications:** try Send before Stage 1 is done (refused) → send. **Read in** Northwind's revised letter: +10% and a new EDR condition become follow-ups. Cobalt's "5.29k" → **Matches the source**.
+2. **Stage 2 · Get indications:** starts empty. Try Send before Stage 1 is done (refused) → send → "waiting on carriers". **Take in** the five replies in date order: Cobalt's "5.29k" waits for a person; Ridgeline's call is verbal, then its letter declines $2M; Northwind's revision adds +10% and an EDR condition as follow-ups. Cobalt's "5.29k" → **Matches the source**.
 3. **Stage 3 · Proposal pack:** open the HTML: price first, "What you've told us so far," real Colorado news items. Revenue to $2.8M → refresh banner, premiums unchanged → reset → submit → `v1.html` → send → client view.
 4. **Stage 4 · Equip the agent:** objections; Ask "Would a ransomware payment be covered?" → escalates.
 5. **Stage 5 · Questionnaire:** call 1, call 2 and the office manager's email are in; filter **Not answered** → 3 left. Answers on record show with their source; **Correct** opens the inputs. Tap Q2 "50–75%" → **After the call:** re-ingest call 1 → **Q2 conflict**. Show the email's flagged "I think the limit is $50,000" breach endorsement (the "already covered" belief). Confirm the application answers (keep this short).
-6. **Stage 6 · Decision, bind, report:** owner chooses Northwind $1M → take in the firm quote ($2,980 → $3,410, reason quoted) → owner accepts → mark the two conditions met → **Bind**. Open the three reports; spend the time on **After bind: 30-60-90 + the year**.
+6. **Stage 6 · Decision, bind, report:** owner chooses Northwind $1M → take in the firm quote ($3,280 → $3,410, reason quoted) → owner accepts → mark the two conditions met → **Bind**. Open the three reports; spend the time on **After bind: 30-60-90 + the year**.
 7. **Audit + Obsidian (30 sec):** who changed what; graph view and the call page with quotes.
 
 **If something breaks:** `uv run python -m pipeline.run_all` resets in seconds; screenshots and the

@@ -31,7 +31,7 @@ scripts/db.sh init            # first time only (later: scripts/db.sh start)
 # optional: create .env (git-ignored) with ANTHROPIC_API_KEY=... to run the AI steps live
 uv run python -m pipeline.run_all
 
-# Carrier replies: Stage 2 → Carrier inbox → "Read it in", or ingest a saved file from the command line
+# Carrier replies: Stage 2 → Carrier inbox → "Take it in", or ingest a saved file from the command line
 # uv run python -m pipeline.indications wiki/raw/sloanslake/indications/2026-11-06_northwind_indication_revised.pdf
 
 # 3. Terminal 1 — backend (API on :8000)
@@ -76,11 +76,12 @@ The app's tabs are the stages; each shows a status derived from the data (done, 
    Open "method & sources" on revenue: nothing public, nothing at the agency; two benchmark methods
    disagree by ~$1.1M, so it's low confidence and flagged. Approve or **Edit** it (pick where the value came
    from: conversation, clipboard, API, typed). Only the five fields live here.
-2. **Stage 2 · Get indications.** What goes to carriers, with its review state; pick carriers and **Re-request**
-   (gated: try it before Stage 1 is reviewed and it refuses). The demo seed's first requests went out before review,
-   and the screen says so. In the **carrier inbox**, click **Read it in** on Northwind's revised letter: both
-   premiums rise 10% and a new EDR condition appears, checked against the client's answers, as follow-ups.
-   Open Cobalt's reply history: $5,290 was written "5.29k", so it waits for a person: **Matches the source**.
+2. **Stage 2 · Get indications.** Starts empty: nothing has gone to carriers. Try **Send** before Stage 1 is reviewed
+   (it refuses), then send to all three. "Waiting on carriers": replies take days in real life; here five arrive in
+   the **carrier inbox** in date order, and only the next one can be taken in. **Take it in**, one at a time:
+   Northwind's letter; Cobalt's email ($2M written "5.29k", so it waits for a person: **Matches the source**);
+   Ridgeline's underwriter call (verbal, never client-facing) then its letter ($2M declined); Northwind's revised letter
+   (both premiums +10%, a new EDR condition checked against the client's answers, as follow-ups).
 3. **Stage 3 · Proposal pack.** Click "Open HTML report ↗", or open `reports/sloanslake/current.html`. See "What
    you've told us so far" and "Practices like yours, in the news" (real, cited events, including a Longmont CO
    breach). Drag revenue to ~$2.8M → "indication needs refresh"; premiums don't move. Reset. Submit & lock →
@@ -98,7 +99,7 @@ The app's tabs are the stages; each shows a status derived from the data (done, 
    endorsement on their business owner's policy) is flagged: the "already covered" belief, in the client's words.
    **Application:** confirm the answers (the client signs a complete application).
 6. **Stage 6 · Decision, bind, report.** Record **the owner's choice** (Northwind, $1M / $10K) or "not now" with a reason.
-   **Take in** Northwind's firm quote: every figure checked against the PDF; $2,980 → $3,410 (+14%) with the carrier's
+   **Take in** Northwind's firm quote: every figure checked against the PDF; $3,280 → $3,410 (+4%) against Northwind's revised indication, with the carrier's
    reason quoted (revenue $2.52M, no phishing training, backups untested). **Owner accepts**, mark the two before-binding
    conditions met with evidence, **Bind coverage** (simulated policy number). **Report:** client summary, deal record
    (milestones, who did what, sources, outcome), and **After bind: 30-60-90 + the year** to renewal.

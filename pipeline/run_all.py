@@ -2,15 +2,15 @@
 
 UKON's brief has four stages; this prototype splits its Stage 1 in two:
   1. Confirm data   the five fields from the agency file + public records       (stage1_enrich)
-  2. Indications    requests to the carrier panel, replies in, versioned        (indications)
+  2. Indications    starts empty: the agent sends the requests and takes the five replies in, live  (indications)
   3. Proposal pack  report v1: plain-language why / options / cost               (stage3_proposal)
   4. Agent kit      pitch, objections, specimens: read from the pack, no seed step
   5. Questionnaire  call 1 (Wispr Flow transcript, partial), then call 2 and an email from the office manager (intake_ingest)
   6. Close          nothing seeded: the firm quote waits in wiki/raw/<slug>/quotes/ (bind)
 
-The seed takes two honest shortcuts, both labelled in the app: requests go out before the Stage 1 review
-(so the live demo can still confirm the entity), and call 1 is ingested before the pack is drafted (so the pack
-shows what the owner has said so far). Later calls and carrier replies are ingested from the app or the command line:
+The seed takes one shortcut: call 1 is ingested before the pack is drafted (so the pack shows what the owner has
+said so far). Stage 2 starts empty so the demo shows the real order: review Stage 1, send, wait, take each reply in.
+Later calls and carrier replies are ingested from the app or the command line:
     uv run python -m pipeline.intake_ingest wiki/raw/sloanslake/<call_N or email_N>.md
     uv run python -m pipeline.indications wiki/raw/sloanslake/indications/2026-11-06_northwind_indication_revised.pdf"""
 import psycopg
@@ -40,7 +40,7 @@ def reset_demo(offline: bool = True) -> dict:
             f.unlink()
         reset_schema()
         stage1_enrich.run()        # Stage 1
-        indications.run()          # Stage 2
+        # Stage 2 starts empty: the agent sends the requests and takes each carrier reply in, in the demo.
         intake_ingest.run()        # Stage 5 call 1 (see the docstring)
         stage3_proposal.run()      # Stage 3
         # Stage 5 keeps going after the pack: a follow-up call and an email from the office manager (both simulated)

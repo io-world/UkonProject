@@ -171,6 +171,8 @@ def export_html(conn, cid: int, v: dict) -> str:
 
 
 def submit(conn, cid: int, actor_id: int) -> dict:
+    if not conn.execute("SELECT 1 FROM indications WHERE client_id=%s", (cid,)).fetchone():
+        raise ValueError("No carrier prices yet: take in at least one written indication in Stage 2 before submitting the pack")
     v = refresh_working(conn, cid, actor_id, edited=False)
     conn.execute("""UPDATE report_versions SET superseded_from=state, state='superseded'
                     WHERE client_id=%s AND state IN ('submitted','sent')""", (cid,))

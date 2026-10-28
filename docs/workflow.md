@@ -101,8 +101,9 @@ every carrier's versions read-only, lets a person check a flagged figure, and cl
 | Act | Fixed rules turn the diff into actions: price changed (and whether a sent pack showed the old price), new condition (with the intake's answer), declined, verbal-only, figure to confirm. Alerts for expiring indications and revenue drift. | Works the list; closes each action with a note. | Agent misses a change → it stays in "Needs attention" until a person closes it. |
 | Current state | The client pack reads only the latest **written**, **checked** version per carrier + option. | Picks the carrier to show (default rule: cheapest $1M with full-limit ransomware). | Verbal number reaches the client → impossible: verbal versions are excluded from the view. |
 
-Demo: run_all loads four replies (Northwind PDF, Cobalt email, Ridgeline call then letter); the revised Northwind
-letter waits in Stage 2's carrier inbox for a live "Read it in" (or the command line).
+Demo: Stage 2 starts empty. After Stage 1 is reviewed the agent sends the requests; five replies then wait in the carrier
+inbox and are taken in live, in date order (Northwind PDF, Cobalt email, Ridgeline call then letter, Northwind's revised
+letter). A reply is refused for a carrier nobody asked.
 
 ## Industry research (built)
 

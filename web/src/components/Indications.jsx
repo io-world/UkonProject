@@ -121,7 +121,6 @@ function SendPanel({ ind, data, actor, onDone, goStage1 }) {
   const byKey = Object.fromEntries(data.fields.map((f) => [f.key, f]))
   const basis = ['legal_name', 'domain', 'industry', 'annual_revenue', 'address']
   const sentBefore = ind.requests.length > 0
-  const seeded = ind.requests.some((r) => (r.reason || '').includes('demo seed'))
   const toggle = (c) => setPicked((p) => (p.includes(c) ? p.filter((x) => x !== c) : [...p, c]))
 
   const send = async () => {
@@ -132,9 +131,6 @@ function SendPanel({ ind, data, actor, onDone, goStage1 }) {
   return (
     <section className="card">
       <h3>{sentBefore ? 'Re-request indications' : 'Send to carriers'} <span className="muted">· a person approves before client data leaves the agency</span></h3>
-      {seeded && (
-        <div className="banner warn">Demo shortcut: the first requests went out before Stage 1 was reviewed (labelled “demo seed”).
-          Re-sending below is gated on the review, the way production would be.</div>)}
       <div className="send-grid">
         <div>
           <div className="label">What goes to the carriers</div>
@@ -316,15 +312,31 @@ export default function Indications({ data, actor, onChange, tick, goStage1 }) {
 
       <SendPanel ind={ind} data={data} actor={actor} onDone={done} goStage1={goStage1} />
 
-      {(ind.inbox.length > 0 || msg) && (
+      {ind.requests.length === 0 ? (
+        <section className="card empty">
+          <h3>Carrier inbox</h3>
+          <p className="small">Nothing has gone to carriers yet. Confirm Stage 1, then send the requests above; replies come back here.</p>
+        </section>
+      ) : (
         <section className="card">
-          <h3>Carrier inbox <span className="muted">· replies waiting to be read in</span></h3>
-          {ind.inbox.map((p) => (
-            <div key={p} className="row inbox">
-              <code>{p.split('/').pop()}</code>
-              <button className="btn sm" disabled={busy === p} onClick={() => ingest(p)}>{busy === p ? 'Reading…' : 'Read it in'}</button>
-            </div>
-          ))}
+          <h3>Carrier inbox <span className="muted">· {ind.inbox.length ? `${ind.inbox.length} repl${ind.inbox.length === 1 ? 'y' : 'ies'} to come` : 'all replies read in'}</span></h3>
+          {ind.sources.length === 0 && (
+            <p className="small">Requests sent {when(ind.requests[0].sent_at)} to {new Set(ind.requests.map((r) => r.carrier)).size} carriers. <b>Waiting on carriers:</b> in real life replies take days and arrive by PDF, email or a call
+              with the underwriter. In this demo they arrive below, in date order.</p>
+          )}
+          {ind.inbox.map((p, i) => {
+            const name = p.split('/').pop()
+            const date = name.slice(0, 10)
+            return (
+              <div key={p} className={`row inbox ${i ? 'later' : ''}`}>
+                <span className="small muted" style={{ minWidth: 92 }}>{/^\d{4}-\d{2}-\d{2}$/.test(date) ? new Date(date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}</span>
+                <code>{name}</code>
+                {i === 0
+                  ? <button className="btn sm" disabled={busy === p} onClick={() => ingest(p)}>{busy === p ? 'Reading…' : 'Take it in'}</button>
+                  : <span className="pill">arrives later</span>}
+              </div>
+            )
+          })}
           {msg?.ok && <div className="banner ok">{msg.ok}</div>}
           {msg?.err && <div className="err small">{msg.err}</div>}
         </section>

@@ -195,6 +195,10 @@ def ingest(conn, cid: int, path: str | Path, actor_id: int, input_by: int | None
     checks = ix.check_numbers(ext, text, names, verbal)   # carrier-name check uses the name as written
     ext["carrier_as_written"] = ext.get("carrier")
     ext["carrier"] = ix.canonical_carrier(ext.get("carrier"), [c["carrier"] for c in panel()])
+    if not conn.execute("SELECT 1 FROM indication_requests WHERE client_id=%s AND carrier=%s",
+                        (cid, ext["carrier"])).fetchone():
+        raise ValueError(f"No request has gone to {ext['carrier']} yet. Send the request first; replies only come back "
+                         "to carriers we asked.")
     sha = ix.content_sha(text)
     src = conn.execute("""INSERT INTO indication_sources (client_id, carrier, channel, input_method, content_sha, path,
                           doc_date, reference, extractor, input_by, extraction, checks, ingested_by)

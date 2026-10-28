@@ -36,7 +36,7 @@ conditions, bind simulated, client summary, deal record, 30-60-90 after bind). R
 uv sync                                          # Python env + bundled Postgres (pgserver) in .venv
 scripts/db.sh init                               # first time: Postgres cluster in db/pgdata, port 5433
 scripts/db.sh start | stop | status | psql
-uv run python -m pipeline.run_all                # reset DB (or the /reset page in the app): Stage 1 fields, Stage 2 indications (3 carriers), Stage 5 call 1 (early), Stage 3 pack v1, Stage 5 call 2 + email 1
+uv run python -m pipeline.run_all                # reset DB (or the /reset page in the app): Stage 1 fields, Stage 2 empty (5 replies in the inbox), Stage 5 call 1 (early), Stage 3 pack v1, Stage 5 call 2 + email 1
 uv run python -m pipeline.indications <reply.pdf|.md>     # ingest a carrier reply (versions, diff, actions)
 uv run python -m pipeline.intake_ingest <call_N|email_N.md>   # add another call or email to the questionnaire (merges)
 uv run python -m pipeline.bind <quote.pdf>               # take in a firm quote (Stage 6; owner must have chosen an option)

@@ -17,7 +17,7 @@ then a new version per carrier + option. Nothing is overwritten.
    - Underwriter call: find it in Wispr Flow (`search_meetings` by carrier or underwriter name, then
      `get_meeting`); check the recording disclosure is at the start; save as `.md` with `channel: call`,
      `source: wispr-flow`, transcript as `[mm:ss] **Speaker:**` lines. Keep mis-transcriptions.
-2. **Ingest:** click **Read it in** next to the file in the app's **Stage 2 · Get indications → Carrier inbox**, or run
+2. **Ingest:** click **Take it in** next to the file (replies go in date order, and only for carriers a request went to) in the app's **Stage 2 · Get indications → Carrier inbox**, or run
    `uv run python -m pipeline.indications wiki/raw/<slug>/indications/<file>`.
    A new reply needs `ANTHROPIC_API_KEY` (cached extractions exist only for the samples).
 3. **Add it to `wiki/index.md`** under the client's carrier replies.

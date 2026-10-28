@@ -495,3 +495,4 @@ details > summary { cursor: pointer; }
 .onrec.followup { background: var(--amber-bg); border-color: #f1d9a8; }
 .onrec-a { font-size: 13.5px; }
 .onrec .btn { margin-top: 2px; }
+.inbox.later { opacity: .6; }

@@ -90,7 +90,7 @@ def render(s: dict, version: dict, client_view: bool = True) -> str:
     for t in ["recommended", "premier"]:
         o = opts.get(t)
         if not o:
-            st = (carrier.get("option_state") or {}).get(t, "declined")
+            st = (carrier.get("option_state") or {}).get(t, "awaiting")
             why = ("Not offered by this insurer for a practice this size." if st.startswith("declined")
                    else "Waiting on the insurer's written price.")
             w(f'<div class="tier off"><h4>{TIER_NAME[t]}</h4><p class="small muted">{why}</p></div>')
@@ -104,8 +104,9 @@ def render(s: dict, version: dict, client_view: bool = True) -> str:
           f'<dt>Tricked into sending money</dt><dd class="warn">up to {_short(o["sublimits"].get("social_engineering"))}</dd>'
           f'</dl></div>')
     w('</div>')
-    w(f'<p class="small muted">{_e(s["coverage"]["disclaimer"])} Estimates from {_e(s["selected_carrier"])}; '
-      f'valid until {_e(carrier.get("expires_on"))}.</p>')
+    est = (f' Estimates from {_e(s["selected_carrier"])}; valid until {_e(carrier.get("expires_on"))}.'
+           if s.get("selected_carrier") else "")
+    w(f'<p class="small muted">{_e(s["coverage"]["disclaimer"])}{est}</p>')
 
     # Intake
     if intake.get("topics"):

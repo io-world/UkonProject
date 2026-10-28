@@ -251,10 +251,16 @@ def indications_ingest(slug: str, body: IngestReply):
     """Ingest a carrier reply that's waiting in the client's inbox (wiki/raw/<slug>/indications/)."""
     with connect() as conn:
         c = client_by_slug(conn, slug)
-        if body.path not in indications.state(conn, c["id"])["inbox"]:
+        inbox = indications.state(conn, c["id"])["inbox"]
+        if body.path not in inbox:
             raise HTTPException(404, f"{body.path} isn't waiting in the inbox")
+        if body.path != inbox[0]:
+            raise HTTPException(409, f"Replies arrive in date order: take in {inbox[0].split('/')[-1]} first")
         uid = user_id(conn, body.actor)
-        res = indications.ingest(conn, c["id"], body.path, uid, input_by=uid)
+        try:
+            res = indications.ingest(conn, c["id"], body.path, uid, input_by=uid)
+        except ValueError as e:
+            raise HTTPException(409, str(e))
         indications.after_change(conn, c["id"], uid)
     wiki_render.log(f"indication | {slug} — {res['carrier']} via {res['channel']} ingested by {body.actor}: "
                     + "; ".join(res["options"]))
@@ -358,7 +364,10 @@ def report_html(slug: str, version: int | None = None):
 def submit(slug: str, body: Actor):
     with connect() as conn:
         c = client_by_slug(conn, slug)
-        v = report.submit(conn, c["id"], user_id(conn, body.actor))
+        try:
+            v = report.submit(conn, c["id"], user_id(conn, body.actor))
+        except ValueError as e:
+            raise HTTPException(409, str(e))
     wiki_render.log(f"report | {slug} — v{v['version_no']} submitted (locked) by {body.actor}")
     return {"version_no": v["version_no"], "state": v["state"]}
 

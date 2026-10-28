@@ -1,7 +1,7 @@
 import { money, short } from '../api.js'
 
 const TIER_NAME = { recommended: 'Recommended', premier: 'Premier' }
-const MISSING = (st) => (st || 'declined').startsWith('declined') ? 'Not offered by this insurer for a practice this size.' : "Waiting on the insurer's written price."
+const MISSING = (st) => (st || 'awaiting').startsWith('declined') ? 'Not offered by this insurer for a practice this size.' : "Waiting on the insurer's written price."
 const PLAIN_CONTROL = { mfa_email: 'phone codes on email logins', tested_backups: 'tested backups', edr: 'attack-monitoring software', payment_verify: 'payment-change call-backs' }
 
 function Meter({ score, band }) {
@@ -34,6 +34,7 @@ export default function ReportDocument({ s, version, agentMode }) {
       <section>
         <h2>Your options at a glance</h2>
         {stale && agentMode && <div className="banner warn">Prices below are from the original indication and need a refresh before sending.</div>}
+        {!s.selected_carrier && agentMode && <div className="banner warn">No carrier replies yet: prices appear here once Stage 2's replies are in.</div>}
         <div className="tiers">
           {['recommended', 'premier'].map((t) => {
             const o = opts[t]
@@ -56,7 +57,7 @@ export default function ReportDocument({ s, version, agentMode }) {
             )
           })}
         </div>
-        <p className="disclaimer">{s.coverage.disclaimer} Estimates from {s.selected_carrier}; valid until {carrier.expires_on}.</p>
+        <p className="disclaimer">{s.coverage.disclaimer}{s.selected_carrier && <> Estimates from {s.selected_carrier}; valid until {carrier.expires_on}.</>}</p>
       </section>
 
       {s.intake?.topics && (
