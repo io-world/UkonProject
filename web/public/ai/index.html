@@ -7,7 +7,7 @@
   --ink:#16202e; --ink-2:#3c4a5c; --muted:#5f6b7c; --line:#e3e0d8; --line-2:#eeebe4;
   --paper:#fbfaf7; --card:#ffffff; --wash:#f3f1ec;
   --accent:#0f6b62; --accent-2:#e7f2f0; --on-accent:#ffffff;
-  --ai:#00897b; --ai-bg:#e3f3f1; --hu:#c27400; --hu-bg:#fff2dd;
+  --ai:#00897b; --ai-bg:#e3f3f1; --sys:#4a68a8; --sys-bg:#e9eef8; --hu:#c27400; --hu-bg:#fff2dd;
   --amber:#a35f00; --amber-bg:#fff4e0; --red:#b3372f; --red-bg:#fdecea; --green:#2f7d4b; --green-bg:#e9f5ee;
   --grid:#e9e6df;
   --shadow:0 1px 2px rgba(22,32,46,.06),0 4px 16px rgba(22,32,46,.04);
@@ -20,7 +20,7 @@
   --ink:#e6e9ee; --ink-2:#b9c2ce; --muted:#95a1b2; --line:#2c333d; --line-2:#242a33;
   --paper:#11151b; --card:#181d25; --wash:#1f252e;
   --accent:#4fb3a7; --accent-2:#17302d; --on-accent:#0c1714;
-  --ai:#26a69a; --ai-bg:#14302c; --hu:#c27400; --hu-bg:#332410;
+  --ai:#26a69a; --ai-bg:#14302c; --sys:#86a3dc; --sys-bg:#1b2436; --hu:#c27400; --hu-bg:#332410;
   --amber:#e3a24a; --amber-bg:#33270f; --red:#f08479; --red-bg:#3a1d1b; --green:#6cc28b; --green-bg:#16301f;
   --grid:#272e38;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25); color-scheme:dark;}}
@@ -28,7 +28,7 @@
   --ink:#e6e9ee; --ink-2:#b9c2ce; --muted:#95a1b2; --line:#2c333d; --line-2:#242a33;
   --paper:#11151b; --card:#181d25; --wash:#1f252e;
   --accent:#4fb3a7; --accent-2:#17302d; --on-accent:#0c1714;
-  --ai:#26a69a; --ai-bg:#14302c; --hu:#c27400; --hu-bg:#332410;
+  --ai:#26a69a; --ai-bg:#14302c; --sys:#86a3dc; --sys-bg:#1b2436; --hu:#c27400; --hu-bg:#332410;
   --amber:#e3a24a; --amber-bg:#33270f; --red:#f08479; --red-bg:#3a1d1b; --green:#6cc28b; --green-bg:#16301f;
   --grid:#272e38;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25); color-scheme:dark;}
@@ -77,6 +77,9 @@ section.block > .sub{color:var(--ink-2);margin-top:6px;max-width:72ch}
 .pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 9px;font-size:.72rem;font-weight:600;letter-spacing:.02em;white-space:nowrap}
 .pill.ai{background:var(--ai-bg);color:var(--ai)}
 .pill.hu{background:var(--hu-bg);color:var(--amber)}
+.pill.sys{background:var(--sys-bg);color:var(--sys)}
+.trio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:start}.trio>*{min-width:0}
+@media (max-width:980px){.trio{grid-template-columns:1fr}}
 .pill.green{background:var(--green-bg);color:var(--green)}
 .pill.red{background:var(--red-bg);color:var(--red)}
 .pill.amber{background:var(--amber-bg);color:var(--amber)}
@@ -143,7 +146,7 @@ footer.foot .wrap{display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space
 .flow .box{fill:var(--card);stroke:var(--line);stroke-width:1.2}
 .flow .box.ai{fill:var(--ai-bg);stroke:var(--ai)}
 .flow .box.hu{fill:var(--hu-bg);stroke:var(--hu)}
-.flow .box.code{fill:var(--wash);stroke:var(--line)}
+.flow .box.code{fill:var(--sys-bg);stroke:var(--sys)}
 .flow .box.store{fill:var(--accent-2);stroke:var(--accent)}
 .flow .arr{stroke:var(--muted);stroke-width:1.4;fill:none;marker-end:url(#ah)}
 .flow .lane{fill:none;stroke:var(--line);stroke-dasharray:4 4}
@@ -181,8 +184,8 @@ code{font:12.5px ui-monospace,Menlo,monospace;background:var(--wash);padding:1px
 
   <section class="block flow" id="map">
     <h2>System map</h2>
-    <p class="sub">Teal boxes are AI agents (a model makes judgments). Grey boxes are plain code (deterministic, reproducible). Amber boxes are people. Everything lands in two stores: the evidence wiki and the database.</p>
-    <div class="legend mt"><span><i class="sw ai"></i>AI agent</span><span><i class="sw" style="background:var(--muted)"></i>Plain code</span><span><i class="sw hu"></i>Person</span><span><i class="sw" style="background:var(--accent)"></i>Store</span></div>
+    <p class="sub">Teal boxes are AI agents (a model makes judgments). Blue boxes are plain code (deterministic, reproducible). Amber boxes are people. Everything lands in two stores: the evidence wiki and the database.</p>
+    <div class="legend mt"><span><i class="sw ai"></i>AI agent</span><span><i class="sw" style="background:var(--sys)"></i>Plain code</span><span><i class="sw hu"></i>Person</span><span><i class="sw" style="background:var(--accent)"></i>Store</span></div>
     <div class="card mapwrap">
     <svg viewBox="0 0 1060 470" role="img" aria-label="Agent system map: a renewal trigger starts the client agents (entity resolver, footprint collector, signal extractor), then plain-code estimators and a verifier, then human review; the industry researcher, research verifier and tailor run on a schedule; both feed the evidence wiki and database, which feed the client pack and agent brief.">
       <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker></defs>
@@ -327,7 +330,7 @@ code{font:12.5px ui-monospace,Menlo,monospace;background:var(--wash);padding:1px
           <tr><td>Public DNS</td><td>Email provider, sender policy, DMARC</td><td>Free, instant</td><td><span class="pill green">Fact</span></td><td>A lookup, not a scan. Feeds the exposure score.</td></tr>
           <tr><td>Directories, reviews, press</td><td>Other addresses, staff names, size hints</td><td>Fetch</td><td><span class="pill amber">Often stale</span></td><td>Cited but never trusted over an official record.</td></tr>
           <tr><td>Agency's own system</td><td>Revenue, payroll, headcount on existing policies</td><td>Integration or export</td><td><span class="pill green">Rating basis</span></td><td>Checked first in the revenue waterfall.</td></tr>
-          <tr><td>Benchmarks (Census, BLS, trade associations)</td><td>Revenue per employee, billings per provider</td><td>Published tables</td><td><span class="pill plain">Statistical</span></td><td>Used only by the estimators, always with the method written out.</td></tr>
+          <tr><td>Benchmarks (Census, BLS, trade associations)</td><td>Revenue per employee, billings per provider, dental overhead share (ADA), wages by role (BLS)</td><td>Published tables</td><td><span class="pill plain">Statistical</span></td><td>Used only by the estimators and the pack's cost figures, always with the method or formula written out.</td></tr>
         </tbody>
       </table>
     </div>
@@ -409,8 +412,8 @@ code{font:12.5px ui-monospace,Menlo,monospace;background:var(--wash);padding:1px
 
   <section class="block" id="used">
     <h2>How AI was used in this project, and where it wasn't</h2>
-    <p class="sub">The line I drew: AI reads, researches, extracts and drafts. People make every decision, and every conversation with the customer is a person's.</p>
-    <div class="pair mt">
+    <p class="sub">The line I drew: AI reads, researches, extracts and drafts. Code checks and calculates. People make every decision, and every conversation with the customer is a person's.</p>
+    <div class="trio mt">
       <div class="card used">
         <span class="pill ai">AI did this</span>
         <h3 class="used-h">Building the prototype</h3>
@@ -429,6 +432,21 @@ code{font:12.5px ui-monospace,Menlo,monospace;background:var(--wash);padding:1px
           <li><b>Drafting:</b> the proposal pack's wording (no digits allowed; numbers come from the database) and the agent brief.</li>
           <li><b>Answering the agent:</b> "Ask about this client" (read-only) and "Ask the wiki" (wiki first, web only as a fallback, labelled by the tools that actually ran).</li>
           <li><b>Saved outputs</b> so the demo runs offline and the same way every time.</li>
+          <li><b>Not AI:</b> the pack's cost figures (operating costs, staff wages, payroll) are calculated in code from the database and published benchmarks, with the formula shown to the owner.</li>
+        </ul>
+      </div>
+      <div class="card used">
+        <span class="pill sys">Code / automation, no AI</span>
+        <h3 class="used-h">Every check and every number</h3>
+        <ul class="small used-list">
+          <li>Checks every figure the AI pulls out against the source text, word for word, and holds anything it can't find for a person.</li>
+          <li>Locks carrier figures and keeps every reply as a new version.</li>
+          <li>Applies the rules: ±15% revenue drift, follow-ups when a price or condition changes, refusing replies out of order or from carriers nobody asked.</li>
+          <li>Calculates every number: the estimators, the exposure score, and the pack's cost figures (operating costs, staff wages, payroll), with the formula shown.</li>
+          <li>Fails any AI prose that contains a digit.</li>
+          <li>Runs the hedge check: "mostly" and "I think" get flagged, whatever the model said.</li>
+          <li>Labels each chat answer wiki or web by which tools actually ran.</li>
+          <li>Enforces the gates: nothing goes to carriers before Stage 1 is reviewed, nothing binds with an open condition.</li>
         </ul>
       </div>
       <div class="card used">
@@ -440,9 +458,9 @@ code{font:12.5px ui-monospace,Menlo,monospace;background:var(--wash);padding:1px
           <li>Approves sending anything to carriers.</li>
           <li>Confirms any carrier figure the check couldn't find in the document.</li>
           <li>Adjusts estimates; submits, locks and sends the pack.</li>
-          <li>Confirms every questionnaire answer; resolves hedges and conflicts.</li>
+          <li>Confirms every questionnaire answer in one place, seeing how it will read on the carrier's application; resolves hedges and conflicts.</li>
           <li>Records the owner's choice, or "not now" and why.</li>
-          <li>Marks each condition to bind as met, with evidence; binds.</li>
+          <li>Marks each condition to bind Met or Not yet (proof optional; who and when logged); binds.</li>
           <li>Coverage questions go to a Cyber Practice Leader.</li>
           <li>The client signs the application.</li>
         </ul>
@@ -454,7 +472,7 @@ code{font:12.5px ui-monospace,Menlo,monospace;background:var(--wash);padding:1px
         </ul>
       </div>
     </div>
-    <div class="callout mt"><b>Customer communication stays human.</b> AI prepares the agent (pack wording, brief, talking points, answers to the agent's questions) and does most of the carrier paperwork: reading replies, checking figures, turning changes into follow-ups. It never talks to the business owner, never sends anything to the client, and never says whether something would be covered.</div>
+    <div class="callout mt"><b>Customer communication stays human.</b> AI prepares the agent (pack wording, brief, talking points, answers to the agent's questions) and does most of the carrier paperwork: reading replies, checking figures, turning changes into follow-ups. It never talks to the business owner, never sends anything to the client, and never says whether something would be covered. One idea, not built: an AI call to the practice for factual application questions only, and only when the agent approves it for that client (see the <a href="../interview/2-workflow.html#idea-call">workflow map</a>).</div>
   </section>
 </main>
 
