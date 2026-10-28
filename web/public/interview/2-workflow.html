@@ -7,7 +7,7 @@
   --ink:#16202e; --ink-2:#3c4a5c; --muted:#5f6b7c; --line:#e3e0d8; --line-2:#eeebe4;
   --paper:#fbfaf7; --card:#ffffff; --wash:#f3f1ec;
   --accent:#0f6b62; --accent-2:#e7f2f0; --on-accent:#ffffff;
-  --ai:#00897b; --ai-bg:#e3f3f1; --sys:#4a68a8; --sys-bg:#e9eef8; --hu:#c27400; --hu-bg:#fff2dd;
+  --ai:#00897b; --ai-bg:#e3f3f1; --sys:#4a68a8; --sys-bg:#e9eef8; --idea:#7b4fc4; --idea-bg:#f3edfc; --hu:#c27400; --hu-bg:#fff2dd;
   --amber:#a35f00; --amber-bg:#fff4e0; --red:#b3372f; --red-bg:#fdecea; --green:#2f7d4b; --green-bg:#e9f5ee;
   --grid:#e9e6df;
   --shadow:0 1px 2px rgba(22,32,46,.06),0 4px 16px rgba(22,32,46,.04);
@@ -20,7 +20,7 @@
   --ink:#e6e9ee; --ink-2:#b9c2ce; --muted:#95a1b2; --line:#2c333d; --line-2:#242a33;
   --paper:#11151b; --card:#181d25; --wash:#1f252e;
   --accent:#4fb3a7; --accent-2:#17302d; --on-accent:#0c1714;
-  --ai:#26a69a; --ai-bg:#14302c; --sys:#86a3dc; --sys-bg:#1b2436; --hu:#c27400; --hu-bg:#332410;
+  --ai:#26a69a; --ai-bg:#14302c; --sys:#86a3dc; --sys-bg:#1b2436; --idea:#b393ec; --idea-bg:#261d36; --hu:#c27400; --hu-bg:#332410;
   --amber:#e3a24a; --amber-bg:#33270f; --red:#f08479; --red-bg:#3a1d1b; --green:#6cc28b; --green-bg:#16301f;
   --grid:#272e38;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25); color-scheme:dark;}}
@@ -28,7 +28,7 @@
   --ink:#e6e9ee; --ink-2:#b9c2ce; --muted:#95a1b2; --line:#2c333d; --line-2:#242a33;
   --paper:#11151b; --card:#181d25; --wash:#1f252e;
   --accent:#4fb3a7; --accent-2:#17302d; --on-accent:#0c1714;
-  --ai:#26a69a; --ai-bg:#14302c; --sys:#86a3dc; --sys-bg:#1b2436; --hu:#c27400; --hu-bg:#332410;
+  --ai:#26a69a; --ai-bg:#14302c; --sys:#86a3dc; --sys-bg:#1b2436; --idea:#b393ec; --idea-bg:#261d36; --hu:#c27400; --hu-bg:#332410;
   --amber:#e3a24a; --amber-bg:#33270f; --red:#f08479; --red-bg:#3a1d1b; --green:#6cc28b; --green-bg:#16301f;
   --grid:#272e38;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25); color-scheme:dark;}
@@ -77,6 +77,19 @@ section.block > .sub{color:var(--ink-2);margin-top:6px;max-width:72ch}
 .sw{display:inline-block;width:10px;height:10px;border-radius:3px;vertical-align:baseline}
 .sw.ai{background:var(--ai)} .sw.sys{background:var(--sys)} .sw.hu{background:var(--hu)}
 .pill.sys{background:var(--sys-bg);color:var(--sys)}
+.sw.idea{background:var(--idea)} .pill.idea{background:var(--idea-bg);color:var(--idea)}
+.node.idea-tag{display:block;background:var(--idea-bg);border:1px dashed var(--idea);color:var(--idea);font-weight:600;text-decoration:none}
+.idea-card{margin-top:16px;border:1.5px dashed var(--idea);background:var(--idea-bg);border-radius:12px;padding:16px 18px}
+.idea-head{display:flex;gap:10px;align-items:flex-start}.idea-head .star{font-size:1.4rem;color:var(--idea);line-height:1}
+.idea-head h3{font-size:1rem;margin-top:4px}
+.idea-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}
+.ig{background:var(--card);border-radius:8px;padding:10px 12px;font-size:.84rem}.ig b{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase}
+.ig p{margin-top:4px;color:var(--ink-2)}
+.ig.gate{box-shadow:inset 3px 0 0 var(--idea)}.ig.gate b{color:var(--idea)}
+.ig.ai{box-shadow:inset 3px 0 0 var(--ai)}.ig.ai b{color:var(--ai)}
+.ig.sys{box-shadow:inset 3px 0 0 var(--sys)}.ig.sys b{color:var(--sys)}
+.ig.hu{box-shadow:inset 3px 0 0 var(--hu)}.ig.hu b{color:var(--amber)}
+@media (max-width:900px){.idea-grid{grid-template-columns:1fr 1fr}}@media (max-width:560px){.idea-grid{grid-template-columns:1fr}}
 .kinds h2{font-size:1.05rem}.kgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.kgrid p{font-size:.86rem;color:var(--ink-2);margin-top:6px}
 .kinds .rule{margin-top:12px;font-weight:600;font-size:.9rem}
 @media (max-width:760px){.kgrid{grid-template-columns:1fr}}
@@ -192,7 +205,7 @@ details .tablewrap{padding-bottom:14px}
       </div>
       <p class="rule">AI proposes, code verifies, a person decides.</p>
     </div>
-    <div class="legend mt"><span><i class="sw ai"></i>AI</span><span><i class="sw sys"></i>Automated</span><span><i class="sw hu"></i>Person</span><span><span class="pill green">Built</span> in the prototype</span><span><span class="pill plain">Designed</span> not built</span></div>
+    <div class="legend mt"><span><i class="sw ai"></i>AI</span><span><i class="sw sys"></i>Automated</span><span><i class="sw hu"></i>Person</span><span><i class="sw idea"></i>★ Idea, not built</span><span><span class="pill green">Built</span> in the prototype</span><span><span class="pill plain">Designed</span> not built</span></div>
     <div class="flow" role="list" aria-label="Workflow from renewal to bound policy">
       <div class="lane-l" style="grid-column:1;grid-row:1"></div>
       <div class="lane-l ai" style="grid-column:1;grid-row:2">AI</div>
@@ -242,7 +255,7 @@ details .tablewrap{padding-bottom:14px}
 
       <div class="col" role="listitem" style="grid-column:7">
         <div class="ch"><span class="s">Stage 5 · UKON 4, part 1</span><h3>Questionnaire</h3><span class="pill green">Built</span></div>
-        <div class="cell ai"><span class="mlab">AI</span><div class="node ai">Pull answers from call recordings and emails, with the line each came from.</div></div>
+        <div class="cell ai"><span class="mlab">AI</span><div class="node ai">Pull answers from call recordings and emails, with the line each came from.</div><a class="node idea-tag" href="#idea-call">★ Idea, not built: agent-approved AI follow-up call</a></div>
         <div class="cell sys"><span class="mlab">Automated</span><div class="node sys">Check calls against the agent's taps and merge across sources; a fixed hedge check flags "mostly" and "I think."</div><div class="node sys">Carry confirmed answers, and their corrections, into the application.</div></div>
         <div class="cell hu"><span class="mlab">Person</span><div class="node hu">Agent works the open questions over as many calls and emails as it takes, tapping answers live. Calls open with recording consent.</div><div class="node hu">Agent confirms each answer in one place, Check the recording, and sees how it will read on the carrier's application; a corrected revenue flows back to Stage 1.</div></div>
         <div class="cell risk"><span class="mlab">Could go wrong → caught by</span><span class="rk"><b>"Mostly" becomes "yes"</b> → a fixed hedge check overrides the model and flags it.</span><span class="rk"><b>Recording and tap disagree</b> → flagged as a conflict, never auto-resolved.</span><span class="rk"><b>The same answer confirmed in two places, disagreeing</b> → one place to confirm; the application is read-only.</span></div>
@@ -255,6 +268,16 @@ details .tablewrap{padding-bottom:14px}
         <div class="cell hu"><span class="mlab">Person</span><div class="node hu">Records the owner's choice, or "not now" with a reason.</div><div class="node hu">Owner accepts the final terms; agent marks each condition Met or Not yet (proof optional; who and when always logged); client e-signs.</div></div>
         <div class="cell risk"><span class="mlab">Could go wrong → caught by</span><span class="rk"><b>The price changed since the pack</b> → shown side by side with the carrier's reason before the yes.</span><span class="rk"><b>Binding with an open condition</b> → Bind stays off and says why.</span></div>
       </div>
+    </div>
+    <div class="idea-card" id="idea-call">
+      <div class="idea-head"><span class="star">★</span><div><span class="pill idea">Idea · not built</span><h3>Stage 5 · AI follow-up call</h3></div></div>
+      <div class="idea-grid">
+        <div class="ig gate"><b>Gate</b><p>The agent approves it for this client, chooses which open questions it may ask, and who it calls.</p></div>
+        <div class="ig ai"><b>AI</b><p>Calls the practice (typically the office manager) to ask only those factual application questions: MFA, backups, payment checks. It never sells, and never discusses price or coverage.</p></div>
+        <div class="ig sys"><b>Automated</b><p>The recording comes in like any other call: every answer quoted with its line, hedges flagged, conflicts never auto-resolved.</p></div>
+        <div class="ig hu"><b>Person</b><p>The agent confirms every answer in Check the recording, as now.</p></div>
+      </div>
+      <p class="small"><b>Why:</b> the open questions are the part that stalls, and this takes the chasing off the agent without handing over the relationship.</p>
     </div>
     <p class="loop"><svg width="34" height="18" viewBox="0 0 34 18" aria-hidden="true"><path d="M30 4 C30 14, 4 14, 4 6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M1 8 L4 4 L7 8" fill="none" stroke="currentColor" stroke-width="2"/></svg>After binding, the 30-60-90 plan and touchpoints carry the client to next year's renewal, which starts from this year's confirmed answers.</p>
   </section>
