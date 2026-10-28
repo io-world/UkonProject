@@ -98,6 +98,21 @@ export default function ReportDocument({ s, version, agentMode }) {
                 accountant can give the real number. This is a cost to you, not a statement of what any policy pays.</p>
             </details>
             <p className="muted small">Source: <a href={s.opex.source_url} target="_blank" rel="noreferrer">{s.opex.source}</a>.{agentMode && <> · revenue from the database · wiki: <code>raw/benchmarks/dental_overhead_benchmarks.md</code></>}</p>
+            {s.staff && (
+              <div className="staff-line">
+                <div><span className="muted small">Staff wages alone</span> <b>{money(s.staff.per_day)}</b> a day · <b>{money(s.staff.per_work_hour)}</b> per working hour</div>
+                <details className="info">
+                  <summary>How is this calculated?</summary>
+                  <p className="formula">{s.staff.staff} staff × {money(s.staff.avg_pay)} average pay = {money(s.staff.annual)} a year in wages<br />
+                    ÷ 365 days = {money(s.staff.per_day)} a day<br />
+                    ÷ {s.staff.fte_hours.toLocaleString()} working hours (one full-time year) = {money(s.staff.per_work_hour)} per working hour, whole team</p>
+                  <p className="muted small">Wages only: benefits and payroll taxes would add more. The average pay is {s.staff.pay_is_ai
+                    ? <>the national average for {s.staff.who} (<a href={s.staff.source_url} target="_blank" rel="noreferrer">{s.staff.source}</a>), not your payroll</>
+                    : <>set by your agent (national average: {money(s.staff.ai_avg_pay)}, <a href={s.staff.source_url} target="_blank" rel="noreferrer">{s.staff.source}</a>)</>}.
+                    The dentists' own pay isn't included. Your real payroll replaces this once you confirm it.</p>
+                </details>
+              </div>
+            )}
           </div>
         )}
         <div className="scenarios">
@@ -120,6 +135,19 @@ export default function ReportDocument({ s, version, agentMode }) {
                   <div className="cost">
                     <b>{cost.high ? `${short(cost.low)}–${short(cost.high)}` : short(cost.low)}</b>
                     <span>{cost.label}</span>
+                    {sc.key === 'bec' && s.staff && (
+                      <div className="cost-sub">
+                        <b>{money(s.staff.paycheck)}</b><span>one employee's paycheck redirected</span>
+                        <b>{money(s.staff.pay_run)}</b><span>a whole pay run, if the payroll account itself is changed</span>
+                        <details className="info">
+                          <summary>How is this calculated?</summary>
+                          <p>The same trick aimed at payroll: a fake "please update my direct deposit" email, or a changed bank account for payroll.</p>
+                          <p className="formula">{money(s.staff.avg_pay)} average pay ÷ {s.staff.pay_runs} pay runs a year = {money(s.staff.paycheck)} per paycheck<br />
+                            {s.staff.staff} staff × {money(s.staff.avg_pay)} ÷ {s.staff.pay_runs} = {money(s.staff.pay_run)} per pay run</p>
+                          <p className="muted small">Assumes staff are paid every two weeks (to confirm). Pattern: <a href={s.staff.redirect_url} target="_blank" rel="noreferrer">{s.staff.redirect_source}</a>.</p>
+                        </details>
+                      </div>
+                    )}
                     {cost.how && (
                       <details className="info">
                         <summary>How is this figure worked out?</summary>

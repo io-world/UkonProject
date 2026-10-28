@@ -25,6 +25,37 @@ def _short(n):
     return _m(n)
 
 
+
+def _staff_html(st):
+    """Staff wages under the operating costs (numbers from pipeline/staff_costs.py; fixed wording)."""
+    if not st:
+        return ""
+    who = (f'the national average for {_e(st["who"])} (<a href="{_e(st["source_url"])}">{_e(st["source"])}</a>), not your payroll'
+           if st["pay_is_ai"] else
+           f'set by your agent (national average: {_m(st["ai_avg_pay"])}, <a href="{_e(st["source_url"])}">{_e(st["source"])}</a>)')
+    return ('<div class="sline"><div><span class="small muted">Staff wages alone</span> '
+            f'<b>{_m(st["per_day"])}</b> a day · <b>{_m(st["per_work_hour"])}</b> per working hour</div>'
+            '<details class="info"><summary>How is this calculated?</summary>'
+            f'<p class="formula">{st["staff"]} staff × {_m(st["avg_pay"])} average pay = {_m(st["annual"])} a year in wages<br>'
+            f'÷ 365 days = {_m(st["per_day"])} a day<br>÷ {st["fte_hours"]:,} working hours (one full-time year) = '
+            f'{_m(st["per_work_hour"])} per working hour, whole team</p>'
+            f'<p class="small muted">Wages only: benefits and payroll taxes would add more. The average pay is {who}. '
+            "The dentists' own pay isn't included. Your real payroll replaces this once you confirm it.</p></details></div>")
+
+
+def _redirect_html(st):
+    if not st:
+        return ""
+    return ('<div class="csub">'
+            f'<b>{_m(st["paycheck"])}</b><span>one employee\'s paycheck redirected</span>'
+            f'<b>{_m(st["pay_run"])}</b><span>a whole pay run, if the payroll account itself is changed</span>'
+            '<details class="info"><summary>How is this calculated?</summary>'
+            '<p>The same trick aimed at payroll: a fake "please update my direct deposit" email, or a changed bank account for payroll.</p>'
+            f'<p class="formula">{_m(st["avg_pay"])} average pay ÷ {st["pay_runs"]} pay runs a year = {_m(st["paycheck"])} per paycheck<br>'
+            f'{st["staff"]} staff × {_m(st["avg_pay"])} ÷ {st["pay_runs"]} = {_m(st["pay_run"])} per pay run</p>'
+            f'<p class="small muted">Assumes staff are paid every two weeks (to confirm). Pattern: '
+            f'<a href="{_e(st["redirect_url"])}">{_e(st["redirect_source"])}</a>.</p></details></div>')
+
 def _e(s):
     return escape(str(s)) if s is not None else ""
 
@@ -52,6 +83,9 @@ dd.warn{color:var(--amber)}.grid3{display:grid;grid-template-columns:repeat(3,1f
 .opex p{font-size:13.5px;color:var(--ink2);margin:6px 0 0}.ofig{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
 .ofig b{font:600 26px 'Source Serif 4',Georgia,serif}.ofig span{font-size:13px;color:var(--ink2)}
 .isrc{margin:6px 0 0;padding-left:16px;font-size:12.5px}.isrc li{margin-top:4px}
+.sline{border-top:1px dashed var(--line);padding-top:8px;margin-top:8px;font-size:13.5px}
+.csub{display:grid;grid-template-columns:auto 1fr;gap:2px 8px;align-items:baseline;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
+.csub b{font:600 15px 'Source Serif 4',Georgia,serif}.csub span{font-size:11.5px;color:var(--muted)}.csub details{grid-column:1/-1}
 .otag{flex-basis:100%;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
 details.info{font-size:12.5px;margin-top:6px}details.info summary{cursor:pointer;color:var(--accent);font-weight:600;list-style:none;display:inline-flex;align-items:center;gap:6px}
 details.info summary::-webkit-details-marker{display:none}
@@ -150,7 +184,8 @@ def render(s: dict, version: dict, client_view: bool = True) -> str:
           'closed. The revenue is the figure your agent has on file; the overhead share is an industry average, not your '
           'books, so your accountant can give the real number. This is a cost to you, not a statement of what any policy pays.</p>'
           '</details>'
-          f'<p class="small muted">Source: <a href="{_e(ox["source_url"])}">{_e(ox["source"])}</a>.</p></div>')
+          + f'<p class="small muted">Source: <a href="{_e(ox["source_url"])}">{_e(ox["source"])}</a>.</p>'
+          + _staff_html(s.get("staff")) + '</div>')
     w('<div class="grid3">')
     for sc in n["scenarios"]:
         cost = s["scenario_costs"].get(sc["key"]) or {}
@@ -163,6 +198,7 @@ def render(s: dict, version: dict, client_view: bool = True) -> str:
                       + '</ul></details>') if srcs else ""
         w(f'<div class="box"><h4>{_e(sc["title"])}</h4><p>{_e(sc["story"])}</p>{story_info}'
           + (f'<div class="cost"><b>{rng}</b><span>{_e(cost.get("label"))}</span>'
+             + (_redirect_html(s.get("staff")) if sc["key"] == "bec" else "")
              + (f'<details class="info"><summary>How is this figure worked out?</summary><p>{_e(cost["how"])}</p>'
                 f'<p class="small muted">Source: <a href="{_e(cost.get("source_url"))}">{_e(cost.get("source"))}</a></p></details>'
                 if cost.get("how") else "")

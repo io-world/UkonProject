@@ -9,7 +9,7 @@ const STATE_LABEL = {
 }
 const LOCKED_STATES = ['submitted', 'sent', 'superseded', 'withdrawn']
 
-function Slider({ label, k, fact, min, max, step, fmt, actor, onApplied, aiOverride }) {
+function Slider({ label, k, fact, min, max, step, fmt, actor, onApplied, aiOverride, base = 'AI recommended', resetTo = 'AI' }) {
   const current = Number(fact?.value ?? aiOverride)
   const ai = Number(fact?.ai_value ?? aiOverride)
   const [v, setV] = useState(current)
@@ -30,10 +30,10 @@ function Slider({ label, k, fact, min, max, step, fmt, actor, onApplied, aiOverr
       <input type="range" min={Math.min(min, current, ai)} max={Math.max(max, current, ai)} step={step} value={v}
              onChange={(e) => setV(Number(e.target.value))} />
       <div className="slider-meta">
-        <span>AI recommended <b>{fmt(ai)}</b></span>
+        <span>{base} <b>{fmt(ai)}</b></span>
         {current !== ai && !dirty && (
           <span className="you">In report: {fmt(current)}{' '}
-            <button className="link" disabled={busy} onClick={() => apply(ai, 'Reset to the AI recommendation')}>Reset to AI</button></span>
+            <button className="link" disabled={busy} onClick={() => apply(ai, `Reset to the ${resetTo === 'AI' ? 'AI recommendation' : resetTo}`)}>Reset to {resetTo}</button></span>
         )}
       </div>
       {dirty && (
@@ -157,6 +157,11 @@ export default function ReportTab({ data, actor, onChange, tick }) {
                       step={10000} fmt={money} actor={actor} onApplied={onChange} />
               <Slider label="Employees" k="employee_count" fact={s.facts.employee_count} min={1} max={40} step={1}
                       fmt={(n) => n} actor={actor} onApplied={onChange} />
+              {s.facts.avg_staff_pay && (
+                <Slider label="Average staff pay (per person, per year)" k="avg_staff_pay" fact={s.facts.avg_staff_pay} min={30000} max={100000}
+                        step={1000} fmt={money} actor={actor} onApplied={onChange}
+                        base="National average (BLS)" resetTo="national average" />
+              )}
               <Slider label="Exposure score" k="exposure_score" fact={{ value: s.exposure.score, ai_value: s.exposure.ai_score }}
                       min={0} max={100} step={1} fmt={(n) => `${n} / 100`} actor={actor} onApplied={onChange} />
               <Slider label="Patient records held" k="records_estimate" fact={s.facts.records_estimate} min={1000} max={20000}

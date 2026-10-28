@@ -51,6 +51,7 @@ Activity history: [[log]].
 - [[raw/benchmarks/cyber_premium_benchmarks|Cyber premium benchmarks]]
 - [[raw/benchmarks/dental_industry_benchmarks|Dental industry benchmarks]]
 - [[raw/benchmarks/dental_overhead_benchmarks|Dental overhead benchmarks]] — 60–65% of collections (ADA via Overjet); feeds the pack's daily running-cost figure
+- [[raw/benchmarks/wages_621210|Staff wages, offices of dentists]] — BLS OEWS May 2023; default average staff pay $58,155 for the staff-cost and payroll figures
 - [[raw/benchmarks/claims_benchmarks|Cyber claims benchmarks]]
 
 ## Carrier material (fictional carriers, benchmark-calibrated)

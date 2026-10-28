@@ -3,7 +3,7 @@ and the client view (a frozen, submitted version). Versions are immutable once s
 import json
 
 from .sources import read_source
-from . import estimators, narrative
+from . import estimators, narrative, staff_costs
 from .config import RAW, ROOT
 from .db import j
 
@@ -153,6 +153,16 @@ def build_snapshot(conn, cid: int, narrative_blocks: dict) -> dict:
                 "daily_low": round(rev * lo / 365, -2), "daily_high": round(rev * hi / 365, -2),
                 "source": "American Dental Association, via Overjet (2025)",
                 "source_url": "https://www.overjet.com/blog/average-dental-office-overhead-complete-breakdown-by-practice-size"}
+    # Staff cost and payroll (FTE math): headcount × average pay, all in code (pipeline/staff_costs.py).
+    staff = None
+    if "avg_staff_pay" in f and val("employee_count"):
+        wb = staff_costs.wage_benchmark(val("industry")) or {}
+        staff = staff_costs.compute(val("employee_count"), val("avg_staff_pay")) | {
+            "pay_is_ai": f["avg_staff_pay"]["current_value"] == f["avg_staff_pay"]["ai_value"],
+            "ai_avg_pay": f["avg_staff_pay"]["ai_value"],
+            "source": wb.get("source"), "source_url": wb.get("source_url"), "who": wb.get("who"),
+            "redirect_source": "Siotek IT Solutions (2026): payroll redirects are one of the email scams aimed at dental offices",
+            "redirect_url": "https://siotek.net/resources/dental-practice-cybersecurity-2026"}
     coverage = read_source(RAW / "carriers" / "coverage_language.md")
     naics = sig["industry"]["naics"]
 
@@ -161,7 +171,7 @@ def build_snapshot(conn, cid: int, narrative_blocks: dict) -> dict:
         "facts": {k: {"label": f[k]["label"], "value": f[k]["current_value"], "ai_value": f[k]["ai_value"],
                       "confidence": f[k]["confidence"], "adjustable": f[k]["adjustable"]}
                   for k in ["legal_name", "domain", "industry", "address", "annual_revenue", "employee_count",
-                            "records_estimate"] if k in f},
+                            "records_estimate", "avg_staff_pay"] if k in f},
         "exposure": {"score": score, "ai_score": f["exposure_score"]["ai_value"], "band": band,
                      "factors": breakdown.get("factors", []), "unknown_controls": breakdown.get("unknown_controls", [])},
         "selected_carrier": selected,
@@ -173,6 +183,7 @@ def build_snapshot(conn, cid: int, narrative_blocks: dict) -> dict:
         "scenario_costs": scenario_costs,
         "scenario_sources": story_sources(naics),
         "opex": opex,
+        "staff": staff,
         "narrative": filled,
         "coverage": coverage,
         "intake": intake_summary(conn, cid),

@@ -3,7 +3,7 @@ each with value, range, confidence, method and sources. Writes DB, then renders 
 from datetime import date
 
 from .sources import read_source
-from . import entity_resolution, estimators, wiki_render
+from . import entity_resolution, estimators, staff_costs, wiki_render
 from .config import CLIENT_SLUG, RAW
 from .db import client_by_slug, connect, j, user_id
 
@@ -111,6 +111,16 @@ def run(slug: str = CLIENT_SLUG, today: date = date(2026, 10, 26)):
         upsert_field(conn, cid, "dentists", "Dentists", "int", sig["dentists"]["value"], confidence="high",
                      method=sig["dentists"].get("method", "Website team page and professional liability policy agree."),
                      sources=sig["dentists"]["sources"], adjustable=True, actor=ai)
+
+        # Average staff pay: national wage data for the client's industry (no AI). The agent can move it on Stage 3;
+        # the owner's real payroll replaces it once confirmed.
+        wb = staff_costs.wage_benchmark(f"{sig['industry']['naics']}")
+        if wb:
+            upsert_field(conn, cid, "avg_staff_pay", "Average staff pay (per person, per year)", "money",
+                         wb["default_avg_pay"], low=wb["low"], high=wb["high"], confidence="low",
+                         method=f"{wb['source']}: average pay of {wb['who']}, weighted by how many people hold each role. "
+                                "National wages only (no benefits or payroll taxes), not this practice's payroll.",
+                         sources=[f"{wb['wiki']}.md"], adjustable=True, actor=ai)
 
         for key, label, value, src in BENCHMARKS:
             upsert_field(conn, cid, key, label, "benchmark", value, confidence="high",
